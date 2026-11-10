@@ -81,6 +81,51 @@ const galleryImages = [
 
 const journeyVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
 
+function TypewriterPhrase() {
+  const phrases = ['quiet place.', 'calm retreat.', 'Kigali stay.']
+  const shouldReduceMotion = useReducedMotion()
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [visibleCharacters, setVisibleCharacters] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    if (shouldReduceMotion) {
+      setVisibleCharacters(phrases[0].length)
+      return
+    }
+
+    const phrase = phrases[phraseIndex]
+    const isComplete = visibleCharacters === phrase.length
+    const isEmpty = visibleCharacters === 0
+    const delay = isComplete && !isDeleting ? 1800 : isDeleting ? 45 : 95
+    const timeout = window.setTimeout(() => {
+      if (isComplete && !isDeleting) {
+        setIsDeleting(true)
+      } else if (isEmpty && isDeleting) {
+        setIsDeleting(false)
+        setPhraseIndex((current) => (current + 1) % phrases.length)
+      } else {
+        setVisibleCharacters((current) => current + (isDeleting ? -1 : 1))
+      }
+    }, delay)
+
+    return () => window.clearTimeout(timeout)
+  }, [isDeleting, phraseIndex, shouldReduceMotion, visibleCharacters])
+
+  const phrase = shouldReduceMotion
+    ? phrases[0]
+    : phrases[phraseIndex].slice(0, visibleCharacters)
+
+  return (
+    <span aria-hidden="true" className="italic text-[#e2c89a]">
+      {phrase}
+      {!shouldReduceMotion && (
+        <span className="ml-1 inline-block h-[0.8em] w-px translate-y-[0.06em] bg-[#d4b37f] motion-safe:animate-pulse" />
+      )}
+    </span>
+  )
+}
+
 function RoomsPage({ onSelectImage }: { onSelectImage: (index: number) => void }) {
   return (
     <main>
@@ -438,7 +483,7 @@ function App() {
           </video>
           <div className="absolute inset-0 z-0 bg-[#171712]/70" />
           <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#171712]/75 via-[#171712]/55 to-[#171712]/40" />
-          <div className="relative z-10 mx-auto flex min-h-[78svh] max-w-7xl items-center px-4 py-16 sm:min-h-[82svh] sm:px-6 sm:py-20 lg:px-8">
+          <div className="relative z-10 mx-auto grid min-h-[78svh] max-w-7xl items-center gap-12 px-4 py-16 sm:min-h-[82svh] sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-8">
             <motion.div
               initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
               animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
@@ -456,9 +501,9 @@ function App() {
                   <span>· 1 review</span>
                 </span>
               </div>
-              <h1 className="max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.055em] sm:text-7xl lg:text-[92px]">
-                Find your<br />
-                <span className="italic text-[#e2c89a]">quiet place.</span>
+              <h1 aria-label="Find your quiet place." className="max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.055em] sm:text-7xl lg:text-[92px]">
+                <span aria-hidden="true">Find your</span><br />
+                <TypewriterPhrase />
               </h1>
               <p className="mt-6 font-serif text-2xl text-[#f0dfc0] sm:text-3xl">
                 Silent Villa, Kigali
@@ -482,11 +527,48 @@ function App() {
                   <ArrowRight size={16} />
                 </Link>
               </div>
-              <div className="mt-9 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-stone-400">
+              <div className="mt-9 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-stone-400 lg:hidden">
                 <MapPin size={14} className="text-[#d4b37f]" />
                 KN 288 St · Kigali, Rwanda
               </div>
             </motion.div>
+
+            <motion.aside
+              initial={shouldReduceMotion ? false : { opacity: 0, x: 18 }}
+              animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+              className="relative hidden lg:block"
+              aria-label="Silent Villa location"
+            >
+              <div className="absolute -inset-8 rounded-full bg-[#d4b37f]/10 blur-3xl" />
+              <a
+                href="https://maps.google.com/?q=227V%2BFJ+Kigali"
+                target="_blank"
+                rel="noreferrer"
+                className="group relative block min-h-[390px] overflow-hidden rounded-[1.75rem] border border-white/20 bg-[#171712]/65 p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-xl transition duration-500 hover:border-[#d4b37f]/60 sm:p-10"
+              >
+                <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full border border-[#d4b37f]/15 transition-transform duration-700 group-hover:scale-105" />
+                <div className="pointer-events-none absolute -right-8 -top-12 h-56 w-56 rounded-full border border-[#d4b37f]/15" />
+                <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full border border-white/10" />
+                <div className="relative flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#e2c89a]">Your destination</span>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d4b37f]/45 text-[#e2c89a] transition duration-300 group-hover:bg-[#d4b37f] group-hover:text-[#171712]">
+                    <MapPin size={20} strokeWidth={1.5} />
+                  </span>
+                </div>
+                <div className="relative mt-16">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-stone-400">Kigali · Rwanda</p>
+                  <p className="mt-4 font-serif text-6xl leading-none tracking-[-0.045em] sm:text-7xl">227V+FJ</p>
+                  <p className="mt-4 text-sm text-stone-300">KN 288 St, Kigali</p>
+                </div>
+                <div className="relative mt-12 flex items-center justify-between border-t border-white/15 pt-5">
+                  <span className="text-sm text-stone-200">Open directions</span>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4b37f] text-[#171712] transition-transform duration-300 group-hover:translate-x-1">
+                    <Navigation size={17} />
+                  </span>
+                </div>
+              </a>
+            </motion.aside>
           </div>
         </section>
 
