@@ -538,36 +538,22 @@ function App() {
               animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
               transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
               className="relative hidden lg:block"
-              aria-label="Silent Villa location"
+              aria-label="A guest room at Silent Villa"
             >
-              <div className="absolute -inset-8 rounded-full bg-[#d4b37f]/10 blur-3xl" />
-              <a
-                href="https://maps.google.com/?q=227V%2BFJ+Kigali"
-                target="_blank"
-                rel="noreferrer"
-                className="group relative block min-h-[390px] overflow-hidden rounded-[1.75rem] border border-white/20 bg-[#171712]/65 p-8 text-white shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-xl transition duration-500 hover:border-[#d4b37f]/60 sm:p-10"
-              >
-                <div className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full border border-[#d4b37f]/15 transition-transform duration-700 group-hover:scale-105" />
-                <div className="pointer-events-none absolute -right-8 -top-12 h-56 w-56 rounded-full border border-[#d4b37f]/15" />
-                <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full border border-white/10" />
-                <div className="relative flex items-center justify-between">
-                  <span className="text-[10px] uppercase tracking-[0.3em] text-[#e2c89a]">Your destination</span>
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d4b37f]/45 text-[#e2c89a] transition duration-300 group-hover:bg-[#d4b37f] group-hover:text-[#171712]">
-                    <MapPin size={20} strokeWidth={1.5} />
-                  </span>
+              <div className="group relative min-h-[390px] overflow-hidden rounded-[1.75rem] border border-white/20 bg-white/5 shadow-[0_28px_90px_rgba(0,0,0,0.24)]">
+                <img
+                  src="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
+                  alt="A guest bedroom at Silent Villa"
+                  loading="eager"
+                  className="absolute inset-0 h-full w-full object-cover object-center opacity-60 brightness-[0.78] saturate-[0.72] transition duration-700 group-hover:opacity-70"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171712]/65 via-[#171712]/10 to-[#171712]/15" />
+                <div className="absolute inset-4 rounded-[1.2rem] border border-white/15" />
+                <div className="absolute inset-x-8 bottom-8 text-white sm:inset-x-10 sm:bottom-10">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#e2c89a]">Silent Villa · Kigali</p>
+                  <p className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">A little room for calm.</p>
                 </div>
-                <div className="relative mt-16">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-stone-400">Kigali · Rwanda</p>
-                  <p className="mt-4 font-serif text-6xl leading-none tracking-[-0.045em] sm:text-7xl">227V+FJ</p>
-                  <p className="mt-4 text-sm text-stone-300">KN 288 St, Kigali</p>
-                </div>
-                <div className="relative mt-12 flex items-center justify-between border-t border-white/15 pt-5">
-                  <span className="text-sm text-stone-200">Open directions</span>
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#d4b37f] text-[#171712] transition-transform duration-300 group-hover:translate-x-1">
-                    <Navigation size={17} />
-                  </span>
-                </div>
-              </a>
+              </div>
             </motion.aside>
           </div>
         </section>
