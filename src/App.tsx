@@ -47,27 +47,27 @@ const services = [
   {
     title: 'Short Stay',
     icon: Home,
-    description: 'Comfortable accommodation for shorter visits and quick weekend escapes.',
+    description: 'A comfortable base for short visits and weekend escapes.',
   },
   {
     title: 'Long Stays',
     icon: Building2,
-    description: 'Long-term stays with kitchen services and a calm, comfortable setting.',
+    description: 'A calm, comfortable setting for longer stays, with kitchen services.',
   },
   {
     title: 'Family Stays',
     icon: Users,
-    description: 'Flexible family-friendly accommodation designed for comfort, privacy, and ease.',
+    description: 'Flexible stays with comfort and privacy for the whole family.',
   },
   {
     title: 'Food & Beverages',
     icon: UtensilsCrossed,
-    description: 'Simple, satisfying food and beverage options to make every stay feel cared for.',
+    description: 'Food and beverage options during your stay.',
   },
   {
     title: 'Massage & Wellness',
     icon: HeartPulse,
-    description: 'Massage and wellness services to help you relax and reset.',
+    description: 'Massage and wellness to help you unwind.',
   },
 ]
 
@@ -647,10 +647,22 @@ function App() {
                   className={`group overflow-hidden ${index === 1 ? 'md:mt-16' : ''}`}
                 >
                   <div className="relative overflow-hidden rounded-[1.5rem] bg-stone-200">
-                    <img src={room.image} alt={room.detail} loading="lazy" className={`w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035] ${index === 0 ? 'h-[340px] sm:h-[440px]' : 'h-[340px] sm:h-[400px]'}`} />
-                    <span className="absolute bottom-4 left-4 rounded-full border border-white/30 bg-[#171712]/65 px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur-md">
-                      Silent Villa · Room photograph
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedImage(index)}
+                      aria-label={`View larger photo: ${room.detail}`}
+                      className="group/photo relative block w-full overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#977956]"
+                    >
+                      <img src={room.image} alt="" loading="lazy" className={`w-full object-cover transition duration-700 ease-out group-hover/photo:scale-[1.035] ${index === 0 ? 'h-[340px] sm:h-[440px]' : 'h-[340px] sm:h-[400px]'}`} />
+                      <span className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-[#171712]/55 via-transparent to-transparent p-4 transition sm:opacity-0 sm:group-hover/photo:opacity-100 sm:group-focus-visible/photo:opacity-100">
+                        <span className="rounded-full border border-white/30 bg-[#171712]/65 px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] text-white backdrop-blur-md">
+                          View photo
+                        </span>
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-[#171712]/45 text-white backdrop-blur-md">
+                          <Camera size={17} />
+                        </span>
+                      </span>
+                    </button>
                   </div>
                   <div className="flex items-start justify-between gap-6 px-1 pt-5">
                     <div>
@@ -673,10 +685,10 @@ function App() {
               <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">Made for your kind of stay</p>
               <h2 className="mt-5 font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">Stay a night.<br /><span className="italic text-[#977956]">Stay a while.</span></h2>
               <p className="mt-6 max-w-md text-base leading-relaxed text-stone-700">
-                Whether you are visiting briefly or making Kigali home for a little longer, Silent Villa offers a welcoming place to slow down.
+                Short visit or longer stay, find a calmer base in Kigali.
               </p>
               <a href="tel:0788324736" className="mt-8 inline-flex items-center gap-3 text-sm font-medium text-stone-900">
-                Talk to our team <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#171712] text-white"><ArrowRight size={15} /></span>
+                Call Silent Villa <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#171712] text-white"><ArrowRight size={15} /></span>
               </a>
             </Reveal>
 
@@ -688,7 +700,7 @@ function App() {
                       <Icon size={18} strokeWidth={1.6} />
                     </span>
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#806342]">0{index + 1} / Service</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#806342]">0{index + 1}</p>
                       <h3 className="mt-1 font-serif text-2xl text-stone-900 sm:text-3xl">{title}</h3>
                       <p className="mt-2 max-w-lg text-sm leading-relaxed text-stone-600">{description}</p>
                     </div>
@@ -720,10 +732,10 @@ function App() {
             </div>
 
             <Reveal>
-              <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#090908] shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+              <div className="group relative aspect-[3/4] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#090908] shadow-[0_30px_90px_rgba(0,0,0,0.35)] lg:aspect-video">
                 <video
                   ref={journeyVideoRef}
-                  className="aspect-video max-h-[680px] w-full bg-black object-contain"
+                  className="absolute inset-0 h-full w-full bg-black object-cover"
                   controls={journeyStarted || Boolean(journeyError)}
                   playsInline
                   preload="metadata"
@@ -742,11 +754,15 @@ function App() {
                     className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-t from-black/50 via-black/10 to-black/20 text-white transition hover:from-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#d4b37f]"
                     aria-label="Play the journey video to Silent Villa"
                   >
-                    <span className="flex h-20 w-20 items-center justify-center rounded-full border border-white/50 bg-[#d4b37f] text-[#171712] shadow-[0_10px_45px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-[#e6ca96]">
-                      <Play size={28} fill="currentColor" className="ml-1" />
+                    <span className="relative flex h-24 w-24 items-center justify-center">
+                      <span className="play-button-pulse absolute -inset-1 rounded-full border-2 border-[#f0dfc0]/90" />
+                      <span className="play-button-pulse play-button-pulse-delayed absolute -inset-1 rounded-full border border-[#f0dfc0]/70" />
+                      <span className="play-button-core relative z-10 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border border-white/80 bg-[#d4b37f] text-[#171712] shadow-[0_10px_45px_rgba(0,0,0,0.5)] transition duration-300 group-hover:scale-110 group-hover:bg-[#f0d39e]">
+                        <Play size={28} fill="currentColor" className="ml-1" />
+                      </span>
                     </span>
-                    <span className="rounded-full border border-white/20 bg-[#171712]/65 px-5 py-2 text-xs font-medium uppercase tracking-[0.2em] backdrop-blur-md">
-                      Play the journey
+                    <span className="rounded-full border border-white/35 bg-[#171712]/75 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg backdrop-blur-md">
+                      Tap to watch the journey
                     </span>
                   </button>
                 )}
@@ -928,7 +944,7 @@ function App() {
       </main>
       )}
 
-      <footer className="border-t border-stone-200 bg-[#171712] px-4 py-12 text-stone-200 sm:px-6 lg:px-8">
+      <footer className="border-t border-stone-200 bg-[#171712] px-4 pb-28 pt-12 text-stone-200 sm:px-6 sm:py-12 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr_1fr_1fr]">
             <div>
@@ -987,6 +1003,40 @@ function App() {
       </footer>
 
       <AnimatePresence>
+        {isScrolled && !mobileMenuOpen && selectedImage === null && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+            animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? {} : { opacity: 0, y: 18 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="pointer-events-none fixed inset-x-0 bottom-0 z-[45] px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
+          >
+            <nav
+              aria-label="Quick contact"
+              className="pointer-events-auto mx-auto flex max-w-lg gap-2 rounded-2xl border border-white/10 bg-[#171712]/95 p-2 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+            >
+              <a
+                href="https://wa.me/250788324736"
+                target="_blank"
+                rel="noreferrer"
+                className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#236c50] px-3 text-white transition hover:bg-[#2c805e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <MessageCircle size={19} strokeWidth={1.8} />
+                <span className="text-sm font-medium">WhatsApp</span>
+              </a>
+              <a
+                href="tel:0788324736"
+                className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#d4b37f] px-3 text-[#171712] transition hover:bg-[#e2c89a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <Phone size={18} strokeWidth={1.8} />
+                <span className="text-sm font-semibold">Call · 0788 324 736</span>
+              </a>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {selectedImage !== null && (
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0 }}
@@ -1014,10 +1064,15 @@ function App() {
                 <X size={18} />
               </button>
 
-              <img src={galleryImages[selectedImage].src} alt={galleryImages[selectedImage].alt} className="h-[70vh] w-full object-cover" />
+              <img src={galleryImages[selectedImage].src} alt={galleryImages[selectedImage].alt} className="h-[70vh] w-full bg-black object-contain" />
 
               <div className="flex items-center justify-between gap-4 bg-stone-950 px-5 py-3 text-sm text-stone-200">
-                <p>{galleryImages[selectedImage].caption}</p>
+                <p>
+                  {galleryImages[selectedImage].caption}
+                  <span className="ml-2 text-xs text-stone-500">
+                    {String(selectedImage + 1).padStart(2, '0')} / {galleryImages.length}
+                  </span>
+                </p>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
