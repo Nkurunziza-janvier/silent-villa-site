@@ -117,7 +117,10 @@ app.get('/api/gallery', async (_req, res, next) => {
 
 app.post('/api/bookings', async (req, res, next) => {
   const { roomId, name, email, phone, checkIn, checkOut, guests = 1, specialRequests = '' } = req.body || {}
-  if (!Number.isInteger(Number(roomId)) || typeof name !== 'string' || !name.trim() || name.trim().length > 120 || !emailIsValid(email) || email.length > 190 || typeof phone !== 'string' || !phone.trim() || phone.trim().length > 40 || !dateIsValid(checkIn) || !dateIsValid(checkOut) || !Number.isInteger(Number(guests)) || Number(guests) < 1 || Number(guests) > 20 || typeof specialRequests !== 'string' || specialRequests.length > 2000) {
+  const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : ''
+  const invalidEmailType = email !== undefined && email !== null && typeof email !== 'string'
+  const invalidEmail = normalizedEmail.length > 0 && (!emailIsValid(normalizedEmail) || normalizedEmail.length > 190)
+  if (!Number.isInteger(Number(roomId)) || typeof name !== 'string' || !name.trim() || name.trim().length > 120 || invalidEmailType || invalidEmail || typeof phone !== 'string' || !phone.trim() || phone.trim().length > 40 || !dateIsValid(checkIn) || !dateIsValid(checkOut) || !Number.isInteger(Number(guests)) || Number(guests) < 1 || Number(guests) > 20 || typeof specialRequests !== 'string' || specialRequests.length > 2000) {
     return res.status(400).json({ error: 'Please check the required details and try again.' })
   }
   if (checkOut <= checkIn || checkIn < new Date().toISOString().slice(0, 10)) {
@@ -142,7 +145,7 @@ app.post('/api/bookings', async (req, res, next) => {
     }
     const [result] = await connection.query(
       'INSERT INTO bookings (room_id, guest_name, email, phone, check_in, check_out, guests, special_requests) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [Number(roomId), name.trim(), email.trim().toLowerCase(), phone.trim(), checkIn, checkOut, Number(guests), String(specialRequests).trim() || null],
+      [Number(roomId), name.trim(), normalizedEmail, phone.trim(), checkIn, checkOut, Number(guests), String(specialRequests).trim() || null],
     )
     await connection.commit()
     res.status(201).json({ id: result.insertId, message: 'Your booking request was sent. Silent Villa will be in touch shortly.' })

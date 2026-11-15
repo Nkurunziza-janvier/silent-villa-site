@@ -370,7 +370,7 @@ function VillaSite() {
             <img
               src="/media/silent-villa-logo.jpg"
               alt="Silent Villa Guest House — Where Comfort Meets Silence"
-              className="h-auto w-[9.25rem] rounded-lg object-contain sm:w-[12rem] xl:w-[14rem]"
+              className="h-auto w-[7.5rem] rounded-lg object-contain sm:w-[12rem] xl:w-[14rem]"
             />
           </Link>
 
@@ -408,16 +408,19 @@ function VillaSite() {
             </a>
           </div>
 
-          <button
-            type="button"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-navigation"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-stone-100 lg:hidden"
-            onClick={() => setMobileMenuOpen((current) => !current)}
-          >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          <div className="flex shrink-0 items-center gap-2 lg:hidden">
+            <LanguageSwitch compact />
+            <button
+              type="button"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/5 text-stone-100"
+              onClick={() => setMobileMenuOpen((current) => !current)}
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
 
         <AnimatePresence>
@@ -455,7 +458,6 @@ function VillaSite() {
                     {t(item.label)}
                   </Link>
                 ))}
-                <div className="mt-3 flex justify-center"><LanguageSwitch /></div>
                 <a href="tel:0788324736" className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-[#bda06b] px-4 py-3 text-sm font-medium text-[#24342a]" onClick={() => setMobileMenuOpen(false)}>
                   {t('Call to enquire')} <Phone size={15} />
                 </a>
