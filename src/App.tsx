@@ -402,9 +402,18 @@ function VillaSite() {
         aria-hidden="true"
       />
       <header className={`sticky top-0 z-50 border-b border-white/10 bg-[#24342a]/90 backdrop-blur-xl transition-shadow duration-300 ${isScrolled ? 'shadow-[0_12px_35px_rgba(0,0,0,0.2)]' : ''}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link to="/" className="flex items-center gap-3" aria-label="Silent Villa home" onClick={() => setMobileMenuOpen(false)}>
-            <img src="/media/silent-villa-logo.jpg" alt="Silent Villa Guest House — Where Comfort Meets Silence" className="h-[3.65rem] w-[10.7rem] rounded-lg object-cover object-center shadow-[0_4px_18px_rgba(0,0,0,0.2)] sm:h-[4rem] sm:w-[11.7rem]" />
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-3.5 lg:px-8">
+          <Link
+            to="/"
+            className="inline-flex shrink-0 rounded-xl border border-[#d8c28f]/35 bg-[#f4f0e7] p-1 shadow-[0_6px_20px_rgba(0,0,0,0.14)] transition duration-300 hover:border-[#d8c28f]/60 hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d8c28f]"
+            aria-label="Silent Villa home"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <img
+              src="/media/silent-villa-logo.jpg"
+              alt="Silent Villa Guest House — Where Comfort Meets Silence"
+              className="h-auto w-[9.25rem] rounded-lg object-contain sm:w-[12rem] xl:w-[14rem]"
+            />
           </Link>
 
           <nav aria-label="Main navigation" className="hidden items-center gap-1 lg:flex">
