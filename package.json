@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "dev:api": "node --watch backend/server.js",
-    "start:api": "node backend/server.js"
+    "start:api": "node backend/server.js",
+    "start": "node backend/server.js"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",

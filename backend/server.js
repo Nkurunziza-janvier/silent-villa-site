@@ -15,7 +15,7 @@ import crypto from 'node:crypto'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const app = express()
-const port = Number(process.env.PORT || 3001)
+const PORT = process.env.PORT || 3001
 const jwtSecret = process.env.JWT_SECRET
 
 if (!jwtSecret || jwtSecret.length < 32) {
@@ -28,6 +28,13 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'silent_villa',
+  ssl: process.env.DB_SSL === 'true'
+    ? {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true,
+        ...(process.env.DB_SSL_CA ? { ca: fs.readFileSync(process.env.DB_SSL_CA) } : {}),
+      }
+    : undefined,
   waitForConnections: true,
   connectionLimit: 10,
   dateStrings: true,
@@ -293,7 +300,7 @@ async function start() {
     await pool.query('INSERT INTO admins (email, password_hash) VALUES (?, ?)', [email, hash])
     console.log(`Created initial admin account: ${email}`)
   }
-  app.listen(port, () => console.log(`Silent Villa API listening on http://localhost:${port}`))
+  app.listen(PORT, () => console.log(`Silent Villa API listening on port ${PORT}`))
 }
 
 start().catch((error) => {
