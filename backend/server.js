@@ -240,9 +240,25 @@ app.post('/api/admin/rooms', requireAdmin, imageUpload.single('image'), async (r
 app.patch('/api/admin/rooms/:id', requireAdmin, imageUpload.single('image'), async (req, res, next) => {
   const id = Number(req.params.id)
   const { name, price, description = '', isActive } = req.body || {}
-  if (!Number.isSafeInteger(id) || id < 1 || !name?.trim() || name.trim().length > 120 || !Number.isFinite(Number(price)) || Number(price) <= 0 || String(description).length > 2000 || (isActive !== undefined && !['true', 'false'].includes(String(isActive)))) {
+  if (!Number.isSafeInteger(id) || id < 1) {
     if (req.file) fs.unlink(req.file.path, () => {})
-    return res.status(400).json({ error: 'Enter a valid room name, positive price, description, and visibility.' })
+    return res.status(400).json({ error: 'Choose a valid room.' })
+  }
+  if (typeof name !== 'string' || !name.trim() || name.trim().length > 120) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    return res.status(400).json({ error: 'Enter a room name between 1 and 120 characters.' })
+  }
+  if (price === undefined || price === '' || !Number.isFinite(Number(price)) || Number(price) <= 0) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    return res.status(400).json({ error: 'Enter a price greater than zero.' })
+  }
+  if (typeof description !== 'string' || description.length > 2000) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    return res.status(400).json({ error: 'Room description must be 2,000 characters or fewer.' })
+  }
+  if (isActive !== undefined && !['true', 'false'].includes(String(isActive))) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    return res.status(400).json({ error: 'Room visibility must be true or false.' })
   }
   try {
     const [existing] = await pool.query('SELECT image_url AS imageUrl, is_active AS isActive FROM rooms WHERE id = ?', [id])
