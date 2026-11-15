@@ -1,0 +1,46 @@
+CREATE DATABASE IF NOT EXISTS silent_villa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE silent_villa;
+
+CREATE TABLE IF NOT EXISTS admins (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  price DECIMAL(12, 2) NOT NULL,
+  image_url VARCHAR(500) NOT NULL,
+  description TEXT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS gallery_images (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(160) NOT NULL,
+  alt_text VARCHAR(250) NULL,
+  image_url VARCHAR(500) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_gallery_created (created_at)
+);
+
+CREATE TABLE IF NOT EXISTS bookings (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  room_id BIGINT UNSIGNED NOT NULL,
+  guest_name VARCHAR(120) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  phone VARCHAR(40) NOT NULL,
+  check_in DATE NOT NULL,
+  check_out DATE NOT NULL,
+  guests SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+  special_requests TEXT NULL,
+  status ENUM('pending', 'confirmed', 'cancelled') NOT NULL DEFAULT 'pending',
+  notification_read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_bookings_room FOREIGN KEY (room_id) REFERENCES rooms(id),
+  INDEX idx_booking_dates (room_id, status, check_in, check_out),
+  INDEX idx_booking_created (created_at)
+);

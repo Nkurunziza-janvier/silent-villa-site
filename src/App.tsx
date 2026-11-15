@@ -1,10 +1,14 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
+import { api, imageUrl, type GalleryImage, type Room } from './api'
+import AdminDashboard from './AdminDashboard'
+import BookingPage from './BookingPage'
 import {
   ArrowRight,
   Building2,
   Camera,
+  CalendarDays,
   HeartPulse,
   Home,
   MapPin,
@@ -28,19 +32,6 @@ const navItems = [
   { label: 'Gallery', href: '/gallery' },
   { label: 'Find us', href: '/#location' },
   { label: 'Payment', href: '/#payment' },
-]
-
-const roomOptions = [
-  {
-    name: 'Restful room interior',
-    image: '/media/room-1.jpg',
-    detail: 'A look inside one of the guest rooms at Silent Villa.',
-  },
-  {
-    name: 'A second room view',
-    image: '/media/room-2.jpg',
-    detail: 'Explore another of the villa’s real room interiors.',
-  },
 ]
 
 const services = [
@@ -69,14 +60,6 @@ const services = [
     icon: HeartPulse,
     description: 'Massage and wellness to help you unwind.',
   },
-]
-
-const galleryImages = [
-  { src: '/media/room-1.jpg', alt: 'Quiet room interior at Silent Villa', caption: 'Restful interiors' },
-  { src: '/media/room-2.jpg', alt: 'Comfortable bedroom setup with warm tones', caption: 'Private comfort' },
-  { src: '/media/si.jpeg', alt: 'Bedroom at Silent Villa with a comfortable bed and warm details', caption: 'A place to exhale' },
-  { src: '/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg', alt: 'Pink bed and carved wooden headboard in a Silent Villa room', caption: 'A restful room' },
-  { src: '/media/aaka.jpeg', alt: 'Guest room with pink bedding and a quiet, welcoming feel', caption: 'Made for a slower stay' },
 ]
 
 const journeyVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
@@ -126,7 +109,29 @@ function TypewriterPhrase() {
   )
 }
 
-function RoomsPage({ onSelectImage }: { onSelectImage: (index: number) => void }) {
+function RoomsPage() {
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [roomsError, setRoomsError] = useState('')
+  useEffect(() => {
+    let active = true
+    const loadRooms = () => {
+      if (document.visibilityState === 'hidden') return
+      api.rooms().then((items) => {
+        if (active) { setRooms(items); setRoomsError('') }
+      }).catch((error: Error) => {
+        if (active) setRoomsError(error.message)
+      })
+    }
+    loadRooms()
+    const interval = window.setInterval(loadRooms, 10000)
+    window.addEventListener('focus', loadRooms)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', loadRooms)
+    }
+  }, [])
+
   return (
     <main>
       <section className="relative overflow-hidden bg-[#171712] px-4 pb-14 pt-20 text-white sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
@@ -139,58 +144,31 @@ function RoomsPage({ onSelectImage }: { onSelectImage: (index: number) => void }
               </h1>
               <div className="max-w-md pb-2">
                 <p className="text-base leading-relaxed text-stone-300">
-                  A closer look at the rooms at Silent Villa. Browse the real photographs, then contact us to confirm the room and dates that suit you.
+                  Browse our rooms and send a booking request directly to the Silent Villa team.
                 </p>
-                <a href="tel:0788324736" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#d4b37f] px-5 py-3 text-sm font-medium text-[#171712] transition hover:bg-[#e6ca96]">
-                  <Phone size={15} /> Ask about availability <ArrowRight size={15} />
-                </a>
+                <Link to="/book" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#d4b37f] px-5 py-3 text-sm font-medium text-[#171712] transition hover:bg-[#e6ca96]">
+                  <CalendarDays size={15} /> Book your stay <ArrowRight size={15} />
+                </Link>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section className="px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+      <section className="bg-[#171712] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-stone-300 pb-5">
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[#806342]">Room photography</p>
-              <h2 className="mt-2 font-serif text-3xl text-stone-900 sm:text-4xl">A quiet place to return to.</h2>
-            </div>
-            <p className="text-sm text-stone-600">{galleryImages.length} photographs</p>
+          <div className="flex flex-wrap items-end justify-between gap-5">
+            <div><p className="text-xs uppercase tracking-[0.28em] text-[#d9c1a0]">Find your fit</p><h2 className="mt-2 font-serif text-4xl sm:text-5xl">Rooms made for rest.</h2></div>
+            <p className="max-w-sm text-sm leading-relaxed text-stone-400">Choose a room and send us your dates. Our team will confirm your reservation.</p>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
-            {galleryImages.map((image, index) => (
-              <button
-                key={image.src}
-                type="button"
-                onClick={() => onSelectImage(index)}
-                aria-label={`View room photo: ${image.alt}`}
-                className={`group relative overflow-hidden rounded-2xl bg-stone-200 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#977956] ${index === 0 ? 'sm:col-span-2 lg:col-span-4 lg:row-span-2' : 'lg:col-span-2'}`}
-              >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  className={`w-full object-cover transition duration-700 ease-out group-hover:scale-[1.03] ${index === 0 ? 'h-[340px] sm:h-[440px] lg:h-full lg:min-h-[590px]' : 'h-[260px] sm:h-[300px]'}`}
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-[#171712]/65 via-transparent to-transparent opacity-80 transition group-hover:opacity-100" />
-                <span className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3 text-white">
-                  <span>
-                    <span className="block text-[10px] uppercase tracking-[0.24em] text-[#e2c89a]">Room view · 0{index + 1}</span>
-                    <span className="mt-1 block font-serif text-xl sm:text-2xl">{image.caption}</span>
-                  </span>
-                  <span className="mb-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/40 bg-black/10 transition group-hover:bg-[#d4b37f] group-hover:text-[#171712]">
-                    <ArrowRight size={15} />
-                  </span>
-                </span>
-              </button>
-            ))}
+          {roomsError && <p role="alert" className="mt-7 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-stone-300">{roomsError}. Please try again in a moment.</p>}
+          {!roomsError && rooms.length === 0 && <p className="mt-7 rounded-xl border border-white/10 bg-white/5 p-5 text-sm text-stone-300">Room listings are being prepared. Please contact us by phone to arrange your stay.</p>}
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {rooms.map((room) => <article key={room.id} className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]">
+              <div className="relative h-56 overflow-hidden"><img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" /><span className="absolute inset-0 bg-gradient-to-t from-[#171712]/40 to-transparent" /></div>
+              <div className="p-5"><div className="flex items-start justify-between gap-3"><h3 className="font-serif text-2xl">{room.name}</h3><p className="shrink-0 text-sm text-[#e2c89a]">RWF {Number(room.price).toLocaleString()}<span className="block text-right text-[10px] text-stone-400">per night</span></p></div><p className="mt-3 min-h-10 text-sm leading-relaxed text-stone-400">{room.description || 'A comfortable, welcoming room for a peaceful stay.'}</p><Link to={`/book?room=${room.id}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#d4b37f] px-4 py-2.5 text-xs font-medium text-[#171712] transition hover:bg-[#e6ca96]">Book this room <ArrowRight size={14} /></Link></div>
+            </article>)}
           </div>
-          <p className="mt-6 text-xs leading-relaxed text-stone-500">
-            Photographs show the property. Please contact Silent Villa directly to confirm room availability, rates, and specific amenities.
-          </p>
         </div>
       </section>
 
@@ -200,16 +178,24 @@ function RoomsPage({ onSelectImage }: { onSelectImage: (index: number) => void }
             <p className="text-xs uppercase tracking-[0.28em] text-[#806342]">Planning a visit?</p>
             <h2 className="mt-2 font-serif text-3xl text-stone-900">We’ll help you find the right stay.</h2>
           </div>
-          <a href="tel:0788324736" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#171712] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#35332d]">
-            Call Silent Villa <Phone size={15} />
-          </a>
+          <Link to="/book" className="inline-flex items-center justify-center gap-2 rounded-full bg-[#171712] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#35332d]">Book a room <ArrowRight size={15} /></Link>
         </div>
       </section>
     </main>
   )
 }
 
-function GalleryPage({ onSelectImage }: { onSelectImage: (index: number) => void }) {
+function GalleryPage({
+  gallery,
+  galleryLoading,
+  galleryError,
+  onSelectImage,
+}: {
+  gallery: GalleryImage[]
+  galleryLoading: boolean
+  galleryError: string
+  onSelectImage: (index: number) => void
+}) {
   return (
     <main>
       <section className="bg-[#f1ebdf] px-4 pb-12 pt-16 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8">
@@ -221,7 +207,7 @@ function GalleryPage({ onSelectImage }: { onSelectImage: (index: number) => void
                 A glimpse of<br /><span className="italic text-[#977956]">your stay.</span>
               </h1>
               <p className="max-w-md pb-2 text-base leading-relaxed text-stone-700">
-                Explore the rooms and details in photographs from Silent Villa. Select any image to view it up close.
+                Explore photographs added by the Silent Villa team. Select any image to view it up close.
               </p>
             </div>
           </Reveal>
@@ -232,26 +218,26 @@ function GalleryPage({ onSelectImage }: { onSelectImage: (index: number) => void
         <div className="mx-auto max-w-7xl">
           <div className="mb-7 flex items-center justify-between border-b border-stone-300 pb-4">
             <p className="text-xs uppercase tracking-[0.25em] text-[#806342]">The villa, in real life</p>
-            <p className="text-sm text-stone-500">{galleryImages.length} photographs</p>
+            <p className="text-sm text-stone-500">{gallery.length} photographs</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-12 lg:auto-rows-[230px]">
-            {galleryImages.map((image, index) => (
+          {galleryError ? <p role="alert" className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-600">The gallery could not be loaded. Please try again later.</p> : galleryLoading ? <p role="status" className="rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-500">Loading gallery…</p> : gallery.length === 0 ? <p className="rounded-xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-600">No photos have been added to the gallery yet.</p> : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-12 lg:auto-rows-[230px]">
+            {gallery.map((image, index) => (
               <button
-                key={image.src}
+                key={image.id}
                 type="button"
                 onClick={() => onSelectImage(index)}
-                aria-label={`Open full-size image: ${image.alt}`}
+                aria-label={`Open full-size image: ${image.altText || image.title}`}
                 className={`group relative overflow-hidden rounded-2xl bg-stone-200 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#977956] ${index === 0 ? 'h-[360px] sm:col-span-2 sm:h-[440px] lg:col-span-7 lg:row-span-2 lg:h-full' : 'h-[250px] lg:col-span-5 lg:h-full'}`}
               >
-                <img src={image.src} alt={image.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]" />
+                <img src={imageUrl(image.imageUrl)} alt={image.altText || image.title} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]" />
                 <span className="absolute inset-0 bg-gradient-to-t from-[#171712]/65 via-transparent to-transparent opacity-75 transition group-hover:opacity-100" />
                 <span className="absolute bottom-4 left-4 text-white">
                   <span className="block text-[10px] uppercase tracking-[0.25em] text-[#e2c89a]">Silent Villa · 0{index + 1}</span>
-                  <span className="mt-1 block font-serif text-2xl">{image.caption}</span>
+                  <span className="mt-1 block font-serif text-2xl">{image.title}</span>
                 </span>
               </button>
             ))}
-          </div>
+          </div>}
           <div className="mt-12 flex flex-col gap-4 border-t border-stone-300 pt-7 sm:flex-row sm:items-center sm:justify-between">
             <p className="font-serif text-2xl text-stone-800">Seen enough to imagine your stay?</p>
             <a href="tel:0788324736" className="inline-flex items-center gap-2 text-sm font-medium text-stone-900 transition hover:text-[#806342]">
@@ -288,7 +274,7 @@ function Reveal({
   )
 }
 
-function App() {
+function VillaSite() {
   const location = useLocation()
   const currentPath = location.pathname.replace(/\/+$/, '') || '/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -297,10 +283,54 @@ function App() {
   const [journeyError, setJourneyError] = useState('')
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [roomsLoading, setRoomsLoading] = useState(true)
+  const [roomsError, setRoomsError] = useState('')
+  const [gallery, setGallery] = useState<GalleryImage[]>([])
+  const [galleryLoading, setGalleryLoading] = useState(true)
+  const [galleryError, setGalleryError] = useState('')
   const journeyVideoRef = useRef<HTMLVideoElement>(null)
   const shouldReduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll()
   const scrollProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
+
+  useEffect(() => {
+    let active = true
+    const loadRooms = () => {
+      if (document.visibilityState === 'hidden') return
+      api.rooms()
+        .then((items) => { if (active) { setRooms(items); setRoomsError('') } })
+        .catch((error: Error) => { if (active) setRoomsError(error.message) })
+        .finally(() => { if (active) setRoomsLoading(false) })
+    }
+    loadRooms()
+    const interval = window.setInterval(loadRooms, 10000)
+    window.addEventListener('focus', loadRooms)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', loadRooms)
+    }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    const loadGallery = () => {
+      if (document.visibilityState === 'hidden') return
+      api.gallery()
+        .then((items) => { if (active) { setGallery(items); setGalleryError('') } })
+        .catch((error: Error) => { if (active) setGalleryError(error.message) })
+        .finally(() => { if (active) setGalleryLoading(false) })
+    }
+    loadGallery()
+    const interval = window.setInterval(loadGallery, 10000)
+    window.addEventListener('focus', loadGallery)
+    return () => {
+      active = false
+      window.clearInterval(interval)
+      window.removeEventListener('focus', loadGallery)
+    }
+  }, [])
 
   const playJourney = async () => {
     const video = journeyVideoRef.current
@@ -343,21 +373,21 @@ function App() {
   }, [currentPath, location.hash])
 
   useEffect(() => {
-    if (selectedImage === null) return
+    if (selectedImage === null || gallery.length === 0) return
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setSelectedImage(null)
       if (event.key === 'ArrowRight') {
-        setSelectedImage((current) => (current === null ? 0 : (current + 1) % galleryImages.length))
+        setSelectedImage((current) => (current === null ? 0 : (current + 1) % gallery.length))
       }
       if (event.key === 'ArrowLeft') {
-        setSelectedImage((current) => (current === null ? 0 : (current - 1 + galleryImages.length) % galleryImages.length))
+        setSelectedImage((current) => (current === null ? 0 : (current - 1 + gallery.length) % gallery.length))
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [selectedImage])
+  }, [gallery.length, selectedImage])
 
   return (
     <div className="min-h-screen bg-[#f5f1ea] text-stone-900">
@@ -464,9 +494,9 @@ function App() {
       </header>
 
       {currentPath === '/rooms' ? (
-        <RoomsPage onSelectImage={setSelectedImage} />
+        <RoomsPage />
       ) : currentPath === '/gallery' ? (
-        <GalleryPage onSelectImage={setSelectedImage} />
+        <GalleryPage gallery={gallery} galleryLoading={galleryLoading} galleryError={galleryError} onSelectImage={setSelectedImage} />
       ) : (
       <main>
         <section id="home" className="relative isolate min-h-[78svh] overflow-hidden bg-[#171712] text-white sm:min-h-[82svh]">
@@ -512,13 +542,13 @@ function App() {
                 A peaceful escape where comfort meets calm. Settle into a quiet, welcoming space made for rest and refreshment.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="#contact"
+                <Link
+                  to="/book"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#d4b37f] px-6 py-3 text-sm font-medium text-[#1b1b17] transition hover:bg-[#e2c89a] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e2c89a]"
                 >
-                  Enquire about a stay
+                  Book your stay
                   <ArrowRight size={16} />
-                </a>
+                </Link>
                 <Link
                   to="/rooms"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e2c89a]"
@@ -636,46 +666,38 @@ function App() {
               </div>
             </div>
 
+            {roomsError ? (
+              <p role="alert" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">Rooms could not be loaded right now. Please try again shortly.</p>
+            ) : roomsLoading ? (
+              <p role="status" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-500">Loading available rooms…</p>
+            ) : rooms.length === 0 ? (
+              <p className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">There are no rooms listed right now. Please check back soon or contact Silent Villa.</p>
+            ) : (
             <div className="grid gap-7 md:grid-cols-2">
-              {roomOptions.map((room, index) => (
+              {rooms.map((room, index) => (
                 <motion.article
-                  key={room.name}
+                  key={room.id}
                   initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
                   whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.15 }}
                   transition={{ delay: index * 0.08, duration: 0.45 }}
-                  className={`group overflow-hidden ${index === 1 ? 'md:mt-16' : ''}`}
+                  className={`group overflow-hidden ${index % 2 === 1 ? 'md:mt-16' : ''}`}
                 >
                   <div className="relative overflow-hidden rounded-[1.5rem] bg-stone-200">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedImage(index)}
-                      aria-label={`View larger photo: ${room.detail}`}
-                      className="group/photo relative block w-full overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#977956]"
-                    >
-                      <img src={room.image} alt="" loading="lazy" className={`w-full object-cover transition duration-700 ease-out group-hover/photo:scale-[1.035] ${index === 0 ? 'h-[340px] sm:h-[440px]' : 'h-[340px] sm:h-[400px]'}`} />
-                      <span className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-[#171712]/55 via-transparent to-transparent p-4 transition sm:opacity-0 sm:group-hover/photo:opacity-100 sm:group-focus-visible/photo:opacity-100">
-                        <span className="rounded-full border border-white/30 bg-[#171712]/65 px-3 py-1.5 text-[10px] uppercase tracking-[0.2em] text-white backdrop-blur-md">
-                          View photo
-                        </span>
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-[#171712]/45 text-white backdrop-blur-md">
-                          <Camera size={17} />
-                        </span>
-                      </span>
-                    </button>
+                    <img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-[340px] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035] sm:h-[440px]" />
                   </div>
                   <div className="flex items-start justify-between gap-6 px-1 pt-5">
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="font-serif text-3xl text-stone-900">{room.name}</h3>
-                      <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">{room.detail}</p>
+                      <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">{room.description || 'A comfortable room for a peaceful stay.'}</p>
+                      <p className="mt-3 text-sm font-medium text-[#806342]">RWF {Number(room.price).toLocaleString()} <span className="text-xs font-normal text-stone-500">/ night</span></p>
                     </div>
-                    <a href="tel:0788324736" aria-label={`Call to ask about ${room.name}`} className="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-300 transition group-hover:border-[#171712] group-hover:bg-[#171712] group-hover:text-white">
-                      <ArrowRight size={16} />
-                    </a>
+                    <Link to={`/book?room=${room.id}`} className="mt-1 inline-flex shrink-0 items-center gap-2 rounded-full bg-[#171712] px-4 py-3 text-xs font-medium text-white transition hover:bg-[#38352e]">Book this room <ArrowRight size={14} /></Link>
                   </div>
                 </motion.article>
               ))}
             </div>
+            )}
           </div>
         </section>
 
@@ -789,24 +811,24 @@ function App() {
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-12 md:grid-rows-[260px_260px_230px]">
-              {galleryImages.map((image, index) => (
+            {galleryError ? <p role="alert" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">The gallery could not be loaded right now.</p> : galleryLoading ? <p role="status" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-500">Loading gallery…</p> : gallery.length === 0 ? <p className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">Gallery photos will appear here when they are added by the Silent Villa team.</p> : <div className="grid gap-4 md:grid-cols-12 md:grid-rows-[260px_260px_230px]">
+              {gallery.slice(0, 5).map((image, index) => (
                 <button
-                  key={`${image.src}-${index}`}
+                  key={image.id}
                   type="button"
-                  aria-label={`Open ${image.alt}`}
+                  aria-label={`Open ${image.altText || image.title}`}
                   onClick={() => setSelectedImage(index)}
                   className={`group relative overflow-hidden rounded-[1.5rem] bg-stone-200 text-left ${index === 0 ? 'md:col-span-7 md:row-span-2' : index < 3 ? 'md:col-span-5' : 'md:col-span-6'} ${index === 0 ? 'h-[360px] md:h-full' : 'h-[250px] md:h-full'}`}
                 >
-                  <img src={image.src} alt={image.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]" />
+                  <img src={imageUrl(image.imageUrl)} alt={image.altText || image.title} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#171712]/75 via-transparent to-transparent opacity-90 transition group-hover:opacity-100" />
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                     <p className="text-[10px] uppercase tracking-[0.25em] text-[#e2c89a]">Silent Villa · 0{index + 1}</p>
-                    <p className="mt-2 font-serif text-2xl sm:text-3xl">{image.caption}</p>
+                    <p className="mt-2 font-serif text-2xl sm:text-3xl">{image.title}</p>
                   </div>
                 </button>
               ))}
-            </div>
+            </div>}
             <div className="mt-8 flex justify-end">
               <Link to="/gallery" className="inline-flex items-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-900 transition hover:border-stone-900 hover:bg-stone-900 hover:text-white">
                 Explore the full gallery <ArrowRight size={16} />
@@ -1037,7 +1059,7 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {selectedImage !== null && (
+        {selectedImage !== null && gallery[selectedImage] && (
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={shouldReduceMotion ? {} : { opacity: 1 }}
@@ -1064,13 +1086,13 @@ function App() {
                 <X size={18} />
               </button>
 
-              <img src={galleryImages[selectedImage].src} alt={galleryImages[selectedImage].alt} className="h-[70vh] w-full bg-black object-contain" />
+              <img src={imageUrl(gallery[selectedImage].imageUrl)} alt={gallery[selectedImage].altText || gallery[selectedImage].title} className="h-[70vh] w-full bg-black object-contain" />
 
               <div className="flex items-center justify-between gap-4 bg-stone-950 px-5 py-3 text-sm text-stone-200">
                 <p>
-                  {galleryImages[selectedImage].caption}
+                  {gallery[selectedImage].title}
                   <span className="ml-2 text-xs text-stone-500">
-                    {String(selectedImage + 1).padStart(2, '0')} / {galleryImages.length}
+                    {String(selectedImage + 1).padStart(2, '0')} / {gallery.length}
                   </span>
                 </p>
                 <div className="flex items-center gap-2">
@@ -1078,7 +1100,7 @@ function App() {
                     type="button"
                     aria-label="Previous image"
                     className="rounded-full border border-white/10 px-3 py-1.5"
-                    onClick={() => setSelectedImage((current) => (current === null ? 0 : (current - 1 + galleryImages.length) % galleryImages.length))}
+                    onClick={() => setSelectedImage((current) => (current === null ? 0 : (current - 1 + gallery.length) % gallery.length))}
                   >
                     Prev
                   </button>
@@ -1086,7 +1108,7 @@ function App() {
                     type="button"
                     aria-label="Next image"
                     className="rounded-full border border-white/10 px-3 py-1.5"
-                    onClick={() => setSelectedImage((current) => (current === null ? 0 : (current + 1) % galleryImages.length))}
+                    onClick={() => setSelectedImage((current) => (current === null ? 0 : (current + 1) % gallery.length))}
                   >
                     Next
                   </button>
@@ -1100,4 +1122,10 @@ function App() {
   )
 }
 
-export default App
+export default function App() {
+  const location = useLocation()
+  const currentPath = location.pathname.replace(/\/+$/, '') || '/'
+  if (currentPath === '/admin') return <AdminDashboard />
+  if (currentPath === '/book') return <BookingPage />
+  return <VillaSite />
+}
