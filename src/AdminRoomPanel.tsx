@@ -40,6 +40,24 @@ export default function AdminRoomPanel({
     return () => URL.revokeObjectURL(previewUrl)
   }, [form.image])
 
+  useEffect(() => {
+    if (!formOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !busy) {
+        setEditing(null)
+        setForm(emptyForm)
+        setFormOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [formOpen, busy])
+
   const openAdd = () => { setEditing(null); setForm(emptyForm); setFormOpen(true) }
   const openEdit = (room: AdminRoom) => {
     setEditing(room)
@@ -101,8 +119,10 @@ export default function AdminRoomPanel({
       </div>
 
       {formOpen && (
-        <form onSubmit={saveRoom} onInvalidCapture={(event) => { const field = event.target as HTMLInputElement | HTMLTextAreaElement; onNotice(field.validationMessage || t('Please check the room details.')) }} aria-busy={busy} className="mt-6 grid gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm sm:grid-cols-2 sm:p-7">
-          <div className="sm:col-span-2 flex items-start justify-between gap-4"><div><p className="text-[10px] uppercase tracking-[0.2em] text-[#8a7658]">{t(editing ? 'Room settings' : 'New listing')}</p><h2 className="mt-1 font-serif text-2xl">{t(editing ? 'Edit room details' : 'Add room details')}</h2><p className="mt-1 text-xs text-stone-500">{t('A great photo helps guests picture their stay.')}</p></div><button type="button" disabled={busy} aria-label={t('Close')} onClick={() => { setEditing(null); setForm(emptyForm); setFormOpen(false) }} className="rounded-full p-2 text-stone-500 transition hover:bg-stone-100 disabled:opacity-50"><X size={18} /></button></div>
+        <div className="fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto bg-[#17241c]/65 p-0 backdrop-blur-sm sm:items-center sm:p-4" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) { setEditing(null); setForm(emptyForm); setFormOpen(false) } }}>
+        <section role="dialog" aria-modal="true" aria-labelledby="room-form-title" className="my-0 max-h-[94svh] w-full overflow-y-auto rounded-t-3xl bg-[#fcfaf6] shadow-2xl sm:my-auto sm:max-w-2xl sm:rounded-3xl" onMouseDown={(event) => event.stopPropagation()}>
+        <form onSubmit={saveRoom} onInvalidCapture={(event) => { const field = event.target as HTMLInputElement | HTMLTextAreaElement; onNotice(field.validationMessage || t('Please check the room details.')) }} aria-busy={busy} className="grid gap-4 p-4 sm:gap-5 sm:p-7">
+          <div className="sticky top-0 z-10 -mx-4 -mt-4 flex items-start justify-between gap-4 border-b border-stone-200 bg-[#fcfaf6]/95 px-4 py-4 backdrop-blur sm:-mx-7 sm:-mt-7 sm:px-7 sm:py-5"><div><p className="text-[10px] uppercase tracking-[0.2em] text-[#8a7658]">{t(editing ? 'Room settings' : 'New listing')}</p><h2 id="room-form-title" className="mt-1 font-serif text-2xl">{t(editing ? 'Edit room details' : 'Add room details')}</h2><p className="mt-1 text-xs text-stone-500">{t('A great photo helps guests picture their stay.')}</p></div><button type="button" autoFocus disabled={busy} aria-label={t('Close')} onClick={() => { setEditing(null); setForm(emptyForm); setFormOpen(false) }} className="rounded-full p-2 text-stone-500 transition hover:bg-stone-100 disabled:opacity-50"><X size={18} /></button></div>
           <label className="text-sm font-medium text-stone-700">{t('Room name')}<input disabled={busy} required maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder={t('e.g. Garden suite')} className="mt-2 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-[#756047] disabled:bg-stone-50" /></label>
           <label className="text-sm font-medium text-stone-700">{t('Price per night (RWF)')}<input disabled={busy} type="number" required min="0.01" step="any" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} placeholder="85000" className="mt-2 w-full rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-[#756047] focus:ring-2 focus:ring-[#756047]/10 disabled:bg-stone-50" /></label>
           <label className="text-sm font-medium text-stone-700 sm:col-span-2">{t('Description')} <span className="font-normal text-stone-400">({t('optional')})</span><textarea disabled={busy} maxLength={2000} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder={t('Describe the room and what makes it special…')} className="mt-2 min-h-24 w-full resize-y rounded-xl border border-stone-200 px-4 py-3 text-sm outline-none focus:border-[#756047] disabled:bg-stone-50" /></label>
@@ -111,8 +131,10 @@ export default function AdminRoomPanel({
             {(imagePreview || editing) && <div className="relative h-28 overflow-hidden rounded-xl border border-stone-200 bg-stone-100"><img src={imagePreview || imageUrl(editing!.imageUrl)} alt={t(imagePreview ? 'Selected room photo preview' : 'Current room photo')} className="h-full w-full object-cover" /><span className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-medium text-stone-600">{t(imagePreview ? 'New photo' : 'Current photo')}</span></div>}
           </div>
           {editing && <label className="flex items-center gap-3 text-sm text-stone-700 sm:col-span-2"><input type="checkbox" disabled={busy} checked={form.isActive} onChange={(event) => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-[#24342a]" />{t('Show this room to guests')}</label>}
-          <div className="flex items-center justify-end gap-3 border-t border-stone-100 pt-4 sm:col-span-2"><button type="button" disabled={busy} onClick={() => { setEditing(null); setForm(emptyForm); setFormOpen(false) }} className="rounded-full px-4 py-2.5 text-sm text-stone-500 transition hover:bg-stone-50 disabled:opacity-50">{t('Cancel')}</button><button type="submit" disabled={busy} className="rounded-full bg-[#24342a] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#35463b] disabled:cursor-wait disabled:opacity-60">{busy ? t('Saving…') : t(editing ? 'Update room' : 'Save room')}</button></div>
+          <div className="flex flex-col-reverse gap-2 border-t border-stone-100 pt-4 sm:col-span-2 sm:flex-row sm:justify-end sm:gap-3"><button type="button" disabled={busy} onClick={() => { setEditing(null); setForm(emptyForm); setFormOpen(false) }} className="min-h-11 rounded-full px-4 py-2.5 text-sm text-stone-500 transition hover:bg-stone-50 disabled:opacity-50">{t('Cancel')}</button><button type="submit" disabled={busy} className="min-h-11 rounded-full bg-[#24342a] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#35463b] disabled:cursor-wait disabled:opacity-60">{busy ? t('Saving…') : t(editing ? 'Update room' : 'Save room')}</button></div>
         </form>
+        </section>
+        </div>
       )}
 
       {rooms.length === 0 ? <div className="mt-8 rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-16 text-center"><p className="font-serif text-2xl">{t('Your room collection starts here.')}</p><p className="mt-2 text-sm text-stone-500">{t('Add your first room to let guests start booking.')}</p></div> : <div className="mt-7 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{rooms.map((room) => <article key={room.id} className="overflow-hidden rounded-2xl border border-stone-200 bg-white"><div className="relative h-52 bg-stone-100"><img src={imageUrl(room.imageUrl)} alt={room.name} className="h-full w-full object-cover" /><span className="absolute bottom-3 left-3 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-stone-700">{t('Room')} #{room.id}</span><span className={`absolute right-3 top-3 rounded-full px-3 py-1.5 text-xs font-medium ${room.isActive ? 'bg-emerald-50 text-emerald-800' : 'bg-stone-100 text-stone-600'}`}>{t(room.isActive ? 'Visible' : 'Hidden')}</span></div><div className="p-5"><div className="flex items-start justify-between gap-3"><h2 className="font-serif text-2xl">{room.name}</h2><p className="shrink-0 text-sm font-medium">RWF {Number(room.price).toLocaleString()}<span className="block text-right text-[10px] font-normal text-stone-400">{t('per night')}</span></p></div><p className="mt-3 line-clamp-2 min-h-10 text-sm leading-relaxed text-stone-500">{room.description || t('A comfortable room for a peaceful stay.')}</p><div className="mt-5 flex gap-2"><button type="button" onClick={() => openEdit(room)} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-stone-200 px-4 py-2.5 text-xs font-medium text-stone-700 transition hover:bg-stone-50"><Pencil size={14} /> {t('Edit')}</button><button type="button" onClick={() => void deleteRoom(room)} className="inline-flex items-center justify-center gap-2 rounded-full border border-red-100 px-4 py-2.5 text-xs font-medium text-red-700 transition hover:bg-red-50"><Trash2 size={14} /> {t('Delete')}</button></div></div></article>)}</div>}
