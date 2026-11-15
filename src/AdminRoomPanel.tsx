@@ -42,7 +42,7 @@ export default function AdminRoomPanel({
   const openEdit = (room: AdminRoom) => {
     setEditing(room)
     setFormOpen(true)
-    setForm({ name: room.name, price: String(room.price), description: room.description || '', image: null, isActive: room.isActive })
+    setForm({ name: room.name, price: String(room.price), description: room.description || '', image: null, isActive: Boolean(room.isActive) })
   }
 
   const saveRoom = async (event: FormEvent<HTMLFormElement>) => {

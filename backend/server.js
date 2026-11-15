@@ -217,7 +217,7 @@ app.patch('/api/admin/bookings/read', requireAdmin, async (req, res, next) => {
 app.get('/api/admin/rooms', requireAdmin, async (_req, res, next) => {
   try {
     const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description, is_active AS isActive, created_at AS createdAt FROM rooms ORDER BY created_at DESC')
-    res.json(rooms)
+    res.json(rooms.map((room) => ({ ...room, isActive: Boolean(room.isActive) })))
   } catch (error) { next(error) }
 })
 
@@ -256,7 +256,7 @@ app.patch('/api/admin/rooms/:id', requireAdmin, imageUpload.single('image'), asy
     if (req.file) fs.unlink(req.file.path, () => {})
     return res.status(400).json({ error: 'Room description must be 2,000 characters or fewer.' })
   }
-  if (isActive !== undefined && !['true', 'false'].includes(String(isActive))) {
+  if (isActive !== undefined && !['true', 'false', '1', '0'].includes(String(isActive))) {
     if (req.file) fs.unlink(req.file.path, () => {})
     return res.status(400).json({ error: 'Room visibility must be true or false.' })
   }
@@ -267,7 +267,9 @@ app.patch('/api/admin/rooms/:id', requireAdmin, imageUpload.single('image'), asy
       return res.status(404).json({ error: 'Room not found.' })
     }
     const imageUrl = req.file ? `/uploads/${req.file.filename}` : existing[0].imageUrl
-    const active = isActive === undefined ? Boolean(existing[0].isActive) : String(isActive) === 'true'
+    const active = isActive === undefined
+      ? Boolean(existing[0].isActive)
+      : ['true', '1'].includes(String(isActive))
     await pool.query('UPDATE rooms SET name = ?, price = ?, description = ?, image_url = ?, is_active = ? WHERE id = ?', [name.trim(), Number(price), String(description).trim() || null, imageUrl, active, id])
     if (req.file && existing[0].imageUrl.startsWith('/uploads/')) {
       fs.unlink(path.join(uploadDir, path.basename(existing[0].imageUrl)), () => {})
