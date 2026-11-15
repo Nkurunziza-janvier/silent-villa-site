@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, LoaderCircle, MapPin, ShieldCheck, Users } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { ArrowLeft, CalendarDays, Check, Clock3, LoaderCircle, MapPin, ShieldCheck, Users, X } from 'lucide-react'
 import { api, imageUrl, type Room } from './api'
 
 const today = new Date().toISOString().slice(0, 10)
@@ -10,8 +11,10 @@ export default function BookingPage() {
   const [rooms, setRooms] = useState<Room[]>([])
   const [loadingRooms, setLoadingRooms] = useState(true)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [bookingSuccess, setBookingSuccess] = useState<{ id: number; message: string; roomName: string; checkIn: string; checkOut: string; guests: number } | null>(null)
   const [busy, setBusy] = useState(false)
+  const closeSuccessRef = useRef<HTMLButtonElement>(null)
+  const shouldReduceMotion = useReducedMotion()
   const [form, setForm] = useState({ roomId: searchParams.get('room') || '', name: '', email: '', phone: '', checkIn: '', checkOut: '', guests: '1', specialRequests: '' })
   const selectedRoom = useMemo(() => rooms.find((room) => String(room.id) === form.roomId), [form.roomId, rooms])
 
@@ -40,13 +43,37 @@ export default function BookingPage() {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    if (!bookingSuccess) return
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const previousOverflow = document.body.style.overflow
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setBookingSuccess(null)
+    }
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', closeOnEscape)
+    closeSuccessRef.current?.focus()
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', closeOnEscape)
+      previousFocus?.focus()
+    }
+  }, [bookingSuccess])
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setBusy(true)
     setError('')
     try {
       const result = await api.book({ ...form, roomId: Number(form.roomId), guests: Number(form.guests) })
-      setSuccess(result.message)
+      setBookingSuccess({
+        id: result.id,
+        message: result.message,
+        roomName: selectedRoom?.name || 'Your selected room',
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        guests: Number(form.guests),
+      })
       setForm((current) => ({ ...current, name: '', email: '', phone: '', checkIn: '', checkOut: '', guests: '1', specialRequests: '' }))
     } catch (err) { setError((err as Error).message) } finally { setBusy(false) }
   }
@@ -89,7 +116,6 @@ export default function BookingPage() {
                 <div className="grid gap-4 sm:grid-cols-3"><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> Check-in</span><input className={fieldClass} type="date" min={today} required value={form.checkIn} onChange={(event) => setForm({ ...form, checkIn: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> Check-out</span><input className={fieldClass} type="date" min={form.checkIn || today} required value={form.checkOut} onChange={(event) => setForm({ ...form, checkOut: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><Users size={14} /> Guests</span><select className={fieldClass} value={form.guests} onChange={(event) => setForm({ ...form, guests: event.target.value })}>{Array.from({ length: 10 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1} {index === 0 ? 'guest' : 'guests'}</option>)}</select></label></div>
                 <label className="block text-sm font-medium text-stone-700">Special requests <span className="font-normal text-stone-400">(optional)</span><textarea className={`${fieldClass} min-h-24 resize-y`} maxLength={2000} value={form.specialRequests} onChange={(event) => setForm({ ...form, specialRequests: event.target.value })} placeholder="Anything we should know before your stay?" /></label>
                 {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-                {success && <div role="status" className="flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={18} className="mt-0.5 shrink-0" /><div><p className="font-medium">Request received</p><p className="mt-1">{success}</p></div></div>}
                 <button disabled={busy || rooms.length === 0} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#171712] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#38352e] disabled:cursor-not-allowed disabled:opacity-60">{busy ? <><LoaderCircle size={17} className="animate-spin" /> Sending request…</> : <>Request to book <ArrowLeft className="rotate-180" size={16} /></>}</button>
                 <p className="flex items-center justify-center gap-2 pb-8 text-xs text-stone-400"><Clock3 size={13} /> Your reservation is pending until confirmed by our team.</p>
               </form>
@@ -97,6 +123,58 @@ export default function BookingPage() {
           </div>
         </section>
       </div>
+
+      <AnimatePresence>
+        {bookingSuccess && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-[#171712]/65 px-4 py-8 backdrop-blur-md"
+            onMouseDown={(event) => { if (event.target === event.currentTarget) setBookingSuccess(null) }}
+          >
+            <motion.section
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.97 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="booking-success-title"
+              aria-describedby="booking-success-description"
+              className="relative my-auto w-full max-w-lg overflow-hidden rounded-[2rem] border border-white/70 bg-[#fcfaf6] px-6 pb-6 pt-9 text-center shadow-[0_35px_100px_rgba(0,0,0,0.3)] sm:px-10 sm:pb-9 sm:pt-11"
+            >
+              <button ref={closeSuccessRef} type="button" onClick={() => setBookingSuccess(null)} aria-label="Close booking confirmation" className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900"><X size={17} /></button>
+
+              <div className="relative mx-auto grid h-24 w-24 place-items-center">
+                {!shouldReduceMotion && <>
+                  <motion.span initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1.65, opacity: 0 }} transition={{ duration: 0.9, ease: 'easeOut' }} className="absolute inset-2 rounded-full border border-[#d4b37f]/80" />
+                  <motion.span initial={{ scale: 0.55, opacity: 0 }} animate={{ scale: 1.3, opacity: 0 }} transition={{ duration: 0.85, delay: 0.12, ease: 'easeOut' }} className="absolute inset-1 rounded-full border border-emerald-300/80" />
+                </>}
+                <motion.div initial={shouldReduceMotion ? false : { scale: 0, rotate: -18 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.08 }} className="relative grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-gradient-to-br from-[#d4b37f] to-[#b18a52] text-white shadow-[0_12px_30px_rgba(177,138,82,0.3)]">
+                  <motion.span initial={shouldReduceMotion ? false : { scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3, delay: 0.28 }}><Check size={30} strokeWidth={2.5} /></motion.span>
+                </motion.div>
+                <motion.span initial={shouldReduceMotion ? false : { scale: 0 }} animate={{ scale: [0, 1.15, 1] }} transition={{ duration: 0.42, delay: 0.35 }} className="absolute right-1 top-2 grid h-7 w-7 place-items-center rounded-full border-2 border-[#fcfaf6] bg-emerald-500 text-white"><Check size={13} strokeWidth={3} /></motion.span>
+              </div>
+
+              <motion.p initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mt-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#806342]">Request received · #{String(bookingSuccess.id).padStart(6, '0')}</motion.p>
+              <motion.h2 initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }} id="booking-success-title" className="mt-3 font-serif text-4xl leading-tight tracking-tight text-stone-900 sm:text-5xl">You’re one step<br className="hidden sm:block" /> closer to a <span className="italic text-[#977956]">calmer stay.</span></motion.h2>
+              <p id="booking-success-description" className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-stone-600">{bookingSuccess.message}</p>
+
+              <div className="mt-7 rounded-2xl border border-stone-200 bg-white p-4 text-left sm:p-5">
+                <div className="flex items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f3efe8] text-[#806342]"><CalendarDays size={18} /></span><div className="min-w-0"><p className="truncate text-sm font-medium text-stone-900">{bookingSuccess.roomName}</p><p className="mt-1 text-xs text-stone-500">{bookingSuccess.checkIn} <span className="px-1">→</span> {bookingSuccess.checkOut} <span className="px-1">·</span> {bookingSuccess.guests} {bookingSuccess.guests === 1 ? 'guest' : 'guests'}</p></div></div>
+                <div className="mt-4 flex items-start gap-2.5 border-t border-stone-100 pt-4 text-xs leading-relaxed text-stone-500"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#977956]" /><p>Your request is pending. The Silent Villa team will contact you to confirm availability.</p></div>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <button type="button" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#171712] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#38352e]">Done</button>
+                <Link to="/rooms" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:bg-stone-50">Explore rooms <ArrowLeft size={15} className="rotate-180" /></Link>
+              </div>
+              <p className="mt-5 text-[10px] uppercase tracking-[0.16em] text-stone-400">Silent Villa · Kigali, Rwanda</p>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   )
 }
