@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "dev:api": "node --watch backend/server.js",
     "start:api": "node backend/server.js",
+    "reset:admin-password": "node backend/reset-admin-password.js",
     "start": "node backend/server.js"
   },
   "devDependencies": {

@@ -23,6 +23,10 @@ Silent Villa includes a React guest site, a Node.js/Express API, and a MySQL dat
 5. Start the website in another terminal: `npm run dev`
 6. Open `/admin` on the website and sign in with the configured admin email and password. Add rooms from the Rooms page; they then appear on `/rooms` and can be booked at `/book`.
 
+### Reset an existing admin password
+
+The `ADMIN_PASSWORD` setting only creates the initial admin; changing it does not update an existing password hash. To reset an existing account, set `ADMIN_EMAIL` and a new `ADMIN_PASSWORD` of at least 12 characters in a private environment with the database connection variables, then run `npm run reset:admin-password`. Never commit these values or display them on the public admin page.
+
 The API defaults to `http://localhost:3001`, and Vite defaults to `http://localhost:5173`. Set `VITE_API_URL` if the API has another address. Booking requests are saved as pending and reserve their dates until an administrator confirms or cancels them. The dashboard polls for new bookings every 12 seconds. Browser audio must be enabled by clicking **Enable sound** once while the dashboard is open.
 
 ## API overview
