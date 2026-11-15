@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { api, imageUrl, type GalleryImage, type Room } from './api'
@@ -8,9 +8,11 @@ import { LanguageSwitch, useLanguage } from './i18n'
 import {
   ArrowRight,
   CalendarDays,
+  ChevronDown,
   Menu,
   MessageCircle,
   Phone,
+  Play,
   X,
 } from 'lucide-react'
 
@@ -18,6 +20,8 @@ const navItems = [
   { label: 'Rooms', href: '/rooms' },
   { label: 'Gallery', href: '/gallery' },
 ]
+
+const villaVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
 
 function RoomsPage() {
   const { t } = useLanguage()
@@ -162,6 +166,51 @@ function GalleryPage({
   )
 }
 
+function FaqSection() {
+  const { t } = useLanguage()
+  const shouldReduceMotion = useReducedMotion()
+  const [openQuestion, setOpenQuestion] = useState<number | null>(0)
+  const questions = [
+    ['How do I book a room?', 'Choose a room and submit the booking request form. The Silent Villa team will contact you to confirm your stay.'],
+    ['Do I pay online when I book?', 'No. This website does not process payments. Confirm the amount and payment details directly with Silent Villa.'],
+    ['Where is Silent Villa located?', 'Silent Villa is on KN 288 St in Kigali. You can also use the Google Maps Plus Code 227V+FJ Kigali.'],
+    ['How can I contact the team?', 'Call 0788 324 736 or start a conversation on WhatsApp at +250 788 324 736.'],
+    ['Can I change or cancel my request?', 'Please contact Silent Villa directly by phone or WhatsApp, and the team will help with your request.'],
+  ]
+
+  return (
+    <section id="faqs" className="bg-[#f4f0e7] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
+        <Reveal>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#7d644d] sm:text-xs">{t('A little help')}</p>
+          <h2 className="mt-3 max-w-md font-serif text-4xl leading-tight tracking-[-0.035em] text-stone-900 sm:text-5xl">{t('Your questions, answered.')}</h2>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-stone-600 sm:text-base">{t('Find the details you need before choosing your room.')}</p>
+          <a href="tel:0788324736" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-800 transition hover:border-[#24342a] hover:bg-white">
+            {t('Still have a question?')} <Phone size={15} />
+          </a>
+        </Reveal>
+        <div className="divide-y divide-stone-300 border-y border-stone-300">
+          {questions.map(([question, answer], index) => {
+            const isOpen = openQuestion === index
+            const answerId = `faq-answer-${index}`
+            return (
+              <motion.article key={question} initial={false} className="py-1">
+                <button type="button" aria-expanded={isOpen} aria-controls={answerId} onClick={() => setOpenQuestion(isOpen ? null : index)} className="flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left sm:min-h-[72px] sm:py-5">
+                  <span className="font-serif text-xl leading-snug text-stone-900 sm:text-2xl">{t(question)}</span>
+                  <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.22 }} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-stone-300 text-[#665940]"><ChevronDown size={17} /></motion.span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && <motion.div id={answerId} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: 'easeInOut' }} className="overflow-hidden"><p className="max-w-2xl pb-5 pr-10 text-sm leading-relaxed text-stone-600 sm:pb-6 sm:text-base">{t(answer)}</p></motion.div>}
+                </AnimatePresence>
+              </motion.article>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function Reveal({
   children,
   className = '',
@@ -192,6 +241,8 @@ function VillaSite() {
   const currentPath = location.pathname.replace(/\/+$/, '') || '/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
+  const [villaVideoStarted, setVillaVideoStarted] = useState(false)
+  const [villaVideoError, setVillaVideoError] = useState('')
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [rooms, setRooms] = useState<Room[]>([])
@@ -200,6 +251,7 @@ function VillaSite() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [galleryLoading, setGalleryLoading] = useState(true)
   const [galleryError, setGalleryError] = useState('')
+  const villaVideoRef = useRef<HTMLVideoElement>(null)
   const shouldReduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll()
   const scrollProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
@@ -286,6 +338,18 @@ function VillaSite() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [gallery.length, selectedImage])
+
+  const playVillaVideo = async () => {
+    const video = villaVideoRef.current
+    if (!video) return
+    setVillaVideoError('')
+    try {
+      await video.play()
+      setVillaVideoStarted(true)
+    } catch {
+      setVillaVideoError('The video could not be played. Please try again.')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#f4f0e7] text-stone-900">
@@ -402,57 +466,69 @@ function VillaSite() {
         <GalleryPage gallery={gallery} galleryLoading={galleryLoading} galleryError={galleryError} onSelectImage={setSelectedImage} />
       ) : (
       <main>
-        <section id="home" className="bg-[#24342a] px-4 py-10 text-white sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-          <div className="mx-auto max-w-7xl">
-            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#d8c28f] sm:text-xs">{t('Guest house · Kigali')}</p>
-            <div className="mt-4 flex flex-col gap-5 sm:mt-5 md:flex-row md:items-end md:justify-between">
-              <h1 className="max-w-3xl font-serif text-4xl leading-[1.02] tracking-[-0.04em] sm:text-5xl md:text-6xl lg:text-7xl">{t('Rooms for your stay in Kigali.')}</h1>
-              <div className="max-w-md md:pb-1">
-                <p className="text-sm leading-relaxed text-stone-300 sm:text-base">{t('Choose your room and book directly with Silent Villa.')}</p>
-                <a href="#rooms" className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#bda06b] px-5 py-2.5 text-sm font-medium text-[#24342a] transition hover:bg-[#dfcc9f]">
-                  {t('Explore rooms')} <ArrowRight size={15} />
-                </a>
+        <section id="home" className="relative isolate flex min-h-[min(760px,calc(100svh-76px))] items-center overflow-hidden bg-[#18251d] text-white">
+          <video className="absolute inset-0 -z-20 h-full w-full object-cover" autoPlay={!shouldReduceMotion} loop muted playsInline preload="metadata" poster="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg" aria-hidden="true">
+            <source src={villaVideo} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 -z-10 bg-[#17241c]/45" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#17241c]/90 via-[#17241c]/55 to-[#17241c]/20" />
+          <div className="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+            <motion.div initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }} animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }} transition={{ duration: 0.75, ease: 'easeOut' }} className="max-w-3xl">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/15 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#e5cc9b] backdrop-blur-md sm:text-xs"><span className="h-1.5 w-1.5 rounded-full bg-[#d8c28f]" />{t('Guest house · Kigali')}</p>
+              <h1 className="mt-6 font-serif text-5xl leading-[0.98] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[5.5rem]">{t('A stay made for Kigali.')}</h1>
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-stone-200 sm:text-base md:text-lg">{t('Find your room at Silent Villa and book directly with our team.')}</p>
+              <div className="mt-8 flex flex-col gap-3 min-[420px]:flex-row">
+                <a href="#rooms" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c9aa73] px-6 py-3 text-sm font-semibold text-[#1e2d23] shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-[#dfc48e]">{t('Explore rooms')} <ArrowRight size={16} /></a>
+                <Link to="/book" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/40 bg-white/5 px-6 py-3 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/15">{t('Book your stay')} <CalendarDays size={16} /></Link>
               </div>
-            </div>
+              <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-stone-200 sm:text-sm">
+                <span className="inline-flex items-center gap-2"><Phone size={14} className="text-[#d8c28f]" />0788 324 736</span>
+                <span className="hidden h-4 w-px bg-white/30 min-[420px]:block" />
+                <span className="text-stone-300">KN 288 St · Kigali, Rwanda</span>
+              </div>
+            </motion.div>
           </div>
+          <a href="#rooms" aria-label={t('Scroll to available rooms')} className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[9px] uppercase tracking-[0.22em] text-white/70 transition hover:text-white sm:flex">{t('Scroll to explore')}<span className="h-8 w-px origin-top animate-pulse bg-[#d8c28f]" /></a>
         </section>
 
-        <section id="rooms" className="min-h-[50vh] bg-[#f4f0e7] px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+        <section id="rooms" className="scroll-mt-20 bg-[#f4f0e7] px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-7xl">
-            <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-7 flex flex-col gap-4 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#7d644d] sm:text-xs">{t('Silent Villa · Rooms')}</p>
-                <h2 className="mt-2 font-serif text-3xl leading-tight text-stone-900 sm:text-4xl md:text-5xl">{t('Available rooms')}</h2>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#806947] sm:text-xs">{t('Find your fit')}</p>
+                <h2 className="mt-2 font-serif text-4xl leading-tight tracking-[-0.035em] text-stone-900 sm:text-5xl">{t('Available rooms')}</h2>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-stone-600 sm:text-base">{t('Choose a room and send us your dates. Our team will confirm your reservation.')}</p>
               </div>
-              <a href="tel:0788324736" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-[#665940] transition hover:text-stone-900">
-                {t('Questions? Call 0788 324 736')} <Phone size={15} />
+              <a href="tel:0788324736" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:border-[#24342a] hover:bg-white">
+                {t('Ask about a room')} <Phone size={15} />
               </a>
             </div>
 
             {roomsError ? (
-              <p role="alert" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('Rooms could not be loaded right now. Please try again shortly.')}</p>
+              <p role="alert" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600 sm:p-7">{t('Rooms could not be loaded right now. Please try again shortly.')}</p>
             ) : roomsLoading ? (
-              <p role="status" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-500">{t('Loading available rooms…')}</p>
+              <p role="status" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-500 sm:p-7">{t('Loading available rooms…')}</p>
             ) : rooms.length === 0 ? (
-              <p className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('There are no rooms listed right now. Please check back soon or contact Silent Villa.')}</p>
+              <p className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600 sm:p-7">{t('There are no rooms listed right now. Please check back soon or contact Silent Villa.')}</p>
             ) : (
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
-                {rooms.map((room, index) => (
+                {rooms.slice(0, 3).map((room, index) => (
                   <motion.article
                     key={room.id}
                     initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
                     whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.12 }}
-                    transition={{ delay: index % 3 * 0.06, duration: 0.4 }}
-                    className="group overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm transition-shadow hover:shadow-lg"
+                    transition={{ delay: shouldReduceMotion ? 0 : index * 0.09, duration: 0.45 }}
+                    className="group overflow-hidden rounded-[1.35rem] border border-stone-200/80 bg-white shadow-[0_8px_24px_rgba(36,52,42,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(36,52,42,0.12)]"
                   >
-                    <div className="aspect-[4/3] overflow-hidden bg-stone-200 sm:aspect-[5/4]">
-                      <img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+                    <div className="relative aspect-[4/3] overflow-hidden bg-stone-200 sm:aspect-[5/4]">
+                      <img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.045]" />
+                      <span className="absolute inset-0 bg-gradient-to-t from-[#17241c]/25 via-transparent to-transparent opacity-70" />
                     </div>
-                    <div className="p-4 sm:p-5">
+                    <div className="p-5 sm:p-6">
                       <h3 className="font-serif text-2xl leading-tight text-stone-900 sm:text-3xl">{room.name}</h3>
                       <p className="mt-2 min-h-10 text-sm leading-relaxed text-stone-600">{room.description || t('A comfortable room for a peaceful stay.')}</p>
-                      <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-stone-100 pt-4">
+                      <div className="mt-5 flex flex-wrap items-end justify-between gap-3 border-t border-stone-100 pt-4">
                         <p className="text-sm font-semibold text-[#665940]">RWF {Number(room.price).toLocaleString()}<span className="mt-0.5 block text-xs font-normal text-stone-500">{t('per night')}</span></p>
                         <Link to={`/book?room=${room.id}`} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#24342a] px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#35463b] sm:flex-none">
                           {t('Book this room')} <ArrowRight size={14} />
@@ -463,8 +539,32 @@ function VillaSite() {
                 ))}
               </div>
             )}
+            {!roomsError && !roomsLoading && rooms.length > 0 && <div className="mt-8 flex justify-center sm:mt-10"><Link to="/rooms" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#24342a] px-6 py-3 text-sm font-semibold text-[#24342a] transition hover:bg-[#24342a] hover:text-white">{t('View all rooms')} <ArrowRight size={16} /></Link></div>}
           </div>
         </section>
+
+        <section id="villa-video" className="bg-[#24342a] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+              <Reveal>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#d8c28f] sm:text-xs">{t('A look around')}</p>
+                <h2 className="mt-3 max-w-2xl font-serif text-4xl leading-tight tracking-[-0.035em] sm:text-5xl md:text-6xl">{t('See Silent Villa for yourself.')}</h2>
+              </Reveal>
+              <p className="max-w-md text-sm leading-relaxed text-stone-300 sm:text-base">{t('Take a short look at the villa and picture your stay in Kigali.')}</p>
+            </div>
+            <Reveal>
+              <div className="group relative aspect-video min-h-[220px] overflow-hidden rounded-2xl border border-white/10 bg-black shadow-[0_24px_70px_rgba(0,0,0,0.28)] sm:rounded-3xl">
+                <video ref={villaVideoRef} className="absolute inset-0 h-full w-full object-cover" controls={villaVideoStarted} playsInline preload="metadata" poster="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg" aria-label={t('Video tour of Silent Villa')} onPlay={() => setVillaVideoStarted(true)} onError={() => setVillaVideoError('The video could not be loaded. Please try again later.')}>
+                  <source src={villaVideo} type="video/mp4" />
+                </video>
+                {!villaVideoStarted && <button type="button" onClick={() => void playVillaVideo()} className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-t from-black/55 via-black/20 to-black/20 text-white transition hover:from-black/65" aria-label={t('Play the Silent Villa video')}><span className="grid h-16 w-16 place-items-center rounded-full border border-white/70 bg-[#c9aa73] text-[#24342a] shadow-xl transition duration-300 group-hover:scale-110 sm:h-20 sm:w-20"><Play size={26} fill="currentColor" className="ml-1" /></span><span className="rounded-full border border-white/30 bg-black/25 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] backdrop-blur sm:text-xs">{t('Play villa video')}</span></button>}
+                {villaVideoError && <p role="alert" className="absolute inset-x-3 bottom-3 rounded-xl bg-black/75 px-4 py-3 text-center text-xs text-white sm:inset-x-6 sm:bottom-6 sm:text-sm">{t(villaVideoError)}</p>}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        <FaqSection />
       </main>
       )}
 
