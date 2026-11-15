@@ -4,8 +4,8 @@
   font-family: 'DM Sans', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #171712;
-  background: #f5f1ea;
+  color: #24342a;
+  background: #f4f0e7;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -21,7 +21,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: #f5f1ea;
+  background: #f4f0e7;
 }
 
 * {
@@ -41,12 +41,12 @@ select {
 }
 
 ::selection {
-  color: #171712;
-  background: #d4b37f;
+  color: #24342a;
+  background: #bda06b;
 }
 
 :focus-visible {
-  outline: 2px solid #977956;
+  outline: 2px solid #756047;
   outline-offset: 3px;
 }
 
@@ -95,7 +95,7 @@ select {
     left: 0.75rem;
     height: 1px;
     content: '';
-    background: #d4b37f;
+    background: #bda06b;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 220ms ease;

@@ -1,0 +1,62 @@
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+
+export type Language = 'en' | 'rw'
+
+const translations: Record<string, string> = {
+  'The villa': 'Ibyerekeye Villa', Rooms: 'Ibyumba', Experiences: 'Serivisi', Gallery: 'Amafoto', 'Find us': 'Aho duherereye', Payment: 'Kwishyura',
+  'Call to enquire': 'Hamagara utubaze', 'Open menu': 'Fungura menu', 'Close menu': 'Funga menu',
+  'Guest house · Kigali': 'Inzu y’abashyitsi · Kigali', 'Find your': 'Shaka', 'quiet place.': 'ahantu hatuje.', 'calm retreat.': 'ikiruhuko cyiza.', 'Kigali stay.': 'aho kurara i Kigali.',
+  'A peaceful escape where comfort meets calm. Settle into a quiet, welcoming space made for rest and refreshment.': 'Ahantu ho kuruhukira, ihumure rigahurira n’amahoro. Turi ahantu hatuje kandi hakwakira neza, hagenewe kuruhuka no kwisubiranya.',
+  'Book your stay': 'Saba kurara', 'Explore rooms': 'Reba ibyumba', 'A little room for calm.': 'Icyumba cy’amahoro.',
+  'A slower kind of stay': 'Ikiruhuko gituje', 'Space to settle.': 'Ahantu ho gutuza.', 'Room to breathe.': 'Umutuzo wo guhumeka.',
+  'Welcome to Silent Villa, a peaceful escape where comfort meets calm. Enjoy your stay in a quiet, relaxing environment designed for rest and refreshment.': 'Murakaza neza kuri Silent Villa, ahantu ho kuruhukira heza kandi hatuje. Tunezererwe kubakira mu mwuka w’amahoro wagenewe kuruhuka no kwisubiranya.',
+  'Escape the noise of the city and discover true comfort. Every detail is designed for relaxation, privacy, and peace of mind — your perfect home away from home in Kigali.': 'Irinde urusaku rw’umujyi maze wishimire ihumure nyakuri. Buri kantu kagenewe kuruhuka, kugira ubuzima bwite n’amahoro yo mu mutima — urugo rwawe i Kigali.',
+  'Calm surroundings': 'Ahantu hatuje', 'Warm hospitality': 'Ubugwaneza', 'A Kigali welcome': 'Murakaza neza i Kigali',
+  'Your room to unwind': 'Icyumba cyo kuruhukiramo', 'Rest comes naturally here.': 'Aha kuruhuka biroroshye.', 'View all rooms': 'Reba ibyumba byose', 'Ask about a room': 'Baza ibyumba',
+  'Rooms could not be loaded right now. Please try again shortly.': 'Ibyumba ntibishoboye gufunguka ubu. Ongera ugerageze nyuma gato.', 'Loading available rooms…': 'Turimo gufungura ibyumba bihari…', 'There are no rooms listed right now. Please check back soon or contact Silent Villa.': 'Nta byumba bihari byashyizweho ubu. Ongera urebe nyuma cyangwa uhamagare Silent Villa.',
+  'A comfortable room for a peaceful stay.': 'Icyumba cyiza cyo kuruhukiramo.', '/ night': '/ ijoro', 'Book this room': 'Saba iki cyumba',
+  'Made for your kind of stay': 'Serivisi zijyanye n’urugendo rwawe', 'Stay a night.': 'Rara ijoro rimwe.', 'Stay a while.': 'Cyangwa urare igihe.', 'Short visit or longer stay, find a calmer base in Kigali.': 'Waba uje igihe gito cyangwa kirekire, hano i Kigali urahasanga ahantu hatuje.', 'Call Silent Villa': 'Hamagara Silent Villa',
+  'Before you arrive': 'Mbere yo kuhagera', 'The journey is part of the stay.': 'Urugendo na rwo ni igice cy’ikiruhuko.', 'See the approach to Silent Villa before you set off, then open directions for your arrival in Kigali.': 'Reba inzira igana kuri Silent Villa mbere yo guhaguruka, maze urebe uko wagera i Kigali.', 'Get directions': 'Reba inzira', 'Tap to watch the journey': 'Kanda urebe urugendo',
+  'A glimpse inside': 'Reba imbere', 'Made for the moments in between.': 'Ahantu heza ho kuruhukira.', 'Explore the rooms': 'Reba ibyumba', 'The gallery could not be loaded right now.': 'Amafoto ntashoboye gufunguka ubu.', 'Loading gallery…': 'Turimo gufungura amafoto…', 'Gallery photos will appear here when they are added by the Silent Villa team.': 'Amafoto azagaragara hano igihe azashyirwaho n’abakozi ba Silent Villa.', 'Explore the full gallery': 'Reba amafoto yose',
+  'Find your way': 'Tumenye aho turi', 'A Kigali welcome awaits.': 'Turagutegereje i Kigali.', 'Find Silent Villa on KN 288 St in Kigali, or use its Google Maps Plus Code to navigate directly.': 'Silent Villa iherereye kuri KN 288 St i Kigali. Wakoresha kandi kode yayo ya Google Maps kugira ngo uhite uhagera.', 'Your destination': 'Aho ujya', 'Open directions to Silent Villa in Google Maps': 'Fungura inzira ya Silent Villa kuri Google Maps',
+  'A quieter kind of stay': 'Ikiruhuko kirangwa n’amahoro', 'Your room': 'Icyumba cyawe', 'is waiting.': 'kiragutegereje.', 'Make a booking request for your Kigali visit. Our team will confirm your stay shortly.': 'Saba kubika icyumba mu gihe uzaba uri i Kigali. Abakozi bacu bazakwemeza vuba.', 'No payment required': 'Nta kwishyura bisabwa', 'Back to rooms': 'Subira ku byumba', 'Reserve your stay': 'Saba kurara', 'Booking request': 'Gusaba kubika icyumba', 'Share a few details and we’ll get back to you to confirm availability.': 'Tanga amakuru make, tuzagusubiza tukwemeza niba icyumba gihari.', 'There are no rooms available to book yet. Please contact Silent Villa directly.': 'Nta byumba byo kubika bihari ubu. Hamagara Silent Villa.', 'Choose a room': 'Hitamo icyumba', 'Select a room': 'Hitamo icyumba', 'Full name': 'Amazina yose', 'Your name': 'Amazina yawe', 'Phone number': 'Nimero ya telefoni', 'Email address': 'Imeyili', 'Check-in': 'Itariki yo kuhagera', 'Check-out': 'Itariki yo kugenda', 'Guests': 'Abashyitsi', guest: 'umushyitsi', guests: 'abashyitsi', 'Special requests': 'Ibyifuzo byihariye', optional: 'si ngombwa', 'Anything we should know before your stay?': 'Hari ikindi twamenya mbere y’uko uhagera?', 'Request to book': 'Saba kubika', 'Sending request…': 'Turimo kohereza ubusabe…', 'Your reservation is pending until confirmed by our team.': 'Ubusabe bwawe burategereje kwemezwa n’abakozi bacu.',
+  'You’re one step': 'Hasigaye intambwe imwe', ' closer to a ': ' kugira ngo ugere ku', 'calmer stay.': 'kiruhuko gituje.', 'Your request is pending. The Silent Villa team will contact you to confirm availability.': 'Ubusabe bwawe burategereje. Abakozi ba Silent Villa bazaguhamagara bakwemeze niba icyumba gihari.', Done: 'Byarangiye', 'Request received': 'Ubusabe bwakiriwe', 'Your selected room': 'Icyumba wahisemo',
+  'Silent Villa · Rooms': 'Silent Villa · Ibyumba', 'Make yourself': 'Itohore', 'at home.': 'nk’uri iwawe.', 'Browse our rooms and send a booking request directly to the Silent Villa team.': 'Reba ibyumba byacu maze wohereze ubusabe bwo kubika ku bakozi ba Silent Villa.',
+  'Find your fit': 'Hitamo icyumba kikubereye', 'Rooms made for rest.': 'Ibyumba bigenewe kuruhuka.', 'Choose a room and send us your dates. Our team will confirm your reservation.': 'Hitamo icyumba utwoherereze amatariki. Abakozi bacu bazakwemeza ubusabe bwawe.', 'Rooms could not be loaded. Please try again in a moment.': 'Ibyumba ntibishoboye gufunguka. Ongera ugerageze nyuma gato.', 'Room listings are being prepared. Please contact us by phone to arrange your stay.': 'Turimo gutegura urutonde rw’ibyumba. Hamagara utubwire igihe ushaka kurara.', 'per night': 'buri joro', 'A comfortable, welcoming room for a peaceful stay.': 'Icyumba cyiza kandi cyakira neza, kigenewe kuruhuka.', 'Planning a visit?': 'Urateganya kuza?', 'We’ll help you find the right stay.': 'Tuzagufasha kubona icyumba kikubereye.', 'Book a room': 'Saba icyumba',
+  'Silent Villa · Gallery': 'Silent Villa · Amafoto', 'A glimpse of': 'Dore uko', 'your stay.': 'uzaruhuka.', 'Explore photographs added by the Silent Villa team. Select any image to view it up close.': 'Reba amafoto yashyizweho n’abakozi ba Silent Villa. Kanda ku ifoto uyirebe neza.', 'The villa, in real life': 'Silent Villa uko imeze', 'photographs': 'amafoto',
+  'A little room for calm': 'Icyumba gituje', 'Where comfort meets silence': 'Aho ihumure rihurira n’amahoro', 'Stay in Kigali': 'Rara i Kigali',
+  'Find your quiet place.': 'Shaka ahantu hawe hatuje.', 'Services': 'Serivisi', 'Short Stay': 'Kurara igihe gito', 'Long Stays': 'Kurara igihe kirekire', 'Family Stays': 'Kurara n’umuryango', 'Food & Beverages': 'Ibiribwa n’ibinyobwa', 'Massage & Wellness': 'Massage n’ubuzima bwiza', 'A comfortable base for short visits and weekend escapes.': 'Ahantu heza ho kurara mu ruzinduko rugufi cyangwa muri weekend.', 'A calm, comfortable setting for longer stays, with kitchen services.': 'Ahantu hatuje kandi heza ho kumara igihe kirekire, hari na serivisi zo mu gikoni.', 'Flexible stays with comfort and privacy for the whole family.': 'Icyumba cyiza kandi cyihariye gihuje n’umuryango wose.', 'Food and beverage options during your stay.': 'Ibiribwa n’ibinyobwa mu gihe uzaba uharaye.', 'Massage and wellness to help you unwind.': 'Massage igufasha kuruhuka no kumererwa neza.',
+  'The gallery could not be loaded. Please try again later.': 'Amafoto ntashoboye gufunguka. Ongera ugerageze nyuma.', 'No photos have been added to the gallery yet.': 'Nta mafoto arashyirwa mu bubiko.',
+  'A simple way to pay.': 'Uburyo bworoshye bwo kwishyura.', 'Use the Silent Villa USSD code to make your payment. Please confirm the amount directly with the guest house.': 'Koresha kode ya USSD ya Silent Villa wishyure. Banza wemeze amafaranga wishyura uhamagaye inzu y’abashyitsi.', 'Questions? Call 0788 324 736': 'Ufite ikibazo? Hamagara 0788 324 736', 'Dial this USSD code': 'Kanda iyi kode ya USSD', 'Manual USSD payment. This website does not process payments automatically.': 'Kwishyura bikorwa na USSD. Uru rubuga ntirwakira ubwishyu ubwabwo.',
+  'Seen enough to imagine your stay?': 'Wamaze kwiyumvisha ikiruhuko cyawe?', 'Contact the villa': 'Twandikire', 'A warm welcome starts here': 'Murakaza neza, dutangire hano', 'We’re here to help you feel at home.': 'Turi hano kugira ngo twumve umeze nk’uri iwawe.', 'Speak with Silent Villa directly about your stay, directions, or any questions before you arrive.': 'Vugana na Silent Villa ku bijyanye n’icumbi, inzira cyangwa ibindi bibazo mbere y’uko uhagera.', 'Call the villa': 'Hamagara Villa', 'Call now': 'Hamagara ubu', 'Start a conversation': 'Tangira ikiganiro', 'Message us': 'Twandikire', 'Visit Silent Villa': 'Sura Silent Villa',
+}
+
+type LanguageContextValue = { language: Language; setLanguage: (language: Language) => void; t: (text: string) => string }
+const LanguageContext = createContext<LanguageContextValue | null>(null)
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(() => localStorage.getItem('silent-villa-language') === 'rw' ? 'rw' : 'en')
+  const setLanguage = (next: Language) => {
+    localStorage.setItem('silent-villa-language', next)
+    setLanguageState(next)
+  }
+  useEffect(() => { document.documentElement.lang = language }, [language])
+  const value = useMemo<LanguageContextValue>(() => ({ language, setLanguage, t: (text) => language === 'rw' ? (translations[text] || text) : text }), [language])
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext)
+  if (!context) throw new Error('useLanguage must be used inside LanguageProvider')
+  return context
+}
+
+export function LanguageSwitch({ compact = false }: { compact?: boolean }) {
+  const { language, setLanguage } = useLanguage()
+  return (
+    <div role="group" aria-label="Choose language" className={`inline-flex items-center rounded-full border border-white/20 bg-white/5 p-1 text-xs ${compact ? '' : 'shrink-0'}`}>
+      <button type="button" lang="en" aria-label="English" title="English" aria-pressed={language === 'en'} onClick={() => setLanguage('en')} className={`rounded-full px-3 py-2 transition ${language === 'en' ? 'bg-[#f4f0e7] font-semibold text-[#24342a]' : 'text-stone-200 hover:text-white'}`}>EN</button>
+      <button type="button" lang="rw" aria-label="Kinyarwanda" title="Kinyarwanda" aria-pressed={language === 'rw'} onClick={() => setLanguage('rw')} className={`rounded-full px-3 py-2 transition ${language === 'rw' ? 'bg-[#f4f0e7] font-semibold text-[#24342a]' : 'text-stone-200 hover:text-white'}`}>RW</button>
+    </div>
+  )
+}

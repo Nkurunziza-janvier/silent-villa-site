@@ -3,10 +3,12 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, CalendarDays, Check, Clock3, LoaderCircle, MapPin, ShieldCheck, Users, X } from 'lucide-react'
 import { api, imageUrl, type Room } from './api'
+import { LanguageSwitch, useLanguage } from './i18n'
 
 const today = new Date().toISOString().slice(0, 10)
 
 export default function BookingPage() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const [rooms, setRooms] = useState<Room[]>([])
   const [loadingRooms, setLoadingRooms] = useState(true)
@@ -78,21 +80,21 @@ export default function BookingPage() {
     } catch (err) { setError((err as Error).message) } finally { setBusy(false) }
   }
 
-  const fieldClass = 'mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-[#977956] focus:ring-2 focus:ring-[#977956]/15'
+  const fieldClass = 'mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-[#756047] focus:ring-2 focus:ring-[#756047]/15'
 
   return (
-    <main className="min-h-screen bg-[#f5f1ea]">
+    <main className="min-h-screen bg-[#f4f0e7]">
       <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
-        <aside className="relative hidden overflow-hidden bg-[#171712] text-white lg:block">
+        <aside className="relative hidden overflow-hidden bg-[#24342a] text-white lg:block">
           <img src={selectedRoom ? imageUrl(selectedRoom.imageUrl) : '/media/room-1.jpg'} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#171712] via-[#171712]/45 to-[#171712]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#24342a] via-[#24342a]/45 to-[#24342a]/20" />
           <div className="relative flex min-h-screen flex-col justify-between p-12 xl:p-16">
-            <Link to="/" className="flex items-center gap-3 text-white"><span className="brand-mark grid h-11 w-11 place-items-center rounded-full border border-[#d4b37f]/60 text-sm text-[#f5e7cc]">SV</span><span className="font-serif text-xl">Silent Villa</span></Link>
+            <Link to="/" className="inline-flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#bda06b]"><img src="/media/silent-villa-logo.jpg" alt="Silent Villa Guest House — Where Comfort Meets Silence" className="h-16 w-[12rem] rounded-lg object-cover shadow-lg" /></Link>
             <div className="max-w-lg pb-6">
-              <span className="text-xs uppercase tracking-[0.3em] text-[#e2c89a]">A quieter kind of stay</span>
-              <h1 className="mt-5 font-serif text-6xl leading-[0.95] tracking-tight xl:text-7xl">Your room<br /><span className="italic text-[#e2c89a]">is waiting.</span></h1>
-              <p className="mt-6 max-w-md leading-relaxed text-stone-300">Make a booking request for your Kigali visit. Our team will confirm your stay shortly.</p>
-              <div className="mt-9 flex flex-wrap gap-5 text-xs text-stone-300"><span className="inline-flex items-center gap-2"><MapPin size={14} className="text-[#d4b37f]" /> Kigali, Rwanda</span><span className="inline-flex items-center gap-2"><ShieldCheck size={14} className="text-[#d4b37f]" /> No payment required</span></div>
+              <span className="text-xs uppercase tracking-[0.3em] text-[#d8c28f]">{t('A quieter kind of stay')}</span>
+              <h1 className="mt-5 font-serif text-6xl leading-[0.95] tracking-tight xl:text-7xl">{t('Your room')}<br /><span className="italic text-[#d8c28f]">{t('is waiting.')}</span></h1>
+              <p className="mt-6 max-w-md leading-relaxed text-stone-300">{t('Make a booking request for your Kigali visit. Our team will confirm your stay shortly.')}</p>
+              <div className="mt-9 flex flex-wrap gap-5 text-xs text-stone-300"><span className="inline-flex items-center gap-2"><MapPin size={14} className="text-[#bda06b]" /> Kigali, Rwanda</span><span className="inline-flex items-center gap-2"><ShieldCheck size={14} className="text-[#bda06b]" /> {t('No payment required')}</span></div>
             </div>
             <p className="text-xs tracking-wide text-stone-500">SILENT VILLA · WHERE COMFORT MEETS SILENCE</p>
           </div>
@@ -100,24 +102,24 @@ export default function BookingPage() {
 
         <section className="flex min-h-screen flex-col px-5 py-7 sm:px-10 lg:px-14 xl:px-20">
           <div className="mx-auto w-full max-w-xl">
-            <Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"><ArrowLeft size={16} /> Back to rooms</Link>
+            <div className="flex items-center justify-between gap-3"><Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"><ArrowLeft size={16} /> {t('Back to rooms')}</Link><LanguageSwitch /></div>
             <div className="mt-10 sm:mt-14">
-              <p className="text-xs uppercase tracking-[0.28em] text-[#806342]">Reserve your stay</p>
-              <h2 className="mt-3 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">Booking request</h2>
-              <p className="mt-3 text-sm leading-relaxed text-stone-500">Share a few details and we’ll get back to you to confirm availability.</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-[#665940]">{t('Reserve your stay')}</p>
+              <h2 className="mt-3 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">{t('Booking request')}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-stone-500">{t('Share a few details and we’ll get back to you to confirm availability.')}</p>
             </div>
 
-            {loadingRooms ? <div className="mt-10 flex items-center gap-3 text-sm text-stone-500"><LoaderCircle size={18} className="animate-spin" /> Loading available rooms…</div> : rooms.length === 0 ? <div className="mt-8 rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">There are no rooms available to book yet. Please contact Silent Villa directly.</div> : (
+            {loadingRooms ? <div className="mt-10 flex items-center gap-3 text-sm text-stone-500"><LoaderCircle size={18} className="animate-spin" /> {t('Loading available rooms…')}</div> : rooms.length === 0 ? <div className="mt-8 rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('There are no rooms available to book yet. Please contact Silent Villa directly.')}</div> : (
               <form onSubmit={submit} className="mt-8 space-y-5">
-                {selectedRoom && <div className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3"><img src={imageUrl(selectedRoom.imageUrl)} alt={selectedRoom.name} className="h-20 w-24 rounded-xl object-cover" /><div className="min-w-0 flex-1"><p className="font-serif text-xl text-stone-900">{selectedRoom.name}</p><p className="mt-1 text-sm text-stone-500">RWF {Number(selectedRoom.price).toLocaleString()} <span className="text-xs">/ night</span></p></div></div>}
-                <label className="block text-sm font-medium text-stone-700">Choose a room<select className={fieldClass} value={form.roomId} required onChange={(event) => setForm({ ...form, roomId: event.target.value })}><option value="" disabled>Select a room</option>{rooms.map((room) => <option key={room.id} value={room.id}>{room.name} · RWF {Number(room.price).toLocaleString()} / night</option>)}</select></label>
-                <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-medium text-stone-700">Full name<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Your name" /></label><label className="block text-sm font-medium text-stone-700">Phone number<input className={fieldClass} autoComplete="tel" required maxLength={40} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+250 7xx xxx xxx" /></label></div>
-                <label className="block text-sm font-medium text-stone-700">Email address<input className={fieldClass} type="email" autoComplete="email" required maxLength={190} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
-                <div className="grid gap-4 sm:grid-cols-3"><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> Check-in</span><input className={fieldClass} type="date" min={today} required value={form.checkIn} onChange={(event) => setForm({ ...form, checkIn: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> Check-out</span><input className={fieldClass} type="date" min={form.checkIn || today} required value={form.checkOut} onChange={(event) => setForm({ ...form, checkOut: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><Users size={14} /> Guests</span><select className={fieldClass} value={form.guests} onChange={(event) => setForm({ ...form, guests: event.target.value })}>{Array.from({ length: 10 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1} {index === 0 ? 'guest' : 'guests'}</option>)}</select></label></div>
-                <label className="block text-sm font-medium text-stone-700">Special requests <span className="font-normal text-stone-400">(optional)</span><textarea className={`${fieldClass} min-h-24 resize-y`} maxLength={2000} value={form.specialRequests} onChange={(event) => setForm({ ...form, specialRequests: event.target.value })} placeholder="Anything we should know before your stay?" /></label>
+                {selectedRoom && <div className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3"><img src={imageUrl(selectedRoom.imageUrl)} alt={selectedRoom.name} className="h-20 w-24 rounded-xl object-cover" /><div className="min-w-0 flex-1"><p className="font-serif text-xl text-stone-900">{selectedRoom.name}</p><p className="mt-1 text-sm text-stone-500">RWF {Number(selectedRoom.price).toLocaleString()} <span className="text-xs">{t('/ night')}</span></p></div></div>}
+                <label className="block text-sm font-medium text-stone-700">{t('Choose a room')}<select className={fieldClass} value={form.roomId} required onChange={(event) => setForm({ ...form, roomId: event.target.value })}><option value="" disabled>{t('Select a room')}</option>{rooms.map((room) => <option key={room.id} value={room.id}>{room.name} · RWF {Number(room.price).toLocaleString()} / night</option>)}</select></label>
+                <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-medium text-stone-700">{t('Full name')}<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder={t('Your name')} /></label><label className="block text-sm font-medium text-stone-700">{t('Phone number')}<input className={fieldClass} autoComplete="tel" required maxLength={40} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+250 7xx xxx xxx" /></label></div>
+                <label className="block text-sm font-medium text-stone-700">{t('Email address')}<input className={fieldClass} type="email" autoComplete="email" required maxLength={190} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
+                <div className="grid gap-4 sm:grid-cols-3"><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {t('Check-in')}</span><input className={fieldClass} type="date" min={today} required value={form.checkIn} onChange={(event) => setForm({ ...form, checkIn: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {t('Check-out')}</span><input className={fieldClass} type="date" min={form.checkIn || today} required value={form.checkOut} onChange={(event) => setForm({ ...form, checkOut: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><Users size={14} /> {t('Guests')}</span><select className={fieldClass} value={form.guests} onChange={(event) => setForm({ ...form, guests: event.target.value })}>{Array.from({ length: 10 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1} {t(index === 0 ? 'guest' : 'guests')}</option>)}</select></label></div>
+                <label className="block text-sm font-medium text-stone-700">{t('Special requests')} <span className="font-normal text-stone-400">({t('optional')})</span><textarea className={`${fieldClass} min-h-24 resize-y`} maxLength={2000} value={form.specialRequests} onChange={(event) => setForm({ ...form, specialRequests: event.target.value })} placeholder={t('Anything we should know before your stay?')} /></label>
                 {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-                <button disabled={busy || rooms.length === 0} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#171712] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#38352e] disabled:cursor-not-allowed disabled:opacity-60">{busy ? <><LoaderCircle size={17} className="animate-spin" /> Sending request…</> : <>Request to book <ArrowLeft className="rotate-180" size={16} /></>}</button>
-                <p className="flex items-center justify-center gap-2 pb-8 text-xs text-stone-400"><Clock3 size={13} /> Your reservation is pending until confirmed by our team.</p>
+                <button disabled={busy || rooms.length === 0} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#24342a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#35463b] disabled:cursor-not-allowed disabled:opacity-60">{busy ? <><LoaderCircle size={17} className="animate-spin" /> {t('Sending request…')}</> : <>{t('Request to book')} <ArrowLeft className="rotate-180" size={16} /></>}</button>
+                <p className="flex items-center justify-center gap-2 pb-8 text-xs text-stone-400"><Clock3 size={13} /> {t('Your reservation is pending until confirmed by our team.')}</p>
               </form>
             )}
           </div>
@@ -130,7 +132,7 @@ export default function BookingPage() {
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-[#171712]/65 px-4 py-8 backdrop-blur-md"
+            className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-[#24342a]/65 px-4 py-8 backdrop-blur-md"
             onMouseDown={(event) => { if (event.target === event.currentTarget) setBookingSuccess(null) }}
           >
             <motion.section
@@ -148,27 +150,27 @@ export default function BookingPage() {
 
               <div className="relative mx-auto grid h-24 w-24 place-items-center">
                 {!shouldReduceMotion && <>
-                  <motion.span initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1.65, opacity: 0 }} transition={{ duration: 0.9, ease: 'easeOut' }} className="absolute inset-2 rounded-full border border-[#d4b37f]/80" />
+                  <motion.span initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1.65, opacity: 0 }} transition={{ duration: 0.9, ease: 'easeOut' }} className="absolute inset-2 rounded-full border border-[#bda06b]/80" />
                   <motion.span initial={{ scale: 0.55, opacity: 0 }} animate={{ scale: 1.3, opacity: 0 }} transition={{ duration: 0.85, delay: 0.12, ease: 'easeOut' }} className="absolute inset-1 rounded-full border border-emerald-300/80" />
                 </>}
-                <motion.div initial={shouldReduceMotion ? false : { scale: 0, rotate: -18 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.08 }} className="relative grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-gradient-to-br from-[#d4b37f] to-[#b18a52] text-white shadow-[0_12px_30px_rgba(177,138,82,0.3)]">
+                <motion.div initial={shouldReduceMotion ? false : { scale: 0, rotate: -18 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 340, damping: 18, delay: 0.08 }} className="relative grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-gradient-to-br from-[#bda06b] to-[#b18a52] text-white shadow-[0_12px_30px_rgba(177,138,82,0.3)]">
                   <motion.span initial={shouldReduceMotion ? false : { scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3, delay: 0.28 }}><Check size={30} strokeWidth={2.5} /></motion.span>
                 </motion.div>
                 <motion.span initial={shouldReduceMotion ? false : { scale: 0 }} animate={{ scale: [0, 1.15, 1] }} transition={{ duration: 0.42, delay: 0.35 }} className="absolute right-1 top-2 grid h-7 w-7 place-items-center rounded-full border-2 border-[#fcfaf6] bg-emerald-500 text-white"><Check size={13} strokeWidth={3} /></motion.span>
               </div>
 
-              <motion.p initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mt-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#806342]">Request received · #{String(bookingSuccess.id).padStart(6, '0')}</motion.p>
-              <motion.h2 initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }} id="booking-success-title" className="mt-3 font-serif text-4xl leading-tight tracking-tight text-stone-900 sm:text-5xl">You’re one step<br className="hidden sm:block" /> closer to a <span className="italic text-[#977956]">calmer stay.</span></motion.h2>
+              <motion.p initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }} className="mt-5 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#665940]">{t('Request received')} · #{String(bookingSuccess.id).padStart(6, '0')}</motion.p>
+              <motion.h2 initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 }} id="booking-success-title" className="mt-3 font-serif text-4xl leading-tight tracking-tight text-stone-900 sm:text-5xl">{t('You’re one step')}<br className="hidden sm:block" />{t(' closer to a ')}<span className="italic text-[#756047]">{t('calmer stay.')}</span></motion.h2>
               <p id="booking-success-description" className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-stone-600">{bookingSuccess.message}</p>
 
               <div className="mt-7 rounded-2xl border border-stone-200 bg-white p-4 text-left sm:p-5">
-                <div className="flex items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f3efe8] text-[#806342]"><CalendarDays size={18} /></span><div className="min-w-0"><p className="truncate text-sm font-medium text-stone-900">{bookingSuccess.roomName}</p><p className="mt-1 text-xs text-stone-500">{bookingSuccess.checkIn} <span className="px-1">→</span> {bookingSuccess.checkOut} <span className="px-1">·</span> {bookingSuccess.guests} {bookingSuccess.guests === 1 ? 'guest' : 'guests'}</p></div></div>
-                <div className="mt-4 flex items-start gap-2.5 border-t border-stone-100 pt-4 text-xs leading-relaxed text-stone-500"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#977956]" /><p>Your request is pending. The Silent Villa team will contact you to confirm availability.</p></div>
+                <div className="flex items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f3efe8] text-[#665940]"><CalendarDays size={18} /></span><div className="min-w-0"><p className="truncate text-sm font-medium text-stone-900">{bookingSuccess.roomName}</p><p className="mt-1 text-xs text-stone-500">{bookingSuccess.checkIn} <span className="px-1">→</span> {bookingSuccess.checkOut} <span className="px-1">·</span> {bookingSuccess.guests} {bookingSuccess.guests === 1 ? 'guest' : 'guests'}</p></div></div>
+                <div className="mt-4 flex items-start gap-2.5 border-t border-stone-100 pt-4 text-xs leading-relaxed text-stone-500"><Clock3 size={15} className="mt-0.5 shrink-0 text-[#756047]" /><p>{t('Your request is pending. The Silent Villa team will contact you to confirm availability.')}</p></div>
               </div>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <button type="button" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#171712] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#38352e]">Done</button>
-                <Link to="/rooms" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:bg-stone-50">Explore rooms <ArrowLeft size={15} className="rotate-180" /></Link>
+                <button type="button" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#24342a] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#35463b]">{t('Done')}</button>
+                <Link to="/rooms" onClick={() => setBookingSuccess(null)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-700 transition hover:border-stone-500 hover:bg-stone-50">{t('Explore rooms')} <ArrowLeft size={15} className="rotate-180" /></Link>
               </div>
               <p className="mt-5 text-[10px] uppercase tracking-[0.16em] text-stone-400">Silent Villa · Kigali, Rwanda</p>
             </motion.section>
