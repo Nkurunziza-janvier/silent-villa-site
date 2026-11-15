@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 
 const navItems = [
+  { label: 'Home', href: '/' },
   { label: 'Rooms', href: '/rooms' },
   { label: 'Gallery', href: '/gallery' },
 ]
@@ -379,6 +380,7 @@ function VillaSite() {
                 key={item.label}
                 to={item.href}
                 aria-current={
+                  (item.href === '/' && currentPath === '/') ||
                   (item.href === '/rooms' && currentPath === '/rooms') ||
                   (item.href === '/gallery' && currentPath === '/gallery') ||
                   (item.href.startsWith('/#') && currentPath === '/' && activeSection === item.href.slice(2))
@@ -387,6 +389,7 @@ function VillaSite() {
                 }
                 className={`nav-link relative rounded-full px-3 py-2 text-[13px] transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#bda06b] ${
                   (item.href === '/rooms' && currentPath === '/rooms') ||
+                  (item.href === '/' && currentPath === '/') ||
                   (item.href === '/gallery' && currentPath === '/gallery') ||
                   (item.href.startsWith('/#') && currentPath === '/' && activeSection === item.href.slice(2))
                     ? 'text-[#f2ddb5]'
@@ -432,6 +435,7 @@ function VillaSite() {
                     key={item.label}
                     to={item.href}
                     aria-current={
+                      (item.href === '/' && currentPath === '/') ||
                       (item.href === '/rooms' && currentPath === '/rooms') ||
                       (item.href === '/gallery' && currentPath === '/gallery') ||
                       (item.href.startsWith('/#') && currentPath === '/' && activeSection === item.href.slice(2))
@@ -440,6 +444,7 @@ function VillaSite() {
                     }
                     className={`rounded-full px-4 py-3 text-sm transition ${
                       (item.href === '/rooms' && currentPath === '/rooms') ||
+                      (item.href === '/' && currentPath === '/') ||
                       (item.href === '/gallery' && currentPath === '/gallery') ||
                       (item.href.startsWith('/#') && currentPath === '/' && activeSection === item.href.slice(2))
                         ? 'bg-white/10 text-[#f2ddb5]'
