@@ -41,6 +41,7 @@ export function imageUrl(url: string) {
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
+    cache: 'no-store',
     headers: {
       ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

@@ -48,6 +48,10 @@ fs.mkdirSync(uploadDir, { recursive: true })
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }))
 app.use(express.json({ limit: '1mb' }))
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  next()
+})
 app.use('/uploads', express.static(uploadDir, { maxAge: '7d' }))
 app.use('/api/auth/login', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 }))
 

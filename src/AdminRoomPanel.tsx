@@ -13,11 +13,13 @@ export default function AdminRoomPanel({
   rooms,
   onRefresh,
   onNotice,
+  onRoomUpdated,
 }: {
   token: string
   rooms: AdminRoom[]
   onRefresh: () => Promise<void>
   onNotice: (message: string) => void
+  onRoomUpdated: (room: AdminRoom) => void
 }) {
   const { t } = useLanguage()
   const [editing, setEditing] = useState<AdminRoom | null>(null)
@@ -62,7 +64,8 @@ export default function AdminRoomPanel({
     if (form.image) data.append('image', form.image)
     try {
       if (editing) {
-        await api.updateRoom(token, editing.id, data)
+        const updatedRoom = await api.updateRoom(token, editing.id, data)
+        onRoomUpdated(updatedRoom)
       } else {
         await api.addRoom(token, data)
       }
