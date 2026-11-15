@@ -41,7 +41,9 @@ const pool = mysql.createPool({
   timezone: 'Z',
 })
 
-const uploadDir = path.resolve(dirname, '../uploads')
+// Keep uploads beneath the public asset directory so the deployed API can serve
+// both existing room photos and newly uploaded room/gallery images.
+const uploadDir = path.resolve(dirname, '../public/uploads')
 fs.mkdirSync(uploadDir, { recursive: true })
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }))
@@ -233,6 +235,58 @@ app.post('/api/admin/rooms', requireAdmin, imageUpload.single('image'), async (r
     fs.unlink(req.file.path, () => {})
     next(error)
   }
+})
+
+app.patch('/api/admin/rooms/:id', requireAdmin, imageUpload.single('image'), async (req, res, next) => {
+  const id = Number(req.params.id)
+  const { name, price, description = '', isActive } = req.body || {}
+  if (!Number.isSafeInteger(id) || id < 1 || !name?.trim() || name.trim().length > 120 || !Number.isFinite(Number(price)) || Number(price) <= 0 || String(description).length > 2000 || (isActive !== undefined && !['true', 'false'].includes(String(isActive)))) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    return res.status(400).json({ error: 'Enter a valid room name, positive price, description, and visibility.' })
+  }
+  try {
+    const [existing] = await pool.query('SELECT image_url AS imageUrl, is_active AS isActive FROM rooms WHERE id = ?', [id])
+    if (!existing.length) {
+      if (req.file) fs.unlink(req.file.path, () => {})
+      return res.status(404).json({ error: 'Room not found.' })
+    }
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : existing[0].imageUrl
+    const active = isActive === undefined ? Boolean(existing[0].isActive) : String(isActive) === 'true'
+    await pool.query('UPDATE rooms SET name = ?, price = ?, description = ?, image_url = ?, is_active = ? WHERE id = ?', [name.trim(), Number(price), String(description).trim() || null, imageUrl, active, id])
+    if (req.file && existing[0].imageUrl.startsWith('/uploads/')) {
+      fs.unlink(path.join(uploadDir, path.basename(existing[0].imageUrl)), () => {})
+    }
+    res.json({ id, name: name.trim(), price: Number(price), description: String(description).trim() || null, imageUrl, isActive: active })
+  } catch (error) {
+    if (req.file) fs.unlink(req.file.path, () => {})
+    next(error)
+  }
+})
+
+app.delete('/api/admin/rooms/:id', requireAdmin, async (req, res, next) => {
+  const id = Number(req.params.id)
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(400).json({ error: 'Choose a valid room.' })
+  const connection = await pool.getConnection()
+  try {
+    await connection.beginTransaction()
+    const [existing] = await connection.query('SELECT image_url AS imageUrl FROM rooms WHERE id = ? FOR UPDATE', [id])
+    if (!existing.length) {
+      await connection.rollback()
+      return res.status(404).json({ error: 'Room not found.' })
+    }
+    const [bookings] = await connection.query('SELECT id FROM bookings WHERE room_id = ? LIMIT 1 FOR UPDATE', [id])
+    if (bookings.length) {
+      await connection.rollback()
+      return res.status(409).json({ error: 'This room has booking history. Hide it from guests by turning off its availability instead.' })
+    }
+    await connection.query('DELETE FROM rooms WHERE id = ?', [id])
+    await connection.commit()
+    if (existing[0].imageUrl.startsWith('/uploads/')) fs.unlink(path.join(uploadDir, path.basename(existing[0].imageUrl)), () => {})
+    res.json({ message: 'Room deleted.' })
+  } catch (error) {
+    await connection.rollback()
+    next(error)
+  } finally { connection.release() }
 })
 
 app.get('/api/admin/gallery', requireAdmin, async (_req, res, next) => {

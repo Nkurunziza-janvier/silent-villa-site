@@ -102,7 +102,7 @@ export default function BookingPage() {
 
         <section className="flex min-h-screen flex-col px-5 py-7 sm:px-10 lg:px-14 xl:px-20">
           <div className="mx-auto w-full max-w-xl">
-            <div className="flex items-center justify-between gap-3"><Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"><ArrowLeft size={16} /> {t('Back to rooms')}</Link><LanguageSwitch /></div>
+            <div className="flex items-center justify-between gap-3"><Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"><ArrowLeft size={16} /> {t('Back to rooms')}</Link><LanguageSwitch light /></div>
             <div className="mt-10 sm:mt-14">
               <p className="text-xs uppercase tracking-[0.28em] text-[#665940]">{t('Reserve your stay')}</p>
               <h2 className="mt-3 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">{t('Booking request')}</h2>
