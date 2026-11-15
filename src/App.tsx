@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { api, imageUrl, type GalleryImage, type Room } from './api'
@@ -7,109 +7,17 @@ import BookingPage from './BookingPage'
 import { LanguageSwitch, useLanguage } from './i18n'
 import {
   ArrowRight,
-  Building2,
-  Camera,
   CalendarDays,
-  HeartPulse,
-  Home,
-  MapPin,
   Menu,
   MessageCircle,
-  Navigation,
   Phone,
-  Play,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  UtensilsCrossed,
-  Users,
   X,
 } from 'lucide-react'
 
 const navItems = [
-  { label: 'The villa', href: '/#about' },
   { label: 'Rooms', href: '/rooms' },
-  { label: 'Experiences', href: '/#services' },
   { label: 'Gallery', href: '/gallery' },
-  { label: 'Find us', href: '/#location' },
-  { label: 'Payment', href: '/#payment' },
 ]
-
-const services = [
-  {
-    title: 'Short Stay',
-    icon: Home,
-    description: 'A comfortable base for short visits and weekend escapes.',
-  },
-  {
-    title: 'Long Stays',
-    icon: Building2,
-    description: 'A calm, comfortable setting for longer stays, with kitchen services.',
-  },
-  {
-    title: 'Family Stays',
-    icon: Users,
-    description: 'Flexible stays with comfort and privacy for the whole family.',
-  },
-  {
-    title: 'Food & Beverages',
-    icon: UtensilsCrossed,
-    description: 'Food and beverage options during your stay.',
-  },
-  {
-    title: 'Massage & Wellness',
-    icon: HeartPulse,
-    description: 'Massage and wellness to help you unwind.',
-  },
-]
-
-const journeyVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
-
-function TypewriterPhrase() {
-  const { t } = useLanguage()
-  const phrases = [t('quiet place.'), t('calm retreat.'), t('Kigali stay.')]
-  const shouldReduceMotion = useReducedMotion()
-  const [phraseIndex, setPhraseIndex] = useState(0)
-  const [visibleCharacters, setVisibleCharacters] = useState(0)
-  const [isDeleting, setIsDeleting] = useState(false)
-
-  useEffect(() => {
-    if (shouldReduceMotion) {
-      setVisibleCharacters(phrases[0].length)
-      return
-    }
-
-    const phrase = phrases[phraseIndex]
-    const isComplete = visibleCharacters === phrase.length
-    const isEmpty = visibleCharacters === 0
-    const delay = isComplete && !isDeleting ? 1800 : isDeleting ? 45 : 95
-    const timeout = window.setTimeout(() => {
-      if (isComplete && !isDeleting) {
-        setIsDeleting(true)
-      } else if (isEmpty && isDeleting) {
-        setIsDeleting(false)
-        setPhraseIndex((current) => (current + 1) % phrases.length)
-      } else {
-        setVisibleCharacters((current) => current + (isDeleting ? -1 : 1))
-      }
-    }, delay)
-
-    return () => window.clearTimeout(timeout)
-  }, [isDeleting, phraseIndex, shouldReduceMotion, visibleCharacters])
-
-  const phrase = shouldReduceMotion
-    ? phrases[0]
-    : phrases[phraseIndex].slice(0, visibleCharacters)
-
-  return (
-    <span aria-hidden="true" className="italic text-[#d8c28f]">
-      {phrase}
-      {!shouldReduceMotion && (
-        <span className="ml-1 inline-block h-[0.8em] w-px translate-y-[0.06em] bg-[#bda06b] motion-safe:animate-pulse" />
-      )}
-    </span>
-  )
-}
 
 function RoomsPage() {
   const { t } = useLanguage()
@@ -284,8 +192,6 @@ function VillaSite() {
   const currentPath = location.pathname.replace(/\/+$/, '') || '/'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
-  const [journeyStarted, setJourneyStarted] = useState(false)
-  const [journeyError, setJourneyError] = useState('')
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [rooms, setRooms] = useState<Room[]>([])
@@ -294,7 +200,6 @@ function VillaSite() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [galleryLoading, setGalleryLoading] = useState(true)
   const [galleryError, setGalleryError] = useState('')
-  const journeyVideoRef = useRef<HTMLVideoElement>(null)
   const shouldReduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll()
   const scrollProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
@@ -336,18 +241,6 @@ function VillaSite() {
       window.removeEventListener('focus', loadGallery)
     }
   }, [])
-
-  const playJourney = async () => {
-    const video = journeyVideoRef.current
-    if (!video) return
-
-    setJourneyError('')
-    try {
-      await video.play()
-    } catch {
-      setJourneyError('The video could not start. Use the player controls to try again.')
-    }
-  }
 
   useEffect(() => {
     if (location.hash) {
@@ -509,468 +402,67 @@ function VillaSite() {
         <GalleryPage gallery={gallery} galleryLoading={galleryLoading} galleryError={galleryError} onSelectImage={setSelectedImage} />
       ) : (
       <main>
-        <section id="home" className="relative isolate min-h-[78svh] overflow-hidden bg-[#24342a] text-white sm:min-h-[82svh]">
-          <video
-            className="absolute inset-0 z-[-2] h-full w-full object-cover"
-            autoPlay={!shouldReduceMotion}
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          >
-            <source src={journeyVideo} type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 z-0 bg-[#24342a]/70" />
-          <div className="absolute inset-0 z-0 bg-gradient-to-r from-[#24342a]/75 via-[#24342a]/55 to-[#24342a]/40" />
-          <div className="relative z-10 mx-auto grid min-h-[78svh] max-w-7xl items-center gap-12 px-4 py-16 sm:min-h-[82svh] sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:px-8">
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-              animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.75, ease: 'easeOut' }}
-              className="max-w-3xl"
-            >
-              <div className="mb-7 flex flex-wrap items-center gap-x-5 gap-y-3">
-                <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-[#d8c28f]">
-                  <Sparkles size={13} />
-                  {t('Guest house · Kigali')}
-                </span>
-                <span className="inline-flex items-center gap-1.5 border-l border-white/20 pl-5 text-xs text-stone-300">
-                  <Star size={13} className="fill-[#bda06b] text-[#bda06b]" />
-                  <span className="font-medium text-white">5.0</span>
-                  <span>· 1 review</span>
-                </span>
-              </div>
-              <h1 aria-label={t('Find your quiet place.')} className="max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.055em] sm:text-7xl lg:text-[92px]">
-                <span aria-hidden="true">{t('Find your')}</span><br />
-                <TypewriterPhrase />
-              </h1>
-              <p className="mt-6 font-serif text-2xl text-[#f0dfc0] sm:text-3xl">
-                Silent Villa, Kigali
-              </p>
-              <p className="mt-4 max-w-lg text-sm leading-relaxed text-stone-300 sm:text-base">
-                {t('A peaceful escape where comfort meets calm. Settle into a quiet, welcoming space made for rest and refreshment.')}
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  to="/book"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#bda06b] px-6 py-3 text-sm font-medium text-[#1b1b17] transition hover:bg-[#d8c28f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d8c28f]"
-                >
-                  {t('Book your stay')}
-                  <ArrowRight size={16} />
-                </Link>
-                <Link
-                  to="/rooms"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d8c28f]"
-                >
-                  {t('Explore rooms')}
-                  <ArrowRight size={16} />
-                </Link>
-              </div>
-              <div className="mt-9 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-stone-400 lg:hidden">
-                <MapPin size={14} className="text-[#bda06b]" />
-                KN 288 St · Kigali, Rwanda
-              </div>
-            </motion.div>
-
-            <motion.aside
-              initial={shouldReduceMotion ? false : { opacity: 0, x: 18 }}
-              animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="relative hidden lg:block"
-              aria-label="A guest room at Silent Villa"
-            >
-              <div className="group relative min-h-[390px] overflow-hidden rounded-[1.75rem] border border-white/20 bg-white/5 shadow-[0_28px_90px_rgba(0,0,0,0.24)]">
-                <img
-                  src="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
-                  alt="A guest bedroom at Silent Villa"
-                  loading="eager"
-                  className="absolute inset-0 h-full w-full object-cover object-center opacity-60 brightness-[0.78] saturate-[0.72] transition duration-700 group-hover:opacity-70"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#24342a]/65 via-[#24342a]/10 to-[#24342a]/15" />
-                <div className="absolute inset-4 rounded-[1.2rem] border border-white/15" />
-                <div className="absolute inset-x-8 bottom-8 text-white sm:inset-x-10 sm:bottom-10">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#d8c28f]">Silent Villa · Kigali</p>
-                  <p className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">{t('A little room for calm.')}</p>
-                </div>
-              </div>
-            </motion.aside>
-          </div>
-        </section>
-
-        <section id="about" className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1fr_0.92fr] lg:items-center lg:gap-24">
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-              whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-            >
-              <p className="mb-5 text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('A slower kind of stay')}</p>
-              <h2 className="max-w-xl font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('Space to settle.')}<br /><span className="italic text-[#756047]">{t('Room to breathe.')}</span></h2>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-stone-700">
-                {t('Welcome to Silent Villa, a peaceful escape where comfort meets calm. Enjoy your stay in a quiet, relaxing environment designed for rest and refreshment.')}
-              </p>
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-stone-700">
-                {t('Escape the noise of the city and discover true comfort. Every detail is designed for relaxation, privacy, and peace of mind — your perfect home away from home in Kigali.')}
-              </p>
-              <div className="mt-10 flex flex-wrap gap-x-8 gap-y-4 border-t border-stone-300 pt-6">
-                {[
-                  { label: 'Calm surroundings', value: '01' },
-                  { label: 'Warm hospitality', value: '02' },
-                  { label: 'A Kigali welcome', value: '03' },
-                ].map((item) => (
-                  <div key={item.value} className="flex items-center gap-3">
-                    <span className="font-serif text-sm italic text-[#756047]">{item.value}</span>
-                    <p className="text-sm text-stone-700">{t(item.label)}</p>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.97 }}
-              whileInView={shouldReduceMotion ? {} : { opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-              className="relative mx-auto w-full max-w-[540px] pb-5 pr-5 lg:mr-0"
-            >
-              <div className="absolute inset-5 rounded-[1.5rem] border border-[#bca47f]/55" />
-              <div className="relative overflow-hidden rounded-[1.5rem] bg-stone-200 shadow-[0_24px_60px_rgba(30,25,18,0.12)]">
-                <img
-                  src="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
-                  alt="Pink bed and carved wooden headboard in a Silent Villa room"
-                  loading="lazy"
-                  className="h-[420px] w-full object-cover object-center sm:h-[560px]"
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#24342a]/80 via-[#24342a]/25 to-transparent px-5 pb-5 pt-20 sm:px-7 sm:pb-7">
-                  <div className="flex items-end justify-between gap-4 text-white">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.25em] text-[#d8c28f]">The Silent Villa feeling</p>
-                      <p className="mt-2 font-serif text-2xl sm:text-3xl">A little more room for calm.</p>
-                    </div>
-                    <div className="hidden shrink-0 rounded-full border border-white/40 p-3 text-[#f0dfc0] sm:block">
-                      <ShieldCheck size={20} strokeWidth={1.5} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        <section id="rooms" className="bg-[#eee8dc] px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+        <section id="home" className="bg-[#24342a] px-4 py-10 text-white sm:px-6 sm:py-14 lg:px-8 lg:py-16">
           <div className="mx-auto max-w-7xl">
-            <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('Your room to unwind')}</p>
-                <h2 className="mt-4 max-w-2xl font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('Rest comes naturally here.')}</h2>
-              </div>
-              <div className="flex flex-wrap gap-5">
-                <Link to="/rooms" className="inline-flex items-center gap-2 text-sm font-medium text-stone-900 transition hover:text-[#665940]">
-                  {t('View all rooms')} <ArrowRight size={16} />
-                </Link>
-                <a href="tel:0788324736" className="inline-flex items-center gap-2 text-sm font-medium text-stone-900 transition hover:text-[#665940]">
-                  {t('Ask about a room')} <Phone size={15} />
+            <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#d8c28f] sm:text-xs">{t('Guest house · Kigali')}</p>
+            <div className="mt-4 flex flex-col gap-5 sm:mt-5 md:flex-row md:items-end md:justify-between">
+              <h1 className="max-w-3xl font-serif text-4xl leading-[1.02] tracking-[-0.04em] sm:text-5xl md:text-6xl lg:text-7xl">{t('Rooms for your stay in Kigali.')}</h1>
+              <div className="max-w-md md:pb-1">
+                <p className="text-sm leading-relaxed text-stone-300 sm:text-base">{t('Choose your room and book directly with Silent Villa.')}</p>
+                <a href="#rooms" className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#bda06b] px-5 py-2.5 text-sm font-medium text-[#24342a] transition hover:bg-[#dfcc9f]">
+                  {t('Explore rooms')} <ArrowRight size={15} />
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="rooms" className="min-h-[50vh] bg-[#f4f0e7] px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.28em] text-[#7d644d] sm:text-xs">{t('Silent Villa · Rooms')}</p>
+                <h2 className="mt-2 font-serif text-3xl leading-tight text-stone-900 sm:text-4xl md:text-5xl">{t('Available rooms')}</h2>
+              </div>
+              <a href="tel:0788324736" className="inline-flex min-h-10 items-center gap-2 text-sm font-medium text-[#665940] transition hover:text-stone-900">
+                {t('Questions? Call 0788 324 736')} <Phone size={15} />
+              </a>
             </div>
 
             {roomsError ? (
-              <p role="alert" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">Rooms could not be loaded right now. Please try again shortly.</p>
+              <p role="alert" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('Rooms could not be loaded right now. Please try again shortly.')}</p>
             ) : roomsLoading ? (
-              <p role="status" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-500">Loading available rooms…</p>
+              <p role="status" className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-500">{t('Loading available rooms…')}</p>
             ) : rooms.length === 0 ? (
-              <p className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">There are no rooms listed right now. Please check back soon or contact Silent Villa.</p>
+              <p className="rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('There are no rooms listed right now. Please check back soon or contact Silent Villa.')}</p>
             ) : (
-            <div className="grid gap-7 md:grid-cols-2">
-              {rooms.map((room, index) => (
-                <motion.article
-                  key={room.id}
-                  initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-                  whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ delay: index * 0.08, duration: 0.45 }}
-                  className={`group overflow-hidden ${index % 2 === 1 ? 'md:mt-16' : ''}`}
-                >
-                  <div className="relative overflow-hidden rounded-[1.5rem] bg-stone-200">
-                    <img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-[340px] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035] sm:h-[440px]" />
-                  </div>
-                  <div className="flex items-start justify-between gap-6 px-1 pt-5">
-                    <div className="min-w-0">
-                      <h3 className="font-serif text-3xl text-stone-900">{room.name}</h3>
-                      <p className="mt-2 max-w-sm text-sm leading-relaxed text-stone-600">{room.description || 'A comfortable room for a peaceful stay.'}</p>
-                      <p className="mt-3 text-sm font-medium text-[#665940]">RWF {Number(room.price).toLocaleString()} <span className="text-xs font-normal text-stone-500">/ night</span></p>
-                    </div>
-                    <Link to={`/book?room=${room.id}`} className="mt-1 inline-flex shrink-0 items-center gap-2 rounded-full bg-[#24342a] px-4 py-3 text-xs font-medium text-white transition hover:bg-[#35463b]">Book this room <ArrowRight size={14} /></Link>
-                  </div>
-                </motion.article>
-              ))}
-            </div>
-            )}
-          </div>
-        </section>
-
-        <section id="services" className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-            <Reveal className="lg:sticky lg:top-36 lg:self-start">
-                <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('Made for your kind of stay')}</p>
-                <h2 className="mt-5 font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('Stay a night.')}<br /><span className="italic text-[#756047]">{t('Stay a while.')}</span></h2>
-              <p className="mt-6 max-w-md text-base leading-relaxed text-stone-700">
-                {t('Short visit or longer stay, find a calmer base in Kigali.')}
-              </p>
-              <a href="tel:0788324736" className="mt-8 inline-flex items-center gap-3 text-sm font-medium text-stone-900">
-                {t('Call Silent Villa')} <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#24342a] text-white"><ArrowRight size={15} /></span>
-              </a>
-            </Reveal>
-
-            <div className="border-t border-stone-300">
-              {services.map(({ title, icon: Icon, description }, index) => (
-                <Reveal key={title} delay={index * 0.045}>
-                  <article className="group grid grid-cols-[44px_1fr_auto] items-start gap-4 border-b border-stone-300 py-6 sm:grid-cols-[56px_1fr_auto] sm:gap-6 sm:py-7">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full border border-stone-300 text-[#665940] transition duration-300 group-hover:border-[#24342a] group-hover:bg-[#24342a] group-hover:text-[#f2ddb5]">
-                      <Icon size={18} strokeWidth={1.6} />
-                    </span>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#665940]">0{index + 1}</p>
-                      <h3 className="mt-1 font-serif text-2xl text-stone-900 sm:text-3xl">{t(title)}</h3>
-                      <p className="mt-2 max-w-lg text-sm leading-relaxed text-stone-600">{t(description)}</p>
-                    </div>
-                    <ArrowRight size={17} className="mt-3 text-stone-400 transition duration-300 group-hover:translate-x-1 group-hover:text-stone-900" />
-                  </article>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="journey" className="overflow-hidden bg-[#24342a] px-4 py-20 text-white sm:px-6 sm:py-28 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-10 grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-end lg:gap-16">
-              <Reveal>
-                <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#cdb782]">{t('Before you arrive')}</p>
-                <h2 className="mt-5 font-serif text-5xl leading-[1.02] tracking-[-0.04em] sm:text-6xl">{t('The journey is part of the stay.')}</h2>
-              </Reveal>
-              <Reveal delay={0.1}>
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                  <p className="max-w-md text-base leading-relaxed text-stone-300">
-                    {t('See the approach to Silent Villa before you set off, then open directions for your arrival in Kigali.')}
-                  </p>
-                  <a href="https://maps.google.com/?q=227V%2BFJ+Kigali" target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-2 text-sm text-[#f0dfc0] transition hover:text-white">
-                    {t('Get directions')} <ArrowRight size={15} />
-                  </a>
-                </div>
-              </Reveal>
-            </div>
-
-            <Reveal>
-              <div className="group relative aspect-[3/4] overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#090908] shadow-[0_30px_90px_rgba(0,0,0,0.35)] lg:aspect-video">
-                <video
-                  ref={journeyVideoRef}
-                  className="absolute inset-0 h-full w-full bg-black object-cover"
-                  controls={journeyStarted || Boolean(journeyError)}
-                  playsInline
-                  preload="metadata"
-                  poster="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
-                  aria-label="Journey video to Silent Villa"
-                  onPlay={() => setJourneyStarted(true)}
-                  onError={() => setJourneyError('The journey video could not be loaded. Please try again later.')}
-                >
-                  <source src={journeyVideo} type="video/mp4" />
-                  Your browser does not support video playback.
-                </video>
-                {!journeyStarted && !journeyError && (
-                  <button
-                    type="button"
-                    onClick={playJourney}
-                    className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gradient-to-t from-black/50 via-black/10 to-black/20 text-white transition hover:from-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-[#bda06b]"
-                    aria-label="Play the journey video to Silent Villa"
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+                {rooms.map((room, index) => (
+                  <motion.article
+                    key={room.id}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                    whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.12 }}
+                    transition={{ delay: index % 3 * 0.06, duration: 0.4 }}
+                    className="group overflow-hidden rounded-2xl border border-stone-200/80 bg-white shadow-sm transition-shadow hover:shadow-lg"
                   >
-                    <span className="relative flex h-24 w-24 items-center justify-center">
-                      <span className="play-button-pulse absolute -inset-1 rounded-full border-2 border-[#f0dfc0]/90" />
-                      <span className="play-button-pulse play-button-pulse-delayed absolute -inset-1 rounded-full border border-[#f0dfc0]/70" />
-                      <span className="play-button-core relative z-10 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full border border-white/80 bg-[#bda06b] text-[#24342a] shadow-[0_10px_45px_rgba(0,0,0,0.5)] transition duration-300 group-hover:scale-110 group-hover:bg-[#f0d39e]">
-                        <Play size={28} fill="currentColor" className="ml-1" />
-                      </span>
-                    </span>
-                    <span className="rounded-full border border-white/35 bg-[#24342a]/75 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] shadow-lg backdrop-blur-md">
-                      {t('Tap to watch the journey')}
-                    </span>
-                  </button>
-                )}
-                {journeyError && (
-                  <p role="alert" className="absolute bottom-4 left-4 right-4 rounded-lg bg-[#24342a]/90 px-4 py-3 text-center text-sm text-white">
-                    {journeyError}
-                  </p>
-                )}
+                    <div className="aspect-[4/3] overflow-hidden bg-stone-200 sm:aspect-[5/4]">
+                      <img src={imageUrl(room.imageUrl)} alt={room.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+                    </div>
+                    <div className="p-4 sm:p-5">
+                      <h3 className="font-serif text-2xl leading-tight text-stone-900 sm:text-3xl">{room.name}</h3>
+                      <p className="mt-2 min-h-10 text-sm leading-relaxed text-stone-600">{room.description || t('A comfortable room for a peaceful stay.')}</p>
+                      <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-stone-100 pt-4">
+                        <p className="text-sm font-semibold text-[#665940]">RWF {Number(room.price).toLocaleString()}<span className="mt-0.5 block text-xs font-normal text-stone-500">{t('per night')}</span></p>
+                        <Link to={`/book?room=${room.id}`} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#24342a] px-4 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#35463b] sm:flex-none">
+                          {t('Book this room')} <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.article>
+                ))}
               </div>
-            </Reveal>
-          </div>
-        </section>
-
-        <section id="gallery" className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('A glimpse inside')}</p>
-                <h2 className="mt-4 max-w-2xl font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('Made for the moments in between.')}</h2>
-              </div>
-              <div className="inline-flex items-center gap-2 text-sm text-stone-600">
-                <Camera size={16} />
-                {t('Explore the rooms')}
-              </div>
-            </div>
-
-            {galleryError ? <p role="alert" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">The gallery could not be loaded right now.</p> : galleryLoading ? <p role="status" className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-500">Loading gallery…</p> : gallery.length === 0 ? <p className="rounded-2xl border border-stone-200 bg-white/60 p-6 text-sm text-stone-600">Gallery photos will appear here when they are added by the Silent Villa team.</p> : <div className="grid gap-4 md:grid-cols-12 md:grid-rows-[260px_260px_230px]">
-              {gallery.slice(0, 5).map((image, index) => (
-                <button
-                  key={image.id}
-                  type="button"
-                  aria-label={`Open ${image.altText || image.title}`}
-                  onClick={() => setSelectedImage(index)}
-                  className={`group relative overflow-hidden rounded-[1.5rem] bg-stone-200 text-left ${index === 0 ? 'md:col-span-7 md:row-span-2' : index < 3 ? 'md:col-span-5' : 'md:col-span-6'} ${index === 0 ? 'h-[360px] md:h-full' : 'h-[250px] md:h-full'}`}
-                >
-                  <img src={imageUrl(image.imageUrl)} alt={image.altText || image.title} loading="lazy" className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#24342a]/75 via-transparent to-transparent opacity-90 transition group-hover:opacity-100" />
-                  <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                    <p className="text-[10px] uppercase tracking-[0.25em] text-[#d8c28f]">Silent Villa · 0{index + 1}</p>
-                    <p className="mt-2 font-serif text-2xl sm:text-3xl">{image.title}</p>
-                  </div>
-                </button>
-              ))}
-            </div>}
-            <div className="mt-8 flex justify-end">
-              <Link to="/gallery" className="inline-flex items-center gap-2 rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-900 transition hover:border-stone-900 hover:bg-stone-900 hover:text-white">
-                {t('Explore the full gallery')} <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        <section id="location" className="bg-[#f3eee4] px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-20">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('Find your way')}</p>
-              <h2 className="mt-5 font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('A Kigali welcome awaits.')}</h2>
-              <p className="mt-5 max-w-lg text-lg text-stone-700">
-                {t('Find Silent Villa on KN 288 St in Kigali, or use its Google Maps Plus Code to navigate directly.')}
-              </p>
-              <div className="mt-8 border-y border-stone-300 py-5">
-                <div className="flex items-start gap-4">
-                  <MapPin className="mt-1 shrink-0 text-[#665940]" size={20} strokeWidth={1.6} />
-                  <div>
-                    <p className="font-medium text-stone-900">Silent Villa Guest House</p>
-                    <p className="mt-1 text-sm text-stone-600">KN 288 St, Kigali</p>
-                    <p className="mt-1 text-sm text-stone-600">227V+FJ Kigali</p>
-                  </div>
-                </div>
-              </div>
-              <a href="https://maps.google.com/?q=227V%2BFJ+Kigali" target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-3 rounded-full bg-[#24342a] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#35332d]">
-                <Navigation size={16} /> {t('Get directions')} <ArrowRight size={15} />
-              </a>
-            </div>
-
-            <a
-              href="https://maps.google.com/?q=227V%2BFJ+Kigali"
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Open directions to Silent Villa in Google Maps"
-              className="group relative flex min-h-[380px] flex-col justify-between overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#1d1c1a] p-7 text-white sm:min-h-[500px] sm:p-10"
-            >
-              <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full border border-[#bda06b]/20 transition duration-700 group-hover:scale-110" />
-              <div className="pointer-events-none absolute -right-9 -top-9 h-52 w-52 rounded-full border border-[#bda06b]/20" />
-              <div className="pointer-events-none absolute -bottom-28 -left-20 h-72 w-72 rounded-full border border-white/10" />
-              <div className="relative flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-[#cdb782]">Your destination</span>
-                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#bda06b]/50 text-[#d8c28f] transition group-hover:bg-[#bda06b] group-hover:text-[#24342a]">
-                  <MapPin size={20} strokeWidth={1.5} />
-                </span>
-              </div>
-              <div className="relative py-12">
-                <p className="text-xs uppercase tracking-[0.3em] text-stone-400">Kigali · Rwanda</p>
-                <p className="mt-4 break-words font-serif text-5xl leading-none tracking-[-0.04em] text-white sm:text-7xl">227V+FJ</p>
-                <p className="mt-4 text-sm text-stone-300">KN 288 St, Kigali</p>
-              </div>
-              <div className="relative flex items-center justify-between border-t border-white/15 pt-5">
-                <span className="text-sm text-stone-300">Open the location in Google Maps</span>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#bda06b] text-[#24342a] transition group-hover:translate-x-1">
-                  <ArrowRight size={17} />
-                </span>
-              </div>
-            </a>
-          </div>
-        </section>
-
-        <section id="payment" className="px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-[#24342a] shadow-[0_26px_60px_rgba(17,17,17,0.12)]">
-            <div className="grid lg:grid-cols-[0.8fr_1.2fr]">
-              <div className="flex flex-col justify-between p-7 sm:p-10">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#cdb782]">{t('Payment')}</p>
-                  <h2 className="mt-5 font-serif text-4xl leading-tight text-white sm:text-5xl">{t('A simple way to pay.')}</h2>
-                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-stone-300">
-                    {t('Use the Silent Villa USSD code to make your payment. Please confirm the amount directly with the guest house.')}
-                  </p>
-                </div>
-                <a href="tel:0788324736" className="mt-8 inline-flex items-center gap-2 text-sm text-[#d8c28f] transition hover:text-white">
-                  {t('Questions? Call 0788 324 736')} <ArrowRight size={15} />
-                </a>
-              </div>
-
-              <div className="relative flex min-h-64 flex-col justify-center overflow-hidden border-t border-white/10 bg-[#24221d] p-7 sm:p-10 lg:border-l lg:border-t-0">
-                <div className="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full border border-[#bda06b]/15" />
-                <div className="pointer-events-none absolute -right-2 -top-10 h-44 w-44 rounded-full border border-[#bda06b]/15" />
-                <div className="relative">
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-stone-400">{t('Dial this USSD code')}</p>
-                  <p className="mt-5 break-all font-serif text-4xl leading-tight tracking-wide text-[#f0dfc0] sm:text-5xl md:text-6xl">
-                    *182*8*1*23000737#
-                  </p>
-                  <div className="mt-7 flex items-start gap-3 border-t border-white/10 pt-5 text-sm leading-relaxed text-stone-300">
-                    <ShieldCheck size={18} className="mt-0.5 shrink-0 text-[#bda06b]" />
-                    <p>{t('Manual USSD payment. This website does not process payments automatically.')}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="contact" className="bg-[#eee8dc] px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.35em] text-[#7d644d]">{t('A warm welcome starts here')}</p>
-              <h2 className="mt-5 font-serif text-5xl leading-[1.02] tracking-[-0.04em] text-stone-900 sm:text-6xl">{t('We’re here to help you feel at home.')}</h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-stone-700">
-                {t('Speak with Silent Villa directly about your stay, directions, or any questions before you arrive.')}
-              </p>
-              <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-[#f7f3eb] px-4 py-2 text-sm text-stone-700">
-                <span className="flex items-center gap-1 text-[#9b7545]"><Star size={14} fill="currentColor" /> 5.0</span>
-                <span className="h-4 w-px bg-stone-300" />
-                <span>{t('Guest house · Kigali')}</span>
-              </div>
-            </div>
-
-            <div className="divide-y divide-stone-300 border-y border-stone-300">
-              {[
-                { title: 'Call the villa', value: '0788 324 736', icon: Phone, href: 'tel:0788324736', action: 'Call now' },
-                { title: 'WhatsApp', value: 'Start a conversation', icon: MessageCircle, href: 'https://wa.me/250788324736', action: 'Message us' },
-                { title: 'Visit Silent Villa', value: 'KN 288 St, Kigali · 227V+FJ', icon: MapPin, href: 'https://maps.google.com/?q=227V%2BFJ+Kigali', action: 'Get directions' },
-              ].map(({ title, value, icon: Icon, href, action }) => (
-                <a key={title} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noreferrer' : undefined} className="group flex items-center gap-4 py-5 transition sm:gap-6 sm:py-6">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-stone-300 text-[#665940] transition duration-300 group-hover:border-[#24342a] group-hover:bg-[#24342a] group-hover:text-[#f2ddb5]">
-                    <Icon size={19} strokeWidth={1.6} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[10px] uppercase tracking-[0.22em] text-[#665940]">{t(title)}</span>
-                    <span className="mt-1 block text-base font-medium text-stone-900 sm:text-lg">{t(value)}</span>
-                  </span>
-                  <span className="inline-flex shrink-0 items-center gap-2 text-xs text-stone-500 transition group-hover:text-stone-900">
-                    <span className="hidden sm:inline">{t(action)}</span>
-                    <ArrowRight size={16} className="transition group-hover:translate-x-1" />
-                  </span>
-                </a>
-              ))}
-            </div>
+            )}
           </div>
         </section>
       </main>
@@ -978,13 +470,13 @@ function VillaSite() {
 
       <footer className="border-t border-stone-200 bg-[#24342a] px-4 pb-28 pt-12 text-stone-200 sm:px-6 sm:py-12 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr_1fr_1fr]">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <div className="flex items-center gap-3">
                 <img src="/media/silent-villa-logo.jpg" alt="Silent Villa Guest House — Where Comfort Meets Silence" className="h-14 w-[10.5rem] rounded-lg object-cover" />
               </div>
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-stone-300">
-                A peaceful escape where comfort meets calm — designed for rest, privacy, and warm hospitality in Kigali.
+                Guest rooms in Kigali. Choose a room and book directly with Silent Villa.
               </p>
             </div>
 
@@ -992,28 +484,19 @@ function VillaSite() {
               <p className="text-xs uppercase tracking-[0.25em] text-[#cdb782]">Explore</p>
               <ul className="mt-5 space-y-3 text-sm text-stone-300">
                 <li><Link to="/" className="transition hover:text-white">Home</Link></li>
-                <li><Link to="/#about" className="transition hover:text-white">About</Link></li>
                 <li><Link to="/rooms" className="transition hover:text-white">Rooms</Link></li>
-                <li><Link to="/#services" className="transition hover:text-white">Services</Link></li>
                 <li><Link to="/gallery" className="transition hover:text-white">Gallery</Link></li>
+                <li><Link to="/book" className="transition hover:text-white">Book a room</Link></li>
               </ul>
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-[#cdb782]">Visit</p>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#cdb782]">Contact & location</p>
               <ul className="mt-5 space-y-3 text-sm text-stone-300">
-                <li>KN 288 St, Kigali</li>
-                <li>227V+FJ Kigali</li>
-                <li><a href="https://maps.google.com/?q=KN+288+St,+Kigali" target="_blank" rel="noreferrer" className="transition hover:text-white">Directions</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="text-xs uppercase tracking-[0.25em] text-[#cdb782]">Contact</p>
-              <ul className="mt-5 space-y-3 text-sm text-stone-300">
+                <li>KN 288 St, Kigali · 227V+FJ</li>
                 <li><a href="tel:0788324736" className="transition hover:text-white">0788 324 736</a></li>
                 <li><a href="https://wa.me/250788324736" target="_blank" rel="noreferrer" className="transition hover:text-white">WhatsApp</a></li>
-                <li><Link to="/#contact" className="transition hover:text-white">Enquire about a stay</Link></li>
+                <li><a href="https://maps.google.com/?q=227V%2BFJ+Kigali" target="_blank" rel="noreferrer" className="transition hover:text-white">Get directions</a></li>
               </ul>
             </div>
           </div>
