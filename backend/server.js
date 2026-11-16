@@ -41,9 +41,10 @@ const pool = mysql.createPool({
   timezone: 'Z',
 })
 
-// Keep uploads beneath the public asset directory so the deployed API can serve
+// Keep uploads and media beneath the public asset directory so the deployed API can serve
 // both existing room photos and newly uploaded room/gallery images.
 const uploadDir = path.resolve(dirname, '../public/uploads')
+const mediaDir = path.resolve(dirname, '../public/media')
 fs.mkdirSync(uploadDir, { recursive: true })
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }))
@@ -53,6 +54,7 @@ app.use('/api', (_req, res, next) => {
   next()
 })
 app.use('/uploads', express.static(uploadDir, { maxAge: '7d' }))
+app.use('/media', express.static(mediaDir, { maxAge: '7d' }))
 app.use('/api/auth/login', rateLimit({ windowMs: 15 * 60 * 1000, limit: 10 }))
 
 const imageStorage = multer.diskStorage({
@@ -103,7 +105,7 @@ app.get('/api/health', async (_req, res) => {
 
 app.get('/api/rooms', async (_req, res, next) => {
   try {
-    const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description FROM rooms WHERE is_active = TRUE ORDER BY created_at DESC')
+    const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description FROM rooms WHERE is_active = TRUE ORDER BY id ASC')
     res.json(rooms)
   } catch (error) { next(error) }
 })
@@ -223,21 +225,22 @@ app.patch('/api/admin/bookings/read', requireAdmin, async (req, res, next) => {
 
 app.get('/api/admin/rooms', requireAdmin, async (_req, res, next) => {
   try {
-    const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description, is_active AS isActive, created_at AS createdAt FROM rooms ORDER BY created_at DESC')
+    const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description, is_active AS isActive, created_at AS createdAt FROM rooms ORDER BY id ASC')
     res.json(rooms.map((room) => ({ ...room, isActive: Boolean(room.isActive) })))
   } catch (error) { next(error) }
 })
 
 app.post('/api/admin/rooms', requireAdmin, imageUpload.single('image'), async (req, res, next) => {
-  const { name, price, description = '' } = req.body || {}
+  const { name, price, description = '', isActive } = req.body || {}
   if (!name?.trim() || name.trim().length > 120 || !Number.isFinite(Number(price)) || Number(price) <= 0 || String(description).length > 2000 || !req.file) {
     if (req.file) fs.unlink(req.file.path, () => {})
     return res.status(400).json({ error: 'Room name, positive price, and room image are required.' })
   }
+  const active = isActive === undefined ? true : ['true', '1'].includes(String(isActive))
   try {
     const imageUrl = `/uploads/${req.file.filename}`
-    const [result] = await pool.query('INSERT INTO rooms (name, price, image_url, description) VALUES (?, ?, ?, ?)', [name.trim(), Number(price), imageUrl, String(description).trim() || null])
-    res.status(201).json({ id: result.insertId, name: name.trim(), price: Number(price), imageUrl, description })
+    const [result] = await pool.query('INSERT INTO rooms (name, price, image_url, description, is_active) VALUES (?, ?, ?, ?, ?)', [name.trim(), Number(price), imageUrl, String(description).trim() || null, active])
+    res.status(201).json({ id: result.insertId, name: name.trim(), price: Number(price), imageUrl, description, isActive: active })
   } catch (error) {
     fs.unlink(req.file.path, () => {})
     next(error)
@@ -299,11 +302,7 @@ app.delete('/api/admin/rooms/:id', requireAdmin, async (req, res, next) => {
       await connection.rollback()
       return res.status(404).json({ error: 'Room not found.' })
     }
-    const [bookings] = await connection.query('SELECT id FROM bookings WHERE room_id = ? LIMIT 1 FOR UPDATE', [id])
-    if (bookings.length) {
-      await connection.rollback()
-      return res.status(409).json({ error: 'This room has booking history. Hide it from guests by turning off its availability instead.' })
-    }
+    await connection.query('DELETE FROM bookings WHERE room_id = ?', [id])
     await connection.query('DELETE FROM rooms WHERE id = ?', [id])
     await connection.commit()
     if (existing[0].imageUrl.startsWith('/uploads/')) fs.unlink(path.join(uploadDir, path.basename(existing[0].imageUrl)), () => {})
@@ -370,6 +369,23 @@ async function start() {
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_gallery_created (created_at)
   )`)
+  const [existingRooms] = await pool.query('SELECT id FROM rooms LIMIT 1')
+  if (!existingRooms.length) {
+    const defaultRooms = [
+      ['Tokyo', 15000, '/media/room-1.jpg', 'Spacious executive room with a tufted king bed, warm lighting, and peaceful ambiance.'],
+      ['London', 15000, '/media/si.jpeg', 'Elegant suite featuring a plush king-size bed, modern curtains, and a quiet atmosphere.'],
+      ['Paris', 15000, '/media/room-2.jpg', 'Refined guest room with a handcrafted wooden headboard and soft rose-quilted bedding.'],
+      ['Convention', 15000, '/media/WhatsApp%20Image%202026-11-11%20at%2000.30.06.jpeg', 'Comfortable executive stay tailored for business and convention guests in Kigali.'],
+      ['Muhabura', 10000, '/media/aaka.jpeg', 'Cozy, peaceful room inspired by the Rwandan highlands, crafted for restful nights.'],
+      ['Karisimbi', 10000, '/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg', 'Quiet sanctuary guest room offering comfort, privacy, and warm hospitality.'],
+      ['Inkumburwa', 10000, '/media/room-1.jpg', 'Welcoming guest room designed for a calm and refreshing stay at Silent Villa.'],
+      ['Inganji', 10000, '/media/si.jpeg', 'Serene and restful room providing a peaceful home away from home in Kigali.'],
+    ]
+    for (const [name, price, imageUrl, description] of defaultRooms) {
+      await pool.query('INSERT INTO rooms (name, price, image_url, description, is_active) VALUES (?, ?, ?, ?, TRUE)', [name, price, imageUrl, description])
+    }
+    console.log('Seeded initial 8 Silent Villa rooms.')
+  }
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase()
   const password = process.env.ADMIN_PASSWORD
   if (!email || !password || password.length < 12) throw new Error('Set ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters.')

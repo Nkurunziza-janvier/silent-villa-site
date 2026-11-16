@@ -133,7 +133,7 @@ function RoomsPage() {
             </p>
           )}
           {!roomsError && rooms.length > 0 && (
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {rooms.map((room) => (
                 <TiltCard3D key={room.id} className="rounded-3xl">
                   <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.05] backdrop-blur-md transition duration-500 hover:border-[#d8c28f]/50">
@@ -915,8 +915,8 @@ function VillaSite() {
                   {t('There are no rooms listed right now. Please check back soon or contact Silent Villa.')}
                 </p>
               ) : (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {rooms.slice(0, 3).map((room, index) => (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {rooms.map((room, index) => (
                     <motion.div
                       key={room.id}
                       initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}

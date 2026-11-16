@@ -35,7 +35,9 @@ export type Booking = {
 }
 
 export function imageUrl(url: string) {
-  return url.startsWith('http') ? url : `${API_URL.replace(/\/api$/, '')}${url}`
+  if (!url) return ''
+  if (url.startsWith('http') || url.startsWith('/media/')) return url
+  return `${API_URL.replace(/\/api$/, '')}${url}`
 }
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
