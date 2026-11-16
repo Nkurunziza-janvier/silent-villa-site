@@ -1,18 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="sv-gold" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#F2DFB4"/>
-      <stop offset="48%" stop-color="#C9A86C"/>
-      <stop offset="100%" stop-color="#8E6F3E"/>
+    <linearGradient id="sv-gold" x1="10" y1="8" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F8E9C4"/>
+      <stop offset="46%" stop-color="#D8BD84"/>
+      <stop offset="100%" stop-color="#A07F45"/>
     </linearGradient>
-    <radialGradient id="sv-bg" cx="50%" cy="38%" r="55%">
-      <stop offset="0%" stop-color="#2E4537"/>
-      <stop offset="100%" stop-color="#142018"/>
-    </radialGradient>
+    <linearGradient id="sv-deep" x1="32" y1="2" x2="32" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2C4A37"/>
+      <stop offset="52%" stop-color="#1A2F23"/>
+      <stop offset="100%" stop-color="#0E1C15"/>
+    </linearGradient>
   </defs>
-  <rect x="2" y="2" width="60" height="60" rx="18" fill="url(#sv-bg)" stroke="url(#sv-gold)" stroke-width="2"/>
-  <circle cx="32" cy="24" r="3.2" fill="url(#sv-gold)"/>
-  <path d="M15 44V29L32 16L49 29V44" stroke="url(#sv-gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M23 44V31.5C23 26.5294 27.0294 22.5 32 22.5C36.9706 22.5 41 26.5294 41 31.5V44" stroke="url(#sv-gold)" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M12 44.5C19 42 25 42 32 44.5C39 47 45 47 52 44.5" stroke="url(#sv-gold)" stroke-width="1.8" stroke-linecap="round"/>
+
+  <rect x="1.5" y="1.5" width="61" height="61" rx="18" fill="url(#sv-deep)" stroke="url(#sv-gold)" stroke-width="2"/>
+
+  <!-- Sun -->
+  <circle cx="32" cy="19" r="5" fill="#F2D193"/>
+
+  <!-- Villa silhouette -->
+  <path d="M30 47V31.8L40 22.4L50 31.8V47Z" fill="url(#sv-gold)"/>
+  <path d="M14 47V36.8L23.4 27.4L33 36.8V47Z" fill="url(#sv-gold)" stroke="#14251B" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- Lit windows -->
+  <g fill="#14251B">
+    <rect x="18.4" y="39" width="3.2" height="4.8" rx="0.7"/>
+    <rect x="24.2" y="39" width="3.2" height="4.8" rx="0.7"/>
+    <rect x="35.2" y="35.8" width="3" height="5.4" rx="0.7"/>
+    <rect x="40.2" y="35.8" width="3" height="5.4" rx="0.7"/>
+    <rect x="45.2" y="35.8" width="2.2" height="5.4" rx="0.6"/>
+  </g>
+
+  <!-- Ground line -->
+  <path d="M10 49.2C19 47.4 26 47.8 33 49.4C40 51 47 50.8 54 49.4" stroke="url(#sv-gold)" stroke-width="1.8" stroke-linecap="round"/>
 </svg>

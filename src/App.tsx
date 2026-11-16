@@ -651,7 +651,9 @@ function VillaSite() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2 lg:hidden">
-            <LanguageSwitch compact />
+            <span className="hidden min-[360px]:inline-flex">
+              <LanguageSwitch compact />
+            </span>
             <button
               type="button"
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -706,6 +708,9 @@ function VillaSite() {
                   >
                     {t('Call to enquire')} <Phone size={15} />
                   </a>
+                </div>
+                <div className="mt-1 flex justify-center min-[360px]:hidden">
+                  <LanguageSwitch compact />
                 </div>
               </nav>
             </motion.div>
@@ -1195,7 +1200,7 @@ function VillaSite() {
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <BrandLogo variant="dark" size="lg" />
+              <BrandLogo variant="dark" size="lg" showTagline />
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-stone-300">
                 Guest rooms in Kigali. Choose a room and book directly with Silent Villa.
               </p>

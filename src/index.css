@@ -181,6 +181,22 @@ textarea {
     content: '';
   }
 
+  /* A quiet gold light-sweep across the emblem on hover */
+  .brand-sheen {
+    opacity: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 34%,
+      rgba(255, 245, 219, 0.55) 50%,
+      transparent 66%
+    );
+    transform: translateX(-130%);
+  }
+
+  .group:hover .brand-sheen {
+    animation: brand-sheen 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
   .card-lift {
     transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 300ms ease;
   }
@@ -266,6 +282,18 @@ textarea {
     font-size: 0.8125rem;
     font-weight: 600;
     color: #2f2b25;
+  }
+}
+
+@keyframes brand-sheen {
+  from {
+    opacity: 0.9;
+    transform: translateX(-130%);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(130%);
   }
 }
 

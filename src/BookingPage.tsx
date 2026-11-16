@@ -95,7 +95,7 @@ export default function BookingPage() {
           <div className="pointer-events-none relative flex min-h-screen flex-col justify-between p-12 xl:p-16">
             <div className="pointer-events-auto flex items-center justify-between">
               <Link to="/" className="inline-flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#bda06b]">
-                <BrandLogo variant="dark" size="md" />
+                <BrandLogo variant="dark" size="md" showTagline />
               </Link>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8c28f]/30 bg-black/30 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-[#d8c28f] backdrop-blur-md">
                 <Sparkles size={12} /> 3D Interactive View
