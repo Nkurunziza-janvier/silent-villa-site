@@ -69,5 +69,6 @@ export const api = {
   addGalleryImage: (token: string, form: FormData) => request<GalleryImage>('/admin/gallery', { method: 'POST', body: form }, token),
   deleteGalleryImage: (token: string, id: number) => request<{ message: string }>(`/admin/gallery/${id}`, { method: 'DELETE' }, token),
   updateBooking: (token: string, id: number, status: Booking['status']) => request(`/admin/bookings/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }, token),
+  deleteBooking: (token: string, id: number) => request<{ message: string }>(`/admin/bookings/${id}`, { method: 'DELETE' }, token),
   markRead: (token: string, ids: number[]) => request('/admin/bookings/read', { method: 'PATCH', body: JSON.stringify({ ids }) }, token),
 }

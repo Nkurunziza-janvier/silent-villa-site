@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
+  AlertTriangle,
   Bell,
   BedDouble,
   CalendarDays,
@@ -9,12 +10,14 @@ import {
   Eye,
   Images,
   LayoutDashboard,
+  LoaderCircle,
   Lock,
   LogOut,
   Mail,
   Menu,
   Search,
   ShieldCheck,
+  Trash2,
   Volume2,
   VolumeX,
   X,
@@ -158,6 +161,8 @@ export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notice, setNotice] = useState('')
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
+  const [bookingToDelete, setBookingToDelete] = useState<Booking | null>(null)
+  const [deletingBooking, setDeletingBooking] = useState(false)
   const [loading, setLoading] = useState(true)
   const knownIds = useRef<Set<number> | null>(null)
   const audioEnabled = useRef(soundOn)
@@ -217,6 +222,20 @@ export default function AdminDashboard() {
     return () => window.clearInterval(interval)
   }, [refresh, token])
 
+  useEffect(() => {
+    if (!bookingToDelete) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !deletingBooking) setBookingToDelete(null)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [bookingToDelete, deletingBooking])
+
   const onLogin = (newToken: string, adminEmail: string) => {
     localStorage.setItem(tokenKey, newToken)
     setEmail(adminEmail)
@@ -244,6 +263,23 @@ export default function AdminDashboard() {
       setNotice(t('Booking status updated.'))
     } catch (err) {
       setNotice((err as Error).message)
+    }
+  }
+
+  const removeBooking = async () => {
+    if (!bookingToDelete || deletingBooking) return
+    setDeletingBooking(true)
+    try {
+      await api.deleteBooking(token, bookingToDelete.id)
+      setBookings((current) => current.filter((item) => item.id !== bookingToDelete.id))
+      if (selectedBooking?.id === bookingToDelete.id) setSelectedBooking(null)
+      setBookingToDelete(null)
+      setNotice(t('Booking deleted.'))
+      await refresh()
+    } catch (err) {
+      setNotice((err as Error).message)
+    } finally {
+      setDeletingBooking(false)
     }
   }
 
@@ -371,6 +407,15 @@ export default function AdminDashboard() {
                     <option value="cancelled">{t('cancelled')}</option>
                   </select>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setBookingToDelete(booking)}
+                  aria-label={t('Delete booking')}
+                  title={t('Delete booking')}
+                  className="inline-flex min-h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
             </article>
           ))
@@ -425,8 +470,8 @@ export default function AdminDashboard() {
                       {t(booking.status)}
                     </span>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap items-center gap-2">
+                  <td className="whitespace-nowrap px-5 py-4">
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setSelectedBooking(booking)}
@@ -457,13 +502,22 @@ export default function AdminDashboard() {
                           aria-label={t('Update booking status')}
                           value={booking.status}
                           onChange={(event) => void changeStatus(booking, event.target.value as Booking['status'])}
-                          className="sv-input sv-select min-h-9 w-auto rounded-full py-1.5 pl-3.5 pr-9 text-xs font-medium capitalize text-stone-700"
+                          className="sv-input sv-select sv-select-compact min-h-9 rounded-full py-1.5 pl-3 pr-8 text-xs font-medium capitalize text-stone-700"
                         >
                           <option value="confirmed">{t('confirmed')}</option>
                           <option value="pending">{t('pending')}</option>
                           <option value="cancelled">{t('cancelled')}</option>
                         </select>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => setBookingToDelete(booking)}
+                        aria-label={t('Delete booking')}
+                        title={t('Delete booking')}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-stone-200 text-stone-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
+                      >
+                        <Trash2 size={15} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -962,37 +1016,132 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-stone-200 bg-white px-5 py-4 sm:px-8">
-                {selectedBooking.status !== 'confirmed' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void changeStatus(selectedBooking, 'confirmed')
-                      setSelectedBooking((current) => (current ? { ...current, status: 'confirmed' } : null))
-                    }}
-                    className="rounded-full bg-[#24342a] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#35463b]"
-                  >
-                    {t('Confirm')}
-                  </button>
-                )}
-                {selectedBooking.status !== 'cancelled' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void changeStatus(selectedBooking, 'cancelled')
-                      setSelectedBooking((current) => (current ? { ...current, status: 'cancelled' } : null))
-                    }}
-                    className="rounded-full border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 transition hover:border-red-200 hover:text-red-600"
-                  >
-                    {t('Decline')}
-                  </button>
-                )}
+              <div className="flex flex-wrap items-center justify-between gap-2.5 border-t border-stone-200 bg-white px-5 py-4 sm:px-8">
                 <button
                   type="button"
-                  onClick={() => setSelectedBooking(null)}
-                  className="rounded-full border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 hover:bg-stone-50"
+                  onClick={() => {
+                    setSelectedBooking(null)
+                    setBookingToDelete(selectedBooking)
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50/60 px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400"
                 >
-                  {t('Close')}
+                  <Trash2 size={14} />
+                  {t('Delete booking')}
+                </button>
+                <div className="flex flex-wrap items-center justify-end gap-2.5">
+                  {selectedBooking.status !== 'confirmed' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void changeStatus(selectedBooking, 'confirmed')
+                        setSelectedBooking((current) => (current ? { ...current, status: 'confirmed' } : null))
+                      }}
+                      className="rounded-full bg-[#24342a] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#35463b]"
+                    >
+                      {t('Confirm')}
+                    </button>
+                  )}
+                  {selectedBooking.status !== 'cancelled' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void changeStatus(selectedBooking, 'cancelled')
+                        setSelectedBooking((current) => (current ? { ...current, status: 'cancelled' } : null))
+                      }}
+                      className="rounded-full border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 transition hover:border-red-200 hover:text-red-600"
+                    >
+                      {t('Decline')}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBooking(null)}
+                    className="rounded-full border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 hover:bg-stone-50"
+                  >
+                    {t('Close')}
+                  </button>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {bookingToDelete && (
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="delete-booking-title"
+            aria-describedby="delete-booking-description"
+            className="fixed inset-0 z-[110] grid place-items-center overflow-y-auto bg-[#17241c]/70 p-4 backdrop-blur-sm"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget && !deletingBooking) setBookingToDelete(null)
+            }}
+          >
+            <section className="my-auto w-full max-w-md overflow-hidden rounded-3xl border border-stone-200 bg-[#fcfaf6] shadow-2xl">
+              <div className="flex items-start gap-4 p-6 sm:p-7">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-red-50 text-red-600 ring-1 ring-inset ring-red-100">
+                  <AlertTriangle size={20} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-red-500">
+                    {t('Permanent action')}
+                  </p>
+                  <h2 id="delete-booking-title" className="mt-1.5 font-serif text-2xl leading-snug text-stone-900">
+                    {t('Delete this booking permanently?')}
+                  </h2>
+                  <p id="delete-booking-description" className="mt-2 text-sm leading-relaxed text-stone-600">
+                    {t('This permanently removes the booking request and the guest’s details. This action cannot be undone.')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mx-6 rounded-2xl border border-stone-200 bg-white p-4 sm:mx-7">
+                <p className="truncate font-semibold text-stone-900">{bookingToDelete.name}</p>
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
+                  <div className="min-w-0">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">{t('Room')}</dt>
+                    <dd className="mt-0.5 truncate font-medium text-stone-700">{bookingToDelete.roomName}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">{t('Status')}</dt>
+                    <dd className="mt-0.5 font-medium capitalize text-stone-700">{t(bookingToDelete.status)}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">{t('Dates')}</dt>
+                    <dd className="mt-0.5 font-medium text-stone-700">
+                      {bookingToDelete.checkIn} → {bookingToDelete.checkOut}
+                    </dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">{t('Booking ID')}</dt>
+                    <dd className="mt-0.5 font-mono text-stone-600">#{bookingToDelete.id}</dd>
+                  </div>
+                </dl>
+                {bookingToDelete.status === 'confirmed' && (
+                  <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800 ring-1 ring-inset ring-amber-100">
+                    {t('This stay is confirmed. Deleting it will release the room for these dates.')}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col-reverse gap-2.5 p-6 sm:flex-row sm:justify-end sm:p-7">
+                <button
+                  type="button"
+                  autoFocus
+                  disabled={deletingBooking}
+                  onClick={() => setBookingToDelete(null)}
+                  className="min-h-11 rounded-full border border-stone-200 bg-white px-5 text-sm font-medium text-stone-600 transition hover:bg-stone-50 disabled:opacity-60"
+                >
+                  {t('Go back')}
+                </button>
+                <button
+                  type="button"
+                  disabled={deletingBooking}
+                  onClick={() => void removeBooking()}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {deletingBooking ? <LoaderCircle size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  {deletingBooking ? t('Deleting…') : t('Yes, delete booking')}
                 </button>
               </div>
             </section>

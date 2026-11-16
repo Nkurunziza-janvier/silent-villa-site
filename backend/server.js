@@ -223,6 +223,18 @@ app.patch('/api/admin/bookings/read', requireAdmin, async (req, res, next) => {
   } catch (error) { next(error) }
 })
 
+app.delete('/api/admin/bookings/:id', requireAdmin, async (req, res, next) => {
+  const bookingId = Number(req.params.id)
+  if (!Number.isSafeInteger(bookingId) || bookingId < 1) {
+    return res.status(400).json({ error: 'Choose a valid booking to delete.' })
+  }
+  try {
+    const [result] = await pool.query('DELETE FROM bookings WHERE id = ?', [bookingId])
+    if (!result.affectedRows) return res.status(404).json({ error: 'Booking not found.' })
+    res.json({ message: 'Booking deleted.' })
+  } catch (error) { next(error) }
+})
+
 app.get('/api/admin/rooms', requireAdmin, async (_req, res, next) => {
   try {
     const [rooms] = await pool.query('SELECT id, name, price, image_url AS imageUrl, description, is_active AS isActive, created_at AS createdAt FROM rooms ORDER BY id ASC')
