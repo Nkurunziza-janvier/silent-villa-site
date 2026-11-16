@@ -95,7 +95,7 @@ function Login({ onLogin }: { onLogin: (token: string, email: string) => void })
             <div className="relative">
               <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
               <input
-                className="sv-input mt-2 pl-10"
+                className="sv-input sv-input-icon mt-2"
                 type="email"
                 required
                 autoComplete="username"
@@ -111,7 +111,7 @@ function Login({ onLogin }: { onLogin: (token: string, email: string) => void })
             <div className="relative">
               <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
               <input
-                className="sv-input mt-2 pl-10"
+                className="sv-input sv-input-icon mt-2"
                 type="password"
                 required
                 autoComplete="current-password"
@@ -778,7 +778,7 @@ export default function AdminDashboard() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder={t('Search guest or room')}
-                    className="sv-input rounded-full pl-11 pr-9"
+                    className="sv-input sv-input-icon rounded-full pr-9"
                   />
                   {search && (
                     <button

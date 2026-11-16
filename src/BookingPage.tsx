@@ -82,8 +82,8 @@ export default function BookingPage() {
     } catch (err) { setError((err as Error).message) } finally { setBusy(false) }
   }
 
-  const fieldClass = 'sv-input mt-2 pl-10'
-  const selectClass = 'sv-input sv-select mt-2 pl-10'
+  const fieldClass = 'sv-input sv-input-icon mt-2'
+  const selectClass = 'sv-input sv-input-icon sv-select mt-2'
 
   return (
     <main className="min-h-screen bg-[#f4f0e7]">

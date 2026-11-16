@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { BedDouble, Check, FileText, ImagePlus, Pencil, Plus, Trash2, UploadCloud, X } from 'lucide-react'
+import { BedDouble, Check, ImagePlus, Pencil, Plus, Sparkles, Trash2, UploadCloud, X } from 'lucide-react'
 import { api, imageUrl, type Room } from './api'
 import { useLanguage } from './i18n'
 
@@ -149,7 +149,7 @@ export default function AdminRoomPanel({
 
       {formOpen && (
         <div
-          className="fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto bg-[#17241c]/70 p-0 backdrop-blur-md sm:items-center sm:p-4"
+          className="fixed inset-0 z-[80] flex items-end justify-center overflow-y-auto bg-[#121e17]/75 p-0 backdrop-blur-md sm:items-center sm:p-4"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget && !busy) {
               setEditing(null)
@@ -162,9 +162,42 @@ export default function AdminRoomPanel({
             role="dialog"
             aria-modal="true"
             aria-labelledby="room-form-title"
-            className="my-0 max-h-[94svh] w-full overflow-y-auto rounded-t-3xl border border-stone-200/80 bg-[#fcfaf6] shadow-2xl sm:my-auto sm:max-w-2xl sm:rounded-3xl"
+            className="my-0 flex max-h-[94svh] w-full flex-col overflow-hidden rounded-t-[2rem] border border-stone-200/80 bg-[#fcfaf6] shadow-[0_32px_90px_rgba(0,0,0,0.38)] sm:my-auto sm:max-w-2xl sm:rounded-[2rem]"
             onMouseDown={(event) => event.stopPropagation()}
           >
+            {/* Dark Luxury Modal Banner Header */}
+            <div className="relative flex items-start justify-between gap-4 bg-[#18251d] px-6 py-5 text-white sm:px-8 sm:py-6">
+              <div className="flex items-start gap-3.5">
+                <span className="mt-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#d8c28f]/30 bg-[#bda06b]/15 text-[#d8c28f]">
+                  <BedDouble size={20} />
+                </span>
+                <div>
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d8c28f]">
+                    <Sparkles size={11} /> {t(editing ? 'Room settings' : 'New listing')}
+                  </span>
+                  <h2 id="room-form-title" className="mt-1 font-serif text-2xl leading-tight text-white sm:text-3xl">
+                    {t(editing ? 'Edit room details' : 'Add room details')}
+                  </h2>
+                  <p className="mt-1 text-xs text-stone-300">{t('A great photo helps guests picture their stay.')}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                autoFocus
+                disabled={busy}
+                aria-label={t('Close')}
+                onClick={() => {
+                  setEditing(null)
+                  setForm(emptyForm)
+                  setFormOpen(false)
+                }}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-white/15 bg-white/10 text-stone-200 transition hover:bg-white/20 hover:text-white disabled:opacity-50"
+              >
+                <X size={17} />
+              </button>
+            </div>
+
+            {/* Scrollable Form Body */}
             <form
               onSubmit={saveRoom}
               onInvalidCapture={(event) => {
@@ -172,57 +205,38 @@ export default function AdminRoomPanel({
                 onNotice(field.validationMessage || t('Please check the room details.'))
               }}
               aria-busy={busy}
-              className="grid gap-5 p-5 sm:grid-cols-2 sm:p-8"
+              className="grid gap-5 overflow-y-auto p-6 sm:grid-cols-2 sm:p-8"
             >
-              <div className="sticky top-0 z-10 -mx-5 -mt-5 flex items-start justify-between gap-4 border-b border-stone-200 bg-[#fcfaf6]/95 px-5 py-4 backdrop-blur sm:col-span-2 sm:-mx-8 sm:-mt-8 sm:px-8 sm:py-5">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8a7658]">
-                    {t(editing ? 'Room settings' : 'New listing')}
-                  </p>
-                  <h2 id="room-form-title" className="mt-1 font-serif text-2xl text-stone-900 sm:text-3xl">
-                    {t(editing ? 'Edit room details' : 'Add room details')}
-                  </h2>
-                  <p className="mt-1 text-xs text-stone-500">{t('A great photo helps guests picture their stay.')}</p>
-                </div>
-                <button
-                  type="button"
-                  autoFocus
+              {/* Room Name */}
+              <div className="block">
+                <label htmlFor="room-name-input" className="sv-label">
+                  <span>{t('Room name')}</span>
+                  <span className="text-[11px] font-normal text-stone-400">{form.name.length}/120</span>
+                </label>
+                <input
+                  id="room-name-input"
                   disabled={busy}
-                  aria-label={t('Close')}
-                  onClick={() => {
-                    setEditing(null)
-                    setForm(emptyForm)
-                    setFormOpen(false)
-                  }}
-                  className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:bg-stone-100 hover:text-stone-900 disabled:opacity-50"
-                >
-                  <X size={18} />
-                </button>
+                  required
+                  maxLength={120}
+                  value={form.name}
+                  onChange={(event) => setForm({ ...form, name: event.target.value })}
+                  placeholder={t('e.g. Garden suite')}
+                  className="sv-input mt-2"
+                />
               </div>
 
-              <label className="block">
-                <span className="sv-label">{t('Room name')}</span>
-                <div className="relative">
-                  <BedDouble size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
-                  <input
-                    disabled={busy}
-                    required
-                    maxLength={120}
-                    value={form.name}
-                    onChange={(event) => setForm({ ...form, name: event.target.value })}
-                    placeholder={t('e.g. Garden suite')}
-                    className="sv-input mt-2 pl-10"
-                  />
-                </div>
-              </label>
-
-              <label className="block">
-                <span className="sv-label">{t('Price per night (RWF)')}</span>
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold tracking-wider text-[#756047]">
+              {/* Price per night (RWF) with clean non-overlapping prefix */}
+              <div className="block">
+                <label htmlFor="room-price-input" className="sv-label">
+                  <span>{t('Price per night (RWF)')}</span>
+                  <span className="text-[11px] font-normal text-[#756047]">{t('per night')}</span>
+                </label>
+                <div className="sv-input-group mt-2">
+                  <span className="flex h-12 shrink-0 select-none items-center border-r border-[#e8e1d3] bg-[#f6f3ec] px-3.5 text-xs font-bold tracking-wider text-[#665940]">
                     RWF
                   </span>
                   <input
+                    id="room-price-input"
                     disabled={busy}
                     type="number"
                     required
@@ -231,77 +245,95 @@ export default function AdminRoomPanel({
                     value={form.price}
                     onChange={(event) => setForm({ ...form, price: event.target.value })}
                     placeholder="85000"
-                    className="sv-input mt-2 pl-13"
+                    className="h-12 w-full border-0 bg-transparent px-3.5 text-sm font-medium text-stone-900 outline-none placeholder:font-normal placeholder:text-[#9b9387] disabled:cursor-not-allowed"
                   />
                 </div>
-              </label>
+              </div>
 
-              <label className="block sm:col-span-2">
-                <span className="sv-label">
-                  {t('Description')} <span className="font-normal lowercase text-stone-400">({t('optional')})</span>
-                </span>
-                <div className="relative">
-                  <FileText size={16} className="pointer-events-none absolute left-3.5 top-4 text-[#756047]" />
-                  <textarea
-                    disabled={busy}
-                    maxLength={2000}
-                    value={form.description}
-                    onChange={(event) => setForm({ ...form, description: event.target.value })}
-                    placeholder={t('Describe the room and what makes it special…')}
-                    className="sv-input mt-2 min-h-28 resize-y pl-10 pt-3"
-                  />
-                </div>
-              </label>
-
-              <div className="grid gap-4 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_190px] sm:items-stretch">
-                <div>
-                  <span className="sv-label">
-                    {t('Room image')}{' '}
-                    <span className="font-normal lowercase text-stone-400">
-                      ({t(editing ? 'Optional · JPG, PNG, WebP up to 5 MB' : 'JPG, PNG, WebP · up to 5 MB')})
-                    </span>
+              {/* Description */}
+              <div className="block sm:col-span-2">
+                <label htmlFor="room-desc-input" className="sv-label">
+                  <span>{t('Description')}</span>
+                  <span className="rounded-full bg-stone-200/70 px-2.5 py-0.5 text-[10px] font-medium text-stone-600">
+                    {t('optional')}
                   </span>
-                  <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#d8ccb8] bg-white p-5 text-center transition hover:border-[#9c8256] hover:bg-[#faf8f3]">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f4f0e7] text-[#756047]">
-                      <UploadCloud size={20} />
-                    </span>
-                    <span className="text-xs font-medium text-stone-700">
-                      {form.image ? form.image.name : t('Please choose a room image.')}
-                    </span>
+                </label>
+                <textarea
+                  id="room-desc-input"
+                  disabled={busy}
+                  maxLength={2000}
+                  value={form.description}
+                  onChange={(event) => setForm({ ...form, description: event.target.value })}
+                  placeholder={t('Describe the room and what makes it special…')}
+                  className="sv-input mt-2 min-h-28 resize-y leading-relaxed"
+                />
+              </div>
+
+              {/* Room Image Upload Zone */}
+              <div className="sm:col-span-2">
+                <div className="sv-label">
+                  <span>{t('Room image')}</span>
+                  <span className="text-[11px] font-normal text-stone-500">
+                    {t(editing ? 'Optional · JPG, PNG, WebP up to 5 MB' : 'JPG, PNG, WebP · up to 5 MB')}
+                  </span>
+                </div>
+
+                <div
+                  className={`mt-2 grid gap-4 ${
+                    imagePreview || editing ? 'sm:grid-cols-[1fr_190px]' : 'grid-cols-1'
+                  }`}
+                >
+                  <label className="group relative flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d5c8b0] bg-white p-5 text-center transition hover:border-[#9c8256] hover:bg-[#faf7f0]">
                     <input
                       type="file"
                       disabled={busy}
                       required={!editing}
                       accept="image/jpeg,image/png,image/webp"
                       onChange={(event) => setForm({ ...form, image: event.target.files?.[0] || null })}
-                      className="mt-1 block w-full max-w-xs text-xs text-stone-500 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#24342a] file:px-4 file:py-2 file:text-xs file:font-medium file:text-white hover:file:bg-[#35463b]"
+                      className="sr-only"
                     />
-                  </label>
-                  {editing && (
-                    <span className="mt-1.5 block text-xs text-stone-400">
-                      {t('Leave empty to keep the current photo.')}
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#f3eee3] text-[#756047] transition group-hover:scale-105 group-hover:bg-[#24342a] group-hover:text-[#d8c28f]">
+                      <UploadCloud size={22} />
                     </span>
+                    <span className="mt-3 max-w-xs truncate text-sm font-semibold text-stone-800">
+                      {form.image ? form.image.name : t('Please choose a room image.')}
+                    </span>
+                    <span className="mt-1 text-xs text-stone-500">
+                      {form.image
+                        ? `${(form.image.size / (1024 * 1024)).toFixed(2)} MB · Click to replace`
+                        : t('JPG, PNG, WebP · up to 5 MB')}
+                    </span>
+                    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#24342a] px-4 py-1.5 text-xs font-medium text-white shadow-2xs transition group-hover:bg-[#35463b]">
+                      <ImagePlus size={13} /> {form.image ? t('New photo') : t('Room image')}
+                    </span>
+                  </label>
+
+                  {(imagePreview || editing) && (
+                    <div className="relative h-40 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:h-full">
+                      <img
+                        src={imagePreview || imageUrl(editing!.imageUrl)}
+                        alt={t(imagePreview ? 'Selected room photo preview' : 'Current room photo')}
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1 text-[10px] font-medium text-white backdrop-blur-xs">
+                        <ImagePlus size={11} /> {t(imagePreview ? 'New photo' : 'Current photo')}
+                      </span>
+                    </div>
                   )}
                 </div>
 
-                {(imagePreview || editing) && (
-                  <div className="relative h-36 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:h-auto">
-                    <img
-                      src={imagePreview || imageUrl(editing!.imageUrl)}
-                      alt={t(imagePreview ? 'Selected room photo preview' : 'Current room photo')}
-                      className="h-full w-full object-cover"
-                    />
-                    <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xs">
-                      <ImagePlus size={11} /> {t(imagePreview ? 'New photo' : 'Current photo')}
-                    </span>
-                  </div>
+                {editing && (
+                  <span className="mt-2 block text-xs text-stone-400">
+                    {t('Leave empty to keep the current photo.')}
+                  </span>
                 )}
               </div>
 
+              {/* Room Visibility Switch when editing */}
               {editing && (
-                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 sm:col-span-2">
+                <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-stone-200 bg-white p-4 shadow-2xs sm:col-span-2">
                   <div>
-                    <p className="text-sm font-medium text-stone-800">{t('Show this room to guests')}</p>
+                    <p className="text-sm font-semibold text-stone-800">{t('Show this room to guests')}</p>
                     <p className="text-xs text-stone-500">{t(form.isActive ? 'Visible' : 'Hidden')}</p>
                   </div>
                   <span className="relative inline-flex items-center">
@@ -319,7 +351,8 @@ export default function AdminRoomPanel({
                 </label>
               )}
 
-              <div className="flex flex-col-reverse gap-2.5 border-t border-stone-200 pt-5 sm:col-span-2 sm:flex-row sm:justify-end sm:gap-3">
+              {/* Modal Actions Footer */}
+              <div className="flex flex-col-reverse gap-2.5 border-t border-stone-200/90 pt-5 sm:col-span-2 sm:flex-row sm:justify-end sm:gap-3">
                 <button
                   type="button"
                   disabled={busy}
@@ -328,14 +361,14 @@ export default function AdminRoomPanel({
                     setForm(emptyForm)
                     setFormOpen(false)
                   }}
-                  className="min-h-11 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm font-medium text-stone-600 transition hover:bg-stone-100 disabled:opacity-50"
+                  className="min-h-11 rounded-full border border-stone-300 bg-white px-6 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-100 disabled:opacity-50"
                 >
                   {t('Cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={busy}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#24342a] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#35463b] disabled:cursor-wait disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#24342a] px-7 py-2.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(36,52,42,0.22)] transition hover:bg-[#35463b] disabled:cursor-wait disabled:opacity-60"
                 >
                   <Check size={16} /> {busy ? t('Saving…') : t(editing ? 'Update room' : 'Save room')}
                 </button>

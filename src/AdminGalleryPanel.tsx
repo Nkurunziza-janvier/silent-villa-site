@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { FileText, ImagePlus, Images, LoaderCircle, Sparkles, Trash2, UploadCloud } from 'lucide-react'
+import { ImagePlus, Images, LoaderCircle, Sparkles, Trash2, UploadCloud } from 'lucide-react'
 import { api, imageUrl, type GalleryImage } from './api'
 import { useLanguage } from './i18n'
 
@@ -79,91 +79,107 @@ export default function AdminGalleryPanel({
 
       <form
         onSubmit={submit}
-        className="mt-7 grid gap-5 rounded-3xl border border-stone-200/90 bg-white p-5 shadow-xs sm:grid-cols-2 sm:p-8"
+        className="mt-7 overflow-hidden rounded-3xl border border-stone-200/90 bg-[#fcfaf6] shadow-xs"
       >
-        <div className="sm:col-span-2">
-          <h2 className="font-serif text-2xl text-stone-900 sm:text-3xl">{t('Add gallery image')}</h2>
-          <p className="mt-1 text-xs text-stone-500">
-            {t('Upload property photos. JPG, PNG, and WebP files up to 5 MB are supported.')}
-          </p>
+        <div className="flex items-center gap-3.5 bg-[#18251d] px-6 py-4 text-white sm:px-8 sm:py-5">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#d8c28f]/30 bg-[#bda06b]/15 text-[#d8c28f]">
+            <ImagePlus size={18} />
+          </span>
+          <div>
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#d8c28f]">
+              <Sparkles size={10} /> {t('Property photography')}
+            </span>
+            <h2 className="font-serif text-2xl text-white">{t('Add gallery image')}</h2>
+          </div>
         </div>
 
-        <label className="block">
-          <span className="sv-label">{t('Image title')}</span>
-          <div className="relative">
-            <Sparkles size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+        <div className="grid gap-5 p-6 sm:grid-cols-2 sm:p-8">
+          <div className="block">
+            <label htmlFor="gallery-title-input" className="sv-label">
+              <span>{t('Image title')}</span>
+              <span className="text-[11px] font-normal text-stone-400">{title.length}/160</span>
+            </label>
             <input
+              id="gallery-title-input"
               required
               maxLength={160}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder={t('e.g. A quiet morning at the villa')}
-              className="sv-input mt-2 pl-10"
+              className="sv-input mt-2"
             />
           </div>
-        </label>
 
-        <label className="block">
-          <span className="sv-label">
-            {t('Alternative text')} <span className="font-normal lowercase text-stone-400">({t('optional')})</span>
-          </span>
-          <div className="relative">
-            <FileText size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+          <div className="block">
+            <label htmlFor="gallery-alt-input" className="sv-label">
+              <span>{t('Alternative text')}</span>
+              <span className="rounded-full bg-stone-200/70 px-2.5 py-0.5 text-[10px] font-medium text-stone-600">
+                {t('optional')}
+              </span>
+            </label>
             <input
+              id="gallery-alt-input"
               maxLength={250}
               value={altText}
               onChange={(event) => setAltText(event.target.value)}
               placeholder={t('Describe the image for accessibility')}
-              className="sv-input mt-2 pl-10"
+              className="sv-input mt-2"
             />
           </div>
-        </label>
 
-        <div className="grid gap-4 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-stretch">
-          <div>
-            <span className="sv-label">{t('Photo')}</span>
-            <label className="mt-2 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#d8ccb8] bg-[#faf8f4] p-5 text-center transition hover:border-[#9c8256] hover:bg-white">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#efe9dc] text-[#756047]">
-                <UploadCloud size={20} />
-              </span>
-              <span className="text-xs font-medium text-stone-700">
-                {file ? file.name : t('Upload property photos. JPG, PNG, and WebP files up to 5 MB are supported.')}
-              </span>
-              <input
-                type="file"
-                required
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(event) => setFile(event.target.files?.[0] || null)}
-                className="mt-1 block w-full max-w-xs text-xs text-stone-500 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#24342a] file:px-4 file:py-2 file:text-xs file:font-medium file:text-white hover:file:bg-[#35463b]"
-              />
-            </label>
+          <div className="sm:col-span-2">
+            <div className="sv-label">
+              <span>{t('Photo')}</span>
+              <span className="text-[11px] font-normal text-stone-500">{t('JPG, PNG, WebP · up to 5 MB')}</span>
+            </div>
+
+            <div className={`mt-2 grid gap-4 ${preview ? 'sm:grid-cols-[1fr_190px]' : 'grid-cols-1'}`}>
+              <label className="group relative flex min-h-36 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d5c8b0] bg-white p-5 text-center transition hover:border-[#9c8256] hover:bg-[#faf7f0]">
+                <input
+                  type="file"
+                  required
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => setFile(event.target.files?.[0] || null)}
+                  className="sr-only"
+                />
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#f3eee3] text-[#756047] transition group-hover:scale-105 group-hover:bg-[#24342a] group-hover:text-[#d8c28f]">
+                  <UploadCloud size={22} />
+                </span>
+                <span className="mt-3 max-w-xs truncate text-sm font-semibold text-stone-800">
+                  {file ? file.name : t('Upload property photos. JPG, PNG, and WebP files up to 5 MB are supported.')}
+                </span>
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#24342a] px-4 py-1.5 text-xs font-medium text-white shadow-2xs transition group-hover:bg-[#35463b]">
+                  <ImagePlus size={13} /> {file ? t('New photo') : t('Photo')}
+                </span>
+              </label>
+
+              {preview && (
+                <div className="relative h-40 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:h-full">
+                  <img src={preview} alt="Preview" className="h-full w-full object-cover" />
+                  <span className="absolute bottom-2.5 left-2.5 inline-flex items-center gap-1 rounded-full bg-black/75 px-3 py-1 text-[10px] font-medium text-white">
+                    <ImagePlus size={11} /> {t('New photo')}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
-          {preview && (
-            <div className="relative h-36 overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 sm:h-auto">
-              <img src={preview} alt="Preview" className="h-full w-full object-cover" />
-              <span className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-medium text-white">
-                Preview
-              </span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end border-t border-stone-100 pt-4 sm:col-span-2">
-          <button
-            disabled={busy || !file}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#24342a] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#35463b] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-          >
-            {busy ? (
-              <>
-                <LoaderCircle size={16} className="animate-spin" /> {t('Publishing…')}
-              </>
-            ) : (
-              <>
-                <ImagePlus size={16} /> {t('Add to gallery')}
-              </>
-            )}
-          </button>
+          <div className="flex justify-end border-t border-stone-200/80 pt-4 sm:col-span-2">
+            <button
+              disabled={busy || !file}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#24342a] px-7 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#35463b] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            >
+              {busy ? (
+                <>
+                  <LoaderCircle size={16} className="animate-spin" /> {t('Publishing…')}
+                </>
+              ) : (
+                <>
+                  <ImagePlus size={16} /> {t('Add to gallery')}
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
 
