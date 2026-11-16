@@ -7,7 +7,7 @@ import BookingPage from './BookingPage'
 import BrandLogo from './BrandLogo'
 import { LanguageSwitch, useLanguage } from './i18n'
 import TiltCard3D from './TiltCard3D'
-import VillaScene3D, { type VillaHotspot, type VillaMood } from './VillaScene3D'
+import VillaScene3D from './VillaScene3D'
 import {
   ArrowRight,
   BedDouble,
@@ -20,15 +20,11 @@ import {
   MapPin,
   Menu,
   MessageCircle,
-  MoonStar,
   Phone,
   Play,
   ShieldCheck,
   Sparkles,
-  Sun,
-  Trees,
   Users,
-  Waves,
   Wifi,
   X,
 } from 'lucide-react'
@@ -43,45 +39,10 @@ const navItems = [
 
 const villaVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
 
-const hotspotDetails: Record<
-  VillaHotspot,
-  { title: string; subtitle: string; description: string; metric: string; icon: typeof Compass }
-> = {
-  courtyard: {
-    title: 'The Quiet Courtyard',
-    subtitle: 'Architectural Entry · 01',
-    description: 'Step through the signature brass sanctuary arch into a hushed open-air courtyard framed by warm stone and Kigali breezes.',
-    metric: '100% Private Acoustic Calm',
-    icon: Compass,
-  },
-  suites: {
-    title: 'Cantilevered Guest Suites',
-    subtitle: 'Private Quarters · 02',
-    description: 'Elevated suites featuring panoramic floor-to-ceiling glass, bespoke teak louvers, and curated lighting made for deep rest.',
-    metric: 'King Suites · Garden Views',
-    icon: BedDouble,
-  },
-  pool: {
-    title: 'Reflection Pool & Deck',
-    subtitle: 'Water Sanctuary · 03',
-    description: 'Floating limestone stepping stones cross a tranquil reflection basin that mirrors the golden Rwandan sunset.',
-    metric: 'Heated Evening Ambiance',
-    icon: Waves,
-  },
-  garden: {
-    title: 'Kigali Cypress Gardens',
-    subtitle: 'Botanical Grounds · 04',
-    description: 'Surrounded by lush tropical greenery and towering cypress trees on KN 288 St, creating an oasis away from city noise.',
-    metric: 'KN 288 St · 227V+FJ Kigali',
-    icon: Trees,
-  },
-}
-
 function RoomsPage() {
   const { t } = useLanguage()
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomsError, setRoomsError] = useState('')
-  const [activeHotspot, setActiveHotspot] = useState<VillaHotspot>('suites')
 
   useEffect(() => {
     let active = true
@@ -111,10 +72,11 @@ function RoomsPage() {
 
   return (
     <main>
-      <section className="relative min-h-[540px] overflow-hidden bg-[#15221a] px-4 pb-16 pt-20 text-white sm:px-6 sm:pb-24 sm:pt-28 lg:px-8">
+      <section className="relative min-h-[520px] overflow-hidden bg-[#15221a] px-4 pb-16 pt-20 text-white sm:px-6 sm:pb-24 sm:pt-28 lg:px-8">
         <VillaScene3D
-          activeHotspot={activeHotspot}
+          activeHotspot="suites"
           mood="starlight"
+          autoRotate
           interactive
           className="absolute inset-0 h-full w-full opacity-85"
         />
@@ -136,22 +98,6 @@ function RoomsPage() {
                 <p className="text-base leading-relaxed text-stone-200">
                   {t('Browse our rooms and send a booking request directly to the Silent Villa team.')}
                 </p>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {(['suites', 'courtyard', 'pool', 'garden'] as VillaHotspot[]).map((spot) => (
-                    <button
-                      key={spot}
-                      type="button"
-                      onClick={() => setActiveHotspot(spot)}
-                      className={`rounded-full border px-3.5 py-1.5 text-xs uppercase tracking-[0.18em] transition ${
-                        activeHotspot === spot
-                          ? 'border-[#d8c28f] bg-[#d8c28f] font-semibold text-[#18251d]'
-                          : 'border-white/20 bg-black/25 text-stone-300 hover:border-white/40 hover:text-white'
-                      }`}
-                    >
-                      3D · {spot}
-                    </button>
-                  ))}
-                </div>
                 <Link
                   to="/book"
                   className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#bda06b] px-6 py-3.5 text-sm font-semibold text-[#18251d] shadow-lg transition hover:bg-[#dfcc9f]"
@@ -478,10 +424,6 @@ function VillaSite() {
   const [gallery, setGallery] = useState<GalleryImage[]>([])
   const [galleryLoading, setGalleryLoading] = useState(true)
   const [galleryError, setGalleryError] = useState('')
-
-  // 3D Scene states
-  const [heroHotspot, setHeroHotspot] = useState<VillaHotspot>('courtyard')
-  const [heroMood, setHeroMood] = useState<VillaMood>('sunset')
   const [quickBook, setQuickBook] = useState({
     checkIn: new Date().toISOString().slice(0, 10),
     guests: '2',
@@ -608,9 +550,6 @@ function VillaSite() {
       setVillaVideoError('The video could not be played. Please try again.')
     }
   }
-
-  const activeSpotInfo = hotspotDetails[heroHotspot]
-  const SpotIcon = activeSpotInfo.icon
 
   const services = [
     {
@@ -804,32 +743,33 @@ function VillaSite() {
               <source src={villaVideo} type="video/mp4" />
             </video>
 
-            {/* Interactive Three.js 3D Architectural Canvas */}
+            {/* Interactive Three.js 3D Architectural Canvas (Auto-Rotating) */}
             <VillaScene3D
-              activeHotspot={heroHotspot}
-              mood={heroMood}
+              activeHotspot="courtyard"
+              mood="sunset"
+              autoRotate
               interactive
               className="absolute inset-0 -z-10 h-full w-full"
             />
 
             {/* Cinematic vignette gradients for crisp PC & mobile typography */}
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#111c15]/95 via-[#131f18]/65 to-transparent" />
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-[#111c15] via-transparent to-[#111c15]/40" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#111c15]/90 via-[#131f18]/50 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-[#111c15] via-transparent to-[#111c15]/35" />
 
-            <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 pb-10 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.15fr_0.85fr] lg:px-8 lg:py-20">
-              {/* Left Column: Hero Copy & CTAs */}
+            <div className="pointer-events-none mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pb-12 pt-14 sm:px-6 sm:pt-20 lg:px-8 lg:py-24">
+              {/* Hero Copy & CTAs */}
               <motion.div
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 26 }}
                 animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="max-w-2xl"
+                className="pointer-events-auto max-w-2xl"
               >
                 <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#d8c28f]/35 bg-black/35 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#e5cc9b] backdrop-blur-md sm:text-xs">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-[#d8c28f]" />
-                  {t('Guest house · Kigali')} · Interactive 3D Sanctuary
+                  {t('Guest house · Kigali')} · {t('Where comfort meets silence')}
                 </div>
 
-                <h1 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[5.4rem]">
+                <h1 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[5.5rem]">
                   {t('A stay made for Kigali.')}
                 </h1>
 
@@ -860,7 +800,7 @@ function VillaSite() {
                     event.preventDefault()
                     navigate('/book')
                   }}
-                  className="mt-9 grid gap-3 rounded-2xl border border-white/15 bg-black/40 p-3 backdrop-blur-xl sm:grid-cols-[1fr_0.8fr_auto] sm:items-center sm:rounded-full sm:p-2 sm:pl-5"
+                  className="mt-9 grid gap-3 rounded-2xl border border-white/15 bg-black/45 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:grid-cols-[1fr_0.8fr_auto] sm:items-center sm:rounded-full sm:p-2 sm:pl-5"
                 >
                   <label className="flex flex-col text-left text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">
                     {t('Check-in')}
@@ -888,95 +828,12 @@ function VillaSite() {
                   </label>
                   <button
                     type="submit"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#d8c28f] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] transition hover:bg-[#f2dfb4] sm:rounded-full"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#d8c28f] px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] transition hover:bg-[#f2dfb4] sm:rounded-full"
                   >
                     {t('Reserve your stay')} <ArrowRight size={14} />
                   </button>
                 </form>
               </motion.div>
-
-              {/* Right Column: Interactive 3D Architecture Control HUD (Optimized for PC & Tablet) */}
-              <motion.aside
-                initial={shouldReduceMotion ? false : { opacity: 0, x: 24 }}
-                animate={shouldReduceMotion ? {} : { opacity: 1, x: 0 }}
-                transition={{ duration: 0.85, delay: 0.15, ease: 'easeOut' }}
-                className="flex flex-col justify-end lg:items-end"
-              >
-                <div className="w-full max-w-md rounded-3xl border border-white/15 bg-[#142018]/75 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-6">
-                  <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#bda06b]/20 text-[#d8c28f]">
-                        <Sparkles size={15} />
-                      </span>
-                      <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#d8c28f]">
-                          3D Villa Explorer
-                        </p>
-                        <p className="text-xs text-stone-300">Drag model to rotate · Select camera view</p>
-                      </div>
-                    </div>
-
-                    {/* Lighting Ambience Switch */}
-                    <button
-                      type="button"
-                      onClick={() => setHeroMood((m) => (m === 'sunset' ? 'starlight' : 'sunset'))}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-[#f2dfb4] transition hover:border-[#d8c28f]/60 hover:bg-white/10"
-                      title="Toggle 3D lighting mood"
-                    >
-                      {heroMood === 'sunset' ? (
-                        <>
-                          <Sun size={13} className="text-amber-300" /> Golden Dusk
-                        </>
-                      ) : (
-                        <>
-                          <MoonStar size={13} className="text-sky-200" /> Starlight
-                        </>
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Camera Angle Selector Pills */}
-                  <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {(
-                      [
-                        ['courtyard', 'Courtyard'],
-                        ['suites', 'Suites'],
-                        ['pool', 'Pool'],
-                        ['garden', 'Gardens'],
-                      ] as [VillaHotspot, string][]
-                    ).map(([spotKey, label]) => (
-                      <button
-                        key={spotKey}
-                        type="button"
-                        onClick={() => setHeroHotspot(spotKey)}
-                        className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
-                          heroHotspot === spotKey
-                            ? 'bg-[#bda06b] text-[#18251d] shadow-md'
-                            : 'bg-white/5 text-stone-300 hover:bg-white/10 hover:text-white'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Active Hotspot Card Info */}
-                  <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
-                    <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-[#d8c28f]">
-                      <span>{activeSpotInfo.subtitle}</span>
-                      <SpotIcon size={14} />
-                    </div>
-                    <h2 className="mt-1.5 font-serif text-2xl text-white">{activeSpotInfo.title}</h2>
-                    <p className="mt-1.5 text-xs leading-relaxed text-stone-300">{activeSpotInfo.description}</p>
-                    <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5 text-[11px] text-[#e5cc9b]">
-                      <span>{activeSpotInfo.metric}</span>
-                      <Link to="/rooms" className="inline-flex items-center gap-1 font-medium hover:underline">
-                        {t('Explore rooms')} <ArrowRight size={12} />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </motion.aside>
             </div>
 
             {/* Bottom Hero Status Bar */}

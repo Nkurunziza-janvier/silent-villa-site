@@ -8,6 +8,7 @@ type VillaScene3DProps = {
   activeHotspot?: VillaHotspot
   mood?: VillaMood
   interactive?: boolean
+  autoRotate?: boolean
   className?: string
 }
 
@@ -15,8 +16,8 @@ const CAMERA_TARGETS: Record<
   VillaHotspot,
   { pos: [number, number, number]; look: [number, number, number] }
 > = {
-  courtyard: { pos: [7.5, 4.3, 8.8], look: [0, 0.8, 0] },
-  suites: { pos: [3.2, 3.0, 5.4], look: [-0.8, 1.5, -0.6] },
+  courtyard: { pos: [7.8, 3.8, 8.6], look: [-1.2, 0.9, 0] },
+  suites: { pos: [3.6, 3.0, 5.8], look: [-0.8, 1.5, -0.6] },
   pool: { pos: [-5.4, 2.8, 6.6], look: [0.4, 0.2, 1.8] },
   garden: { pos: [6.8, 5.6, -5.8], look: [0, 0.6, 0] },
 }
@@ -25,6 +26,7 @@ export default function VillaScene3D({
   activeHotspot = 'courtyard',
   mood = 'sunset',
   interactive = true,
+  autoRotate = true,
   className = '',
 }: VillaScene3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -386,10 +388,11 @@ export default function VillaScene3D({
       villaGlow1.intensity += (targetGlowIntensity - villaGlow1.intensity) * 0.05
       warmWindowMat.emissiveIntensity += ((isNight ? 2.1 : 1.25) - warmWindowMat.emissiveIntensity) * 0.05
 
-      // Gentle architectural float & user yaw rotation
+      // Gentle architectural float & continuous 3D auto-rotation + user yaw rotation
       estateGroup.position.y = Math.sin(elapsed * 0.9) * 0.06
-      estateGroup.rotation.y +=
-        (userYawOffset + Math.sin(elapsed * 0.22) * 0.14 + pointerX * 0.22 - estateGroup.rotation.y) * 0.045
+      const continuousSpin = autoRotate ? elapsed * 0.26 : Math.sin(elapsed * 0.22) * 0.14
+      const targetYaw = userYawOffset + continuousSpin + pointerX * 0.25
+      estateGroup.rotation.y += (targetYaw - estateGroup.rotation.y) * 0.05
 
       // Shimmering halo & lanterns
       haloOrb.position.y = 1.85 + Math.sin(elapsed * 2.2) * 0.06
@@ -433,7 +436,7 @@ export default function VillaScene3D({
       window.removeEventListener('resize', onResize)
       renderer.dispose()
     }
-  }, [interactive])
+  }, [autoRotate, interactive])
 
   return (
     <div
