@@ -294,7 +294,7 @@ function GalleryPage({
           <div className="mt-12 flex flex-col gap-4 border-t border-stone-300 pt-7 sm:flex-row sm:items-center sm:justify-between">
             <p className="font-serif text-2xl text-stone-800">{t('Seen enough to imagine your stay?')}</p>
             <a
-              href="tel:0788324736"
+              href="tel:+250796899937"
               className="inline-flex items-center gap-2 text-sm font-medium text-stone-900 transition hover:text-[#665940]"
             >
               {t('Contact the villa')} <ArrowRight size={16} />
@@ -314,7 +314,7 @@ function FaqSection() {
     ['How do I book a room?', 'Choose a room and submit the booking request form. The Silent Villa team will contact you to confirm your stay.'],
     ['Do I pay online when I book?', 'No. This website does not process payments. Confirm the amount and payment details directly with Silent Villa.'],
     ['Where is Silent Villa located?', 'Silent Villa is on KN 288 St in Kigali. You can also use the Google Maps Plus Code 227V+FJ Kigali.'],
-    ['How can I contact the team?', 'Call 0788 324 736 or start a conversation on WhatsApp at +250 788 324 736.'],
+    ['How can I contact the team?', 'Call 0796 899 937 or start a conversation on WhatsApp at +250 796 899 937.'],
     ['Can I change or cancel my request?', 'Please contact Silent Villa directly by phone or WhatsApp, and the team will help with your request.'],
   ]
 
@@ -330,7 +330,7 @@ function FaqSection() {
             {t('Find the details you need before choosing your room.')}
           </p>
           <a
-            href="tel:0788324736"
+            href="tel:+250796899937"
             className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-800 transition hover:border-[#24342a] hover:bg-white"
           >
             {t('Still have a question?')} <Phone size={15} />
@@ -643,7 +643,7 @@ function VillaSite() {
               <CalendarDays size={14} /> {t('Book your stay')}
             </Link>
             <a
-              href="tel:0788324736"
+              href="tel:+250796899937"
               className="inline-flex items-center gap-2 rounded-full bg-[#bda06b] px-5 py-2.5 text-sm font-semibold text-[#18251d] transition duration-300 hover:bg-[#dfcc9f] hover:shadow-[0_8px_24px_rgba(212,179,127,0.28)]"
             >
               {t('Call to enquire')} <Phone size={15} />
@@ -702,7 +702,7 @@ function VillaSite() {
                     {t('Book your stay')}
                   </Link>
                   <a
-                    href="tel:0788324736"
+                    href="tel:+250796899937"
                     className="inline-flex items-center justify-center gap-2 rounded-full bg-[#bda06b] px-4 py-3 text-sm font-semibold text-[#18251d]"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -860,7 +860,7 @@ function VillaSite() {
               <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3.5 text-xs text-stone-300 sm:px-6 lg:px-8">
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                   <span className="inline-flex items-center gap-2">
-                    <Phone size={14} className="text-[#d8c28f]" /> 0788 324 736
+                    <Phone size={14} className="text-[#d8c28f]" /> 0796 899 937
                   </span>
                   <span className="hidden h-3.5 w-px bg-white/25 sm:block" />
                   <span className="inline-flex items-center gap-1.5">
@@ -899,7 +899,7 @@ function VillaSite() {
                     {t('View all rooms')} <ArrowRight size={15} />
                   </Link>
                   <a
-                    href="tel:0788324736"
+                    href="tel:+250796899937"
                     className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-stone-300 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:border-[#24342a]"
                   >
                     {t('Ask about a room')} <Phone size={15} />
@@ -1168,12 +1168,12 @@ function VillaSite() {
                     <MapPin size={16} /> {t('Get directions')}
                   </a>
                   <a
-                    href="https://wa.me/250788324736"
+                    href="https://wa.me/250796899937"
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-medium text-white transition hover:bg-white/15"
                   >
-                    <MessageCircle size={16} /> WhatsApp +250 788 324 736
+                    <MessageCircle size={16} /> WhatsApp +250 796 899 937
                   </a>
                 </div>
               </Reveal>
@@ -1237,12 +1237,12 @@ function VillaSite() {
               <ul className="mt-5 space-y-3 text-sm text-stone-300">
                 <li>KN 288 St, Kigali · 227V+FJ</li>
                 <li>
-                  <a href="tel:0788324736" className="transition hover:text-white">
-                    0788 324 736
+                  <a href="tel:+250796899937" className="transition hover:text-white">
+                    0796 899 937
                   </a>
                 </li>
                 <li>
-                  <a href="https://wa.me/250788324736" target="_blank" rel="noreferrer" className="transition hover:text-white">
+                  <a href="https://wa.me/250796899937" target="_blank" rel="noreferrer" className="transition hover:text-white">
                     WhatsApp
                   </a>
                 </li>
@@ -1264,7 +1264,7 @@ function VillaSite() {
             <p>© {new Date().getFullYear()} Silent Villa. All rights reserved.</p>
             <div className="inline-flex items-center gap-2 text-[#cdb782]">
               <Phone size={15} />
-              <a href="tel:0788324736" className="transition hover:text-white">
+              <a href="tel:+250796899937" className="transition hover:text-white">
                 Call to enquire
               </a>
             </div>
@@ -1286,7 +1286,7 @@ function VillaSite() {
               className="pointer-events-auto mx-auto flex max-w-lg gap-2 rounded-2xl border border-white/10 bg-[#18251d]/95 p-2 shadow-[0_12px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl"
             >
               <a
-                href="https://wa.me/250788324736"
+                href="https://wa.me/250796899937"
                 target="_blank"
                 rel="noreferrer"
                 className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#236c50] px-3 text-white transition hover:bg-[#2c805e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
@@ -1295,11 +1295,11 @@ function VillaSite() {
                 <span className="text-sm font-medium">WhatsApp</span>
               </a>
               <a
-                href="tel:0788324736"
+                href="tel:+250796899937"
                 className="flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-[#bda06b] px-3 text-[#18251d] transition hover:bg-[#d8c28f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 <Phone size={18} strokeWidth={1.8} />
-                <span className="text-sm font-semibold">Call · 0788 324 736</span>
+                <span className="text-sm font-semibold">Call · 0796 899 937</span>
               </a>
             </nav>
           </motion.div>
