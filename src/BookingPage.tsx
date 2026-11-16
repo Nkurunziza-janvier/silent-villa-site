@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, CalendarDays, Check, Clock3, LoaderCircle, MapPin, ShieldCheck, Sparkles, Users, X } from 'lucide-react'
+import { ArrowLeft, BedDouble, CalendarDays, Check, Clock3, LoaderCircle, Mail, MapPin, MessageSquare, Phone, ShieldCheck, Sparkles, User, Users, X } from 'lucide-react'
 import { api, imageUrl, type Room } from './api'
 import BrandLogo from './BrandLogo'
 import { LanguageSwitch, useLanguage } from './i18n'
@@ -82,7 +82,8 @@ export default function BookingPage() {
     } catch (err) { setError((err as Error).message) } finally { setBusy(false) }
   }
 
-  const fieldClass = 'mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-[#756047] focus:ring-2 focus:ring-[#756047]/15'
+  const fieldClass = 'sv-input mt-2 pl-10'
+  const selectClass = 'sv-input sv-select mt-2 pl-10'
 
   return (
     <main className="min-h-screen bg-[#f4f0e7]">
@@ -110,26 +111,144 @@ export default function BookingPage() {
           </div>
         </aside>
 
-        <section className="flex min-h-screen flex-col px-5 py-7 sm:px-10 lg:px-14 xl:px-20">
+        <section className="flex min-h-screen flex-col px-4 py-6 sm:px-8 sm:py-10 lg:px-14 xl:px-20">
           <div className="mx-auto w-full max-w-xl">
-            <div className="flex items-center justify-between gap-3"><Link to="/rooms" className="inline-flex items-center gap-2 text-sm text-stone-500 transition hover:text-stone-900"><ArrowLeft size={16} /> {t('Back to rooms')}</Link><LanguageSwitch light /></div>
-            <div className="mt-10 sm:mt-14">
-              <p className="text-xs uppercase tracking-[0.28em] text-[#665940]">{t('Reserve your stay')}</p>
-              <h2 className="mt-3 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">{t('Booking request')}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-stone-500">{t('Share a few details and we’ll get back to you to confirm availability.')}</p>
+            <div className="flex items-center justify-between gap-3">
+              <Link to="/rooms" className="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-600 shadow-xs transition hover:border-stone-300 hover:text-stone-900">
+                <ArrowLeft size={15} /> {t('Back to rooms')}
+              </Link>
+              <LanguageSwitch light />
             </div>
 
-            {loadingRooms ? <div className="mt-10 flex items-center gap-3 text-sm text-stone-500"><LoaderCircle size={18} className="animate-spin" /> {t('Loading available rooms…')}</div> : rooms.length === 0 ? <div className="mt-8 rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600">{t('There are no rooms available to book yet. Please contact Silent Villa directly.')}</div> : (
-              <form onSubmit={submit} className="mt-8 space-y-5">
-                {selectedRoom && <div className="flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3"><img src={imageUrl(selectedRoom.imageUrl)} alt={selectedRoom.name} className="h-20 w-24 rounded-xl object-cover" /><div className="min-w-0 flex-1"><p className="font-serif text-xl text-stone-900">{selectedRoom.name}</p><p className="mt-1 text-sm text-stone-500">RWF {Number(selectedRoom.price).toLocaleString()} <span className="text-xs">{t('/ night')}</span></p></div></div>}
-                <label className="block text-sm font-medium text-stone-700">{t('Choose a room')}<select className={fieldClass} value={form.roomId} required onChange={(event) => setForm({ ...form, roomId: event.target.value })}><option value="" disabled>{t('Select a room')}</option>{rooms.map((room) => <option key={room.id} value={room.id}>{room.name} · RWF {Number(room.price).toLocaleString()} / night</option>)}</select></label>
-                <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-medium text-stone-700">{t('Full name')}<input className={fieldClass} autoComplete="name" required maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder={t('Your name')} /></label><label className="block text-sm font-medium text-stone-700">{t('Phone number')}<input className={fieldClass} autoComplete="tel" required maxLength={40} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+250 7xx xxx xxx" /></label></div>
-                <label className="block text-sm font-medium text-stone-700">{t('Email address')} <span className="font-normal text-stone-400">({t('optional')})</span><input className={fieldClass} type="email" autoComplete="email" maxLength={190} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" /></label>
-                <div className="grid gap-4 sm:grid-cols-3"><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {t('Check-in')}</span><input className={fieldClass} type="date" min={today} required value={form.checkIn} onChange={(event) => setForm({ ...form, checkIn: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><CalendarDays size={14} /> {t('Check-out')}</span><input className={fieldClass} type="date" min={form.checkIn || today} required value={form.checkOut} onChange={(event) => setForm({ ...form, checkOut: event.target.value })} /></label><label className="block text-sm font-medium text-stone-700"><span className="inline-flex items-center gap-1.5"><Users size={14} /> {t('Guests')}</span><select className={fieldClass} value={form.guests} onChange={(event) => setForm({ ...form, guests: event.target.value })}>{Array.from({ length: 10 }, (_, index) => <option key={index + 1} value={index + 1}>{index + 1} {t(index === 0 ? 'guest' : 'guests')}</option>)}</select></label></div>
-                <label className="block text-sm font-medium text-stone-700">{t('Special requests')} <span className="font-normal text-stone-400">({t('optional')})</span><textarea className={`${fieldClass} min-h-24 resize-y`} maxLength={2000} value={form.specialRequests} onChange={(event) => setForm({ ...form, specialRequests: event.target.value })} placeholder={t('Anything we should know before your stay?')} /></label>
-                {error && <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
-                <button disabled={busy || rooms.length === 0} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#24342a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#35463b] disabled:cursor-not-allowed disabled:opacity-60">{busy ? <><LoaderCircle size={17} className="animate-spin" /> {t('Sending request…')}</> : <>{t('Request to book')} <ArrowLeft className="rotate-180" size={16} /></>}</button>
-                <p className="flex items-center justify-center gap-2 pb-8 text-xs text-stone-400"><Clock3 size={13} /> {t('Your reservation is pending until confirmed by our team.')}</p>
+            <div className="mt-8 sm:mt-10">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#665940]">{t('Reserve your stay')}</p>
+              <h2 className="mt-2 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">{t('Booking request')}</h2>
+              <p className="mt-2.5 text-sm leading-relaxed text-stone-500">{t('Share a few details and we’ll get back to you to confirm availability.')}</p>
+            </div>
+
+            {loadingRooms ? (
+              <div className="mt-10 flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500 shadow-xs">
+                <LoaderCircle size={18} className="animate-spin text-[#756047]" /> {t('Loading available rooms…')}
+              </div>
+            ) : rooms.length === 0 ? (
+              <div className="mt-8 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-600 shadow-xs">
+                {t('There are no rooms available to book yet. Please contact Silent Villa directly.')}
+              </div>
+            ) : (
+              <form onSubmit={submit} className="mt-7 space-y-5 rounded-3xl border border-stone-200/90 bg-[#fcfaf6] p-5 shadow-[0_18px_50px_rgba(36,52,42,0.06)] sm:p-8">
+                {selectedRoom && (
+                  <div className="flex items-center gap-4 rounded-2xl border border-[#e5dec9] bg-white p-3.5 shadow-xs">
+                    <img src={imageUrl(selectedRoom.imageUrl)} alt={selectedRoom.name} className="h-20 w-24 shrink-0 rounded-xl object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <span className="inline-block rounded-full bg-[#f4f0e7] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#756047]">
+                        {t('Your selected room')}
+                      </span>
+                      <p className="mt-1 truncate font-serif text-xl text-stone-900 sm:text-2xl">{selectedRoom.name}</p>
+                      <p className="mt-0.5 text-sm font-semibold text-[#665940]">
+                        RWF {Number(selectedRoom.price).toLocaleString()} <span className="text-xs font-normal text-stone-500">{t('/ night')}</span>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <label className="block">
+                  <span className="sv-label">{t('Choose a room')}</span>
+                  <div className="relative">
+                    <BedDouble size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                    <select className={selectClass} value={form.roomId} required onChange={(event) => setForm({ ...form, roomId: event.target.value })}>
+                      <option value="" disabled>{t('Select a room')}</option>
+                      {rooms.map((room) => (
+                        <option key={room.id} value={room.id}>
+                          {room.name} · RWF {Number(room.price).toLocaleString()} / night
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </label>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="sv-label">{t('Full name')}</span>
+                    <div className="relative">
+                      <User size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                      <input className={fieldClass} autoComplete="name" required maxLength={120} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder={t('Your name')} />
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="sv-label">{t('Phone number')}</span>
+                    <div className="relative">
+                      <Phone size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                      <input className={fieldClass} autoComplete="tel" required maxLength={40} value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="+250 7xx xxx xxx" />
+                    </div>
+                  </label>
+                </div>
+
+                <label className="block">
+                  <span className="sv-label">
+                    {t('Email address')} <span className="font-normal lowercase text-stone-400">({t('optional')})</span>
+                  </span>
+                  <div className="relative">
+                    <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                    <input className={fieldClass} type="email" autoComplete="email" maxLength={190} value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@example.com" />
+                  </div>
+                </label>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <label className="block">
+                    <span className="sv-label">{t('Check-in')}</span>
+                    <div className="relative">
+                      <CalendarDays size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                      <input className={fieldClass} type="date" min={today} required value={form.checkIn} onChange={(event) => setForm({ ...form, checkIn: event.target.value })} />
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="sv-label">{t('Check-out')}</span>
+                    <div className="relative">
+                      <CalendarDays size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                      <input className={fieldClass} type="date" min={form.checkIn || today} required value={form.checkOut} onChange={(event) => setForm({ ...form, checkOut: event.target.value })} />
+                    </div>
+                  </label>
+                  <label className="block">
+                    <span className="sv-label">{t('Guests')}</span>
+                    <div className="relative">
+                      <Users size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#756047]" />
+                      <select className={selectClass} value={form.guests} onChange={(event) => setForm({ ...form, guests: event.target.value })}>
+                        {Array.from({ length: 10 }, (_, index) => (
+                          <option key={index + 1} value={index + 1}>
+                            {index + 1} {t(index === 0 ? 'guest' : 'guests')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </label>
+                </div>
+
+                <label className="block">
+                  <span className="sv-label">
+                    {t('Special requests')} <span className="font-normal lowercase text-stone-400">({t('optional')})</span>
+                  </span>
+                  <div className="relative">
+                    <MessageSquare size={16} className="pointer-events-none absolute left-3.5 top-4 text-[#756047]" />
+                    <textarea className={`${fieldClass} min-h-28 resize-y pt-3`} maxLength={2000} value={form.specialRequests} onChange={(event) => setForm({ ...form, specialRequests: event.target.value })} placeholder={t('Anything we should know before your stay?')} />
+                  </div>
+                </label>
+
+                {error && <p role="alert" className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+
+                <button disabled={busy || rooms.length === 0} className="inline-flex min-h-13 w-full items-center justify-center gap-2 rounded-full bg-[#24342a] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(36,52,42,0.22)] transition hover:bg-[#35463b] disabled:cursor-not-allowed disabled:opacity-60">
+                  {busy ? (
+                    <>
+                      <LoaderCircle size={17} className="animate-spin" /> {t('Sending request…')}
+                    </>
+                  ) : (
+                    <>
+                      {t('Request to book')} <ArrowLeft className="rotate-180" size={16} />
+                    </>
+                  )}
+                </button>
+                <p className="flex items-center justify-center gap-2 pt-1 text-center text-xs text-stone-500">
+                  <Clock3 size={13} className="shrink-0 text-[#756047]" /> {t('Your reservation is pending until confirmed by our team.')}
+                </p>
               </form>
             )}
           </div>

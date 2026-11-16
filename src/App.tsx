@@ -800,35 +800,49 @@ function VillaSite() {
                     event.preventDefault()
                     navigate('/book')
                   }}
-                  className="mt-9 grid gap-3 rounded-2xl border border-white/15 bg-black/45 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:grid-cols-[1fr_0.8fr_auto] sm:items-center sm:rounded-full sm:p-2 sm:pl-5"
+                  className="mt-9 grid gap-2.5 rounded-3xl border border-white/20 bg-[#142018]/75 p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:grid-cols-[1fr_0.85fr_auto] sm:items-center sm:rounded-full sm:p-2"
                 >
-                  <label className="flex flex-col text-left text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">
-                    {t('Check-in')}
-                    <input
-                      type="date"
-                      value={quickBook.checkIn}
-                      min={new Date().toISOString().slice(0, 10)}
-                      onChange={(e) => setQuickBook({ ...quickBook, checkIn: e.target.value })}
-                      className="mt-0.5 bg-transparent text-xs font-medium text-white outline-none [color-scheme:dark]"
-                    />
+                  <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 transition hover:border-[#d8c28f]/40 hover:bg-white/[0.08] focus-within:border-[#d8c28f] focus-within:bg-white/[0.08] sm:rounded-full">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
+                      <CalendarDays size={16} />
+                    </span>
+                    <span className="min-w-0 flex-1 text-left">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
+                        {t('Check-in')}
+                      </span>
+                      <input
+                        type="date"
+                        value={quickBook.checkIn}
+                        min={new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setQuickBook({ ...quickBook, checkIn: e.target.value })}
+                        className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [color-scheme:dark]"
+                      />
+                    </span>
                   </label>
-                  <label className="flex flex-col border-t border-white/10 pt-2 text-left text-[10px] uppercase tracking-[0.2em] text-[#d8c28f] sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
-                    {t('Guests')}
-                    <select
-                      value={quickBook.guests}
-                      onChange={(e) => setQuickBook({ ...quickBook, guests: e.target.value })}
-                      className="mt-0.5 bg-transparent text-xs font-medium text-white outline-none [&>option]:bg-[#18251d]"
-                    >
-                      {[1, 2, 3, 4, 5, 6].map((n) => (
-                        <option key={n} value={n}>
-                          {n} {t(n === 1 ? 'guest' : 'guests')}
-                        </option>
-                      ))}
-                    </select>
+                  <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 transition hover:border-[#d8c28f]/40 hover:bg-white/[0.08] focus-within:border-[#d8c28f] focus-within:bg-white/[0.08] sm:rounded-full">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
+                      <Users size={16} />
+                    </span>
+                    <span className="min-w-0 flex-1 text-left">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
+                        {t('Guests')}
+                      </span>
+                      <select
+                        value={quickBook.guests}
+                        onChange={(e) => setQuickBook({ ...quickBook, guests: e.target.value })}
+                        className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [&>option]:bg-[#18251d]"
+                      >
+                        {[1, 2, 3, 4, 5, 6].map((n) => (
+                          <option key={n} value={n}>
+                            {n} {t(n === 1 ? 'guest' : 'guests')}
+                          </option>
+                        ))}
+                      </select>
+                    </span>
                   </label>
                   <button
                     type="submit"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#d8c28f] px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] transition hover:bg-[#f2dfb4] sm:rounded-full"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#d8c28f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] shadow-lg transition hover:bg-[#f2dfb4] sm:rounded-full"
                   >
                     {t('Reserve your stay')} <ArrowRight size={14} />
                   </button>
