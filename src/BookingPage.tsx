@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, BedDouble, CalendarDays, Check, Clock3, LoaderCircle, Mail, MapPin, MessageSquare, Phone, ShieldCheck, Sparkles, User, Users, X } from 'lucide-react'
+import { ArrowLeft, BedDouble, CalendarDays, Check, Clock3, LoaderCircle, Mail, MapPin, MessageSquare, Phone, ShieldCheck, User, Users, X } from 'lucide-react'
 import { api, imageUrl, type Room } from './api'
 import BrandLogo from './BrandLogo'
 import { LanguageSwitch, useLanguage } from './i18n'
-import VillaScene3D from './VillaScene3D'
 
 const today = new Date().toISOString().slice(0, 10)
 
@@ -21,6 +20,15 @@ export default function BookingPage() {
   const shouldReduceMotion = useReducedMotion()
   const [form, setForm] = useState({ roomId: searchParams.get('room') || '', name: '', email: '', phone: '', checkIn: '', checkOut: '', guests: '1', specialRequests: '' })
   const selectedRoom = useMemo(() => rooms.find((room) => String(room.id) === form.roomId), [form.roomId, rooms])
+  const heroRoom = selectedRoom ?? rooms[0]
+  const heroImage = heroRoom ? imageUrl(heroRoom.imageUrl) : '/media/room-1.jpg'
+
+  // Keep the selection in sync when the ?room= parameter changes without a remount.
+  useEffect(() => {
+    const roomParam = searchParams.get('room')
+    if (!roomParam) return
+    setForm((current) => (current.roomId === roomParam ? current : { ...current, roomId: roomParam }))
+  }, [searchParams])
 
   useEffect(() => {
     let active = true
@@ -30,7 +38,10 @@ export default function BookingPage() {
         if (!active) return
         setRooms(items)
         setError('')
-        if (!searchParams.get('room') && items[0]) setForm((current) => current.roomId ? current : ({ ...current, roomId: String(items[0].id) }))
+        setForm((current) => {
+          if (current.roomId && items.some((room) => String(room.id) === current.roomId)) return current
+          return items[0] ? { ...current, roomId: String(items[0].id) } : current
+        })
       }).catch((err: Error) => {
         if (active) setError(err.message)
       }).finally(() => {
@@ -66,6 +77,14 @@ export default function BookingPage() {
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (!form.roomId || !rooms.some((room) => String(room.id) === form.roomId)) {
+      setError(t('Please choose a room for your stay.'))
+      return
+    }
+    if (!form.checkIn || !form.checkOut || form.checkOut <= form.checkIn) {
+      setError(t('Please choose a check-out date after your check-in date.'))
+      return
+    }
     setBusy(true)
     setError('')
     try {
@@ -88,24 +107,50 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-[#f4f0e7]">
       <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
-        <aside className="relative hidden overflow-hidden bg-[#18251d] text-white lg:block">
-          <img src={selectedRoom ? imageUrl(selectedRoom.imageUrl) : '/media/room-1.jpg'} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25" />
-          <VillaScene3D activeHotspot="suites" mood="starlight" interactive className="absolute inset-0 h-full w-full opacity-85" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#142018] via-[#18251d]/45 to-[#18251d]/30" />
-          <div className="pointer-events-none relative flex min-h-screen flex-col justify-between p-12 xl:p-16">
-            <div className="pointer-events-auto flex items-center justify-between">
+        <aside className="relative hidden min-h-screen overflow-hidden bg-[#0f1b14] text-white lg:block">
+          {/* The room being booked, full-bleed */}
+          <AnimatePresence initial={false}>
+            <motion.img
+              key={heroImage}
+              src={heroImage}
+              alt={heroRoom ? `${heroRoom.name} at Silent Villa` : 'Silent Villa room'}
+              initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.07 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </AnimatePresence>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0b1610] via-[#0e1b13]/40 to-[#0e1b13]/15" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#0a1410]/75 to-transparent" />
+
+          <div className="relative flex min-h-screen flex-col justify-between p-12 xl:p-16">
+            <div className="flex items-center justify-between gap-4">
               <Link to="/" className="inline-flex items-center gap-3 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#bda06b]">
                 <BrandLogo variant="dark" size="md" showTagline />
               </Link>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8c28f]/30 bg-black/30 px-3 py-1.5 text-[10px] uppercase tracking-[0.22em] text-[#d8c28f] backdrop-blur-md">
-                <Sparkles size={12} /> 3D Interactive View
+                <BedDouble size={12} /> {t('Room photo')}
               </span>
             </div>
-            <div className="max-w-lg pb-6">
+
+            <div className="max-w-lg pb-2">
               <span className="text-xs uppercase tracking-[0.3em] text-[#d8c28f]">{t('A quieter kind of stay')}</span>
-              <h1 className="mt-5 font-serif text-6xl leading-[0.95] tracking-tight xl:text-7xl">{t('Your room')}<br /><span className="italic text-[#d8c28f]">{t('is waiting.')}</span></h1>
-              <p className="mt-6 max-w-md leading-relaxed text-stone-300">{t('Make a booking request for your Kigali visit. Our team will confirm your stay shortly.')}</p>
-              <div className="mt-9 flex flex-wrap gap-5 text-xs text-stone-300"><span className="inline-flex items-center gap-2"><MapPin size={14} className="text-[#bda06b]" /> KN 288 St · Kigali, Rwanda</span><span className="inline-flex items-center gap-2"><ShieldCheck size={14} className="text-[#bda06b]" /> {t('No payment required')}</span></div>
+              {heroRoom ? (
+                <>
+                  <h1 className="mt-4 font-serif text-6xl leading-[0.95] tracking-tight xl:text-7xl">{heroRoom.name}</h1>
+                  <p className="mt-4 flex items-baseline gap-2.5">
+                    <span className="font-serif text-3xl tracking-tight text-[#f2dfb4]">RWF {Number(heroRoom.price).toLocaleString()}</span>
+                    <span className="text-xs uppercase tracking-[0.18em] text-stone-300">/ {t('night')}</span>
+                  </p>
+                  {heroRoom.description && (
+                    <p className="mt-4 line-clamp-3 max-w-md text-sm leading-relaxed text-stone-300">{heroRoom.description}</p>
+                  )}
+                </>
+              ) : (
+                <h1 className="mt-4 font-serif text-6xl leading-[0.95] tracking-tight xl:text-7xl">{t('Your room')}<br /><span className="italic text-[#d8c28f]">{t('is waiting.')}</span></h1>
+              )}
+              <div className="mt-8 flex flex-wrap gap-5 text-xs text-stone-300"><span className="inline-flex items-center gap-2"><MapPin size={14} className="text-[#bda06b]" /> KN 288 St · Kigali, Rwanda</span><span className="inline-flex items-center gap-2"><ShieldCheck size={14} className="text-[#bda06b]" /> {t('No payment required')}</span></div>
             </div>
             <p className="text-xs tracking-wide text-stone-400">SILENT VILLA · WHERE COMFORT MEETS SILENCE</p>
           </div>
@@ -137,9 +182,13 @@ export default function BookingPage() {
             ) : (
               <form onSubmit={submit} className="mt-7 space-y-5 rounded-3xl border border-stone-200/90 bg-[#fcfaf6] p-5 shadow-[0_18px_50px_rgba(36,52,42,0.06)] sm:p-8">
                 {selectedRoom && (
-                  <div className="flex items-center gap-4 rounded-2xl border border-[#e5dec9] bg-white p-3.5 shadow-xs">
-                    <img src={imageUrl(selectedRoom.imageUrl)} alt={selectedRoom.name} className="h-20 w-24 shrink-0 rounded-xl object-cover" />
-                    <div className="min-w-0 flex-1">
+                  <div className="overflow-hidden rounded-2xl border border-[#e5dec9] bg-white shadow-xs sm:flex sm:items-center sm:gap-4 sm:p-3.5">
+                    <img
+                      src={imageUrl(selectedRoom.imageUrl)}
+                      alt={selectedRoom.name}
+                      className="h-44 w-full object-cover sm:h-20 sm:w-24 sm:shrink-0 sm:rounded-xl"
+                    />
+                    <div className="p-4 sm:min-w-0 sm:flex-1 sm:p-0">
                       <span className="inline-block rounded-full bg-[#f4f0e7] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#756047]">
                         {t('Your selected room')}
                       </span>
