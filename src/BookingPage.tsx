@@ -16,7 +16,6 @@ import {
   MessageSquare,
   Phone,
   ShieldCheck,
-  Sparkles,
   Timer,
   User,
   Users,
@@ -171,7 +170,6 @@ export default function BookingPage() {
     return form.stayType === 'short_stay' ? unitPrice : unitPrice * nightsCount
   }, [form.stayType, nightsCount, selectedRoom?.price])
 
-  // Keep the selection in sync when URL parameters change
   useEffect(() => {
     const roomParam = searchParams.get('room')
     if (roomParam) {
@@ -211,7 +209,6 @@ export default function BookingPage() {
     }
   }, [searchParams])
 
-  // Load same-day reserved time windows for the selected room and check-in date
   useEffect(() => {
     let active = true
     const roomIdNum = Number(form.roomId)
@@ -292,7 +289,7 @@ export default function BookingPage() {
     if (form.stayType === 'long_stay' && (!form.checkOut || form.checkOut <= form.checkIn)) {
       setError(
         t(
-          'For overnight or long stays, please choose a check-out date after check-in, or select Short Stay (Hourly) for a same-day visit.',
+          'For overnight or long stays, please choose a check-out date after check-in, or select Short Stay (Same-day hourly) for a same-day visit.',
         ),
       )
       return
@@ -307,7 +304,7 @@ export default function BookingPage() {
     const scheduleNote =
       form.stayType === 'short_stay'
         ? `[Short Stay: ${form.checkInTime} – ${effectiveCheckOutTime} (${durationNum}h)]`
-        : `[Nightly/Long Stay: Arrival ${form.checkInTime || '14:00'}]`
+        : `[Nightly & Long Stay: Arrival ${form.checkInTime || '14:00'}]`
 
     const combinedRequests = form.specialRequests.trim()
       ? `${scheduleNote} ${form.specialRequests.trim()}`
@@ -366,8 +363,8 @@ export default function BookingPage() {
 
   return (
     <main className="min-h-screen bg-[#f4f0e7]">
-      <div className="grid min-h-screen lg:grid-cols-[0.92fr_1.08fr]">
-        {/* Left Luxury Editorial Suite Showcase */}
+      <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
+        {/* Left Suite Photo Showcase */}
         <aside className="relative hidden min-h-screen overflow-hidden bg-[#111d16] text-white lg:block">
           <AnimatePresence initial={false}>
             <motion.img
@@ -381,8 +378,8 @@ export default function BookingPage() {
               className="absolute inset-0 h-full w-full object-cover"
             />
           </AnimatePresence>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0b1510] via-[#0e1b13]/55 to-[#0a1410]/40" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#09120e]/85 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0b1510] via-[#0e1b13]/45 to-[#0a1410]/30" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-44 bg-gradient-to-b from-[#09120e]/80 to-transparent" />
 
           <div className="relative flex min-h-screen flex-col justify-between p-10 xl:p-14">
             <div className="flex items-center justify-between gap-4">
@@ -393,13 +390,13 @@ export default function BookingPage() {
                 <BrandLogo variant="dark" size="md" showTagline />
               </Link>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#d8c28f]/35 bg-black/40 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#e5cc9b] backdrop-blur-md">
-                <BedDouble size={12} /> {t('Selected Suite')}
+                <BedDouble size={12} /> {t('Room photo')}
               </span>
             </div>
 
             <div className="my-auto max-w-lg py-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#e5cc9b] backdrop-blur-sm">
-                <Sparkles size={11} /> {t('Short Stay & Extended Stays Available')}
+              <span className="text-xs uppercase tracking-[0.3em] text-[#d8c28f]">
+                {t('A quieter kind of stay')}
               </span>
               {heroRoom ? (
                 <>
@@ -428,38 +425,23 @@ export default function BookingPage() {
                 </h1>
               )}
 
-              {/* Payment & Location Highlights */}
-              <div className="mt-8 space-y-3 rounded-2xl border border-white/15 bg-black/45 p-5 backdrop-blur-md">
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#bda06b]/20 text-[#f2dfb4]">
-                    <CreditCard size={15} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
-                      {t('Booking Confirmation via MTN MoMo Pay')}
-                    </p>
-                    <p className="mt-1 font-mono text-base font-bold tracking-wide text-white">
-                      {MOMO_USSD_DISPLAY}
-                    </p>
-                    <p className="mt-0.5 text-xs text-stone-300">
-                      {t('Submit your booking request below, then dial the MoMo Pay code to confirm.')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 border-t border-white/10 pt-3">
-                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#bda06b]/20 text-[#f2dfb4]">
-                    <MapPin size={15} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
-                      {t('Address & Location')}
-                    </p>
-                    <p className="mt-0.5 text-xs font-medium text-stone-200">
-                      Nyamirambo / Kivugiza · KN 288 St, Kigali, Rwanda
-                    </p>
-                    <p className="text-[11px] text-stone-400">Plus Code: 227V+FJ Kigali · Tel: 0796 899 937</p>
-                  </div>
-                </div>
+              {/* Stay Options & Location Badges on Booking Page */}
+              <div className="mt-7 flex flex-wrap gap-2.5 text-xs text-[#f2dfb4]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3.5 py-1.5 backdrop-blur-md">
+                  <Timer size={13} className="text-[#d8c28f]" /> {t('Short Stay (Same-day hourly)')}
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3.5 py-1.5 backdrop-blur-md">
+                  <BedDouble size={13} className="text-[#d8c28f]" /> {t('Nightly & Long Stays')}
+                </span>
+              </div>
+
+              <div className="mt-6 flex flex-wrap gap-5 text-xs text-stone-300">
+                <span className="inline-flex items-center gap-2">
+                  <MapPin size={14} className="text-[#bda06b]" /> Nyamirambo / Kivugiza · KN 288 St, Kigali
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Phone size={14} className="text-[#bda06b]" /> 0796 899 937
+                </span>
               </div>
             </div>
 
@@ -482,16 +464,16 @@ export default function BookingPage() {
               <LanguageSwitch light />
             </div>
 
-            <div className="mt-7 sm:mt-9">
+            <div className="mt-7 sm:mt-8">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#665940]">
-                {t('Silent Villa · Direct Reservation')}
-              </p>
-              <h2 className="mt-2 font-serif text-4xl tracking-tight text-stone-900 sm:text-5xl">
                 {t('Reserve your stay')}
+              </p>
+              <h2 className="mt-2 font-serif text-3xl tracking-tight text-stone-900 sm:text-5xl">
+                {t('Booking request')}
               </h2>
               <p className="mt-2 text-sm leading-relaxed text-stone-600">
                 {t(
-                  'Choose Short Stay (by the hour on the same day) or Nightly / Long Stay. Multiple guests can book the same room on the same day for different hours.',
+                  'Choose Short Stay (Same-day hourly) or Nightly & Long Stays below. Same-day bookings are available for different hours.',
                 )}
               </p>
             </div>
@@ -508,12 +490,12 @@ export default function BookingPage() {
             ) : (
               <form
                 onSubmit={submit}
-                className="mt-6 space-y-5 rounded-3xl border border-stone-200/90 bg-[#fcfaf6] p-5 shadow-[0_18px_50px_rgba(36,52,42,0.06)] sm:p-8"
+                className="mt-6 space-y-5 rounded-3xl border border-stone-200/90 bg-[#fcfaf6] p-4 shadow-[0_18px_50px_rgba(36,52,42,0.06)] sm:p-7"
               >
-                {/* Stay Type Selector: Short Stay (Hourly / Same-Day) vs Nightly / Long Stay */}
+                {/* Stay Type Selector on Booking Page: Short Stay (Same-day hourly) vs Nightly & Long Stays */}
                 <div>
                   <span className="sv-label">{t('Select stay type')}</span>
-                  <div className="mt-2 grid grid-cols-2 gap-2.5 rounded-2xl border border-stone-200/90 bg-[#f3efe6] p-1.5">
+                  <div className="mt-2 grid grid-cols-1 gap-2 rounded-2xl border border-stone-200/90 bg-[#f3efe6] p-1.5 sm:grid-cols-2">
                     <button
                       type="button"
                       onClick={() => switchStayType('short_stay')}
@@ -524,15 +506,18 @@ export default function BookingPage() {
                       }`}
                     >
                       <span className="flex items-center gap-1.5 text-xs font-semibold">
-                        <Timer size={14} className={form.stayType === 'short_stay' ? 'text-[#d8c28f]' : 'text-[#756047]'} />
-                        {t('Short Stay (Hourly)')}
+                        <Timer
+                          size={14}
+                          className={form.stayType === 'short_stay' ? 'text-[#d8c28f]' : 'text-[#756047]'}
+                        />
+                        {t('Short Stay (Same-day hourly)')}
                       </span>
                       <span
                         className={`mt-0.5 text-[11px] ${
                           form.stayType === 'short_stay' ? 'text-stone-300' : 'text-stone-500'
                         }`}
                       >
-                        {t('Same-day visit · Choose hours')}
+                        {t('Select your check-in hour & duration')}
                       </span>
                     </button>
 
@@ -550,7 +535,7 @@ export default function BookingPage() {
                           size={14}
                           className={form.stayType === 'long_stay' ? 'text-[#d8c28f]' : 'text-[#756047]'}
                         />
-                        {t('Nightly / Long Stay')}
+                        {t('Nightly & Long Stays')}
                       </span>
                       <span
                         className={`mt-0.5 text-[11px] ${
@@ -569,15 +554,17 @@ export default function BookingPage() {
                     <img
                       src={imageUrl(selectedRoom.imageUrl)}
                       alt={selectedRoom.name}
-                      className="h-44 w-full object-cover sm:h-20 sm:w-24 sm:shrink-0 sm:rounded-xl"
+                      className="h-40 w-full object-cover sm:h-20 sm:w-24 sm:shrink-0 sm:rounded-xl"
                     />
-                    <div className="p-4 sm:min-w-0 sm:flex-1 sm:p-0">
+                    <div className="p-3.5 sm:min-w-0 sm:flex-1 sm:p-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="inline-block rounded-full bg-[#f4f0e7] px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#756047]">
                           {t('Your selected room')}
                         </span>
                         <span className="inline-block rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-                          {form.stayType === 'short_stay' ? t('Same-day hourly booking enabled') : t('Overnight stay')}
+                          {form.stayType === 'short_stay'
+                            ? t('Short Stay (Same-day hourly)')
+                            : t('Nightly & Long Stays')}
                         </span>
                       </div>
                       <p className="mt-1 truncate font-serif text-xl text-stone-900 sm:text-2xl">
@@ -619,7 +606,7 @@ export default function BookingPage() {
                   </div>
                 </label>
 
-                {/* Date & Hours Section depending on Short Stay vs Nightly / Long Stay */}
+                {/* Date & Hours Section depending on Short Stay vs Nightly & Long Stays */}
                 {form.stayType === 'short_stay' ? (
                   <div className="space-y-4 rounded-2xl border border-[#e5dec9] bg-white p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -749,7 +736,7 @@ export default function BookingPage() {
                   <div className="space-y-4 rounded-2xl border border-[#e5dec9] bg-white p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#665940]">
-                        {t('Nightly / Long Stay · Dates & Arrival Time')}
+                        {t('Nightly & Long Stays · Dates & Arrival Time')}
                       </p>
                       <span className="rounded-full bg-[#f4f0e7] px-2.5 py-1 text-[11px] font-medium text-[#665940]">
                         {nightsCount} {nightsCount === 1 ? t('night') : t('nights')}
@@ -932,32 +919,6 @@ export default function BookingPage() {
                   </div>
                 </label>
 
-                {/* Pre-submission Payment & Summary Banner */}
-                <div className="rounded-2xl border border-[#e0d4bc] bg-[#f7f2e7] p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#756047]">
-                        {t('Confirm your booking with MoMo Pay')}
-                      </p>
-                      <p className="mt-0.5 text-xs text-stone-700">
-                        {t('After submitting, pay on')}{' '}
-                        <span className="font-mono font-bold text-[#18251d]">{MOMO_USSD_DISPLAY}</span>{' '}
-                        {t('to confirm.')}
-                      </p>
-                    </div>
-                    {estimatedAmount > 0 && (
-                      <div className="text-right">
-                        <span className="block text-[10px] uppercase tracking-[0.16em] text-stone-500">
-                          {t('Estimated total')}
-                        </span>
-                        <span className="font-serif text-xl font-semibold text-[#18251d]">
-                          RWF {estimatedAmount.toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
                 {error && (
                   <p
                     role="alert"
@@ -977,7 +938,7 @@ export default function BookingPage() {
                     </>
                   ) : (
                     <>
-                      {t('Complete booking request')} <ArrowLeft className="rotate-180" size={16} />
+                      {t('Request to book')} <ArrowLeft className="rotate-180" size={16} />
                     </>
                   )}
                 </button>
@@ -991,14 +952,14 @@ export default function BookingPage() {
         </section>
       </div>
 
-      {/* Professional Booking Confirmation & MoMo Pay Modal */}
+      {/* Post-Booking Confirmation Modal (MoMo Pay *182*8*1*23000737# shown ONLY after booking) */}
       <AnimatePresence>
         {bookingSuccess && (
           <motion.div
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-[#15221a]/75 px-4 py-8 backdrop-blur-md"
+            className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-[#15221a]/75 px-4 py-6 backdrop-blur-md sm:py-8"
             onMouseDown={(event) => {
               if (event.target === event.currentTarget) setBookingSuccess(null)
             }}
@@ -1012,7 +973,7 @@ export default function BookingPage() {
               aria-modal="true"
               aria-labelledby="booking-success-title"
               aria-describedby="booking-success-description"
-              className="relative my-auto w-full max-w-xl overflow-hidden rounded-[2rem] border border-white/70 bg-[#fcfaf6] px-5 pb-6 pt-8 text-center shadow-[0_35px_100px_rgba(0,0,0,0.4)] sm:px-9 sm:pb-8 sm:pt-10"
+              className="relative my-auto w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-white/70 bg-[#fcfaf6] px-5 pb-6 pt-7 text-center shadow-[0_35px_100px_rgba(0,0,0,0.4)] sm:rounded-[2rem] sm:px-9 sm:pb-8 sm:pt-10"
             >
               <button
                 ref={closeSuccessRef}
@@ -1024,43 +985,43 @@ export default function BookingPage() {
                 <X size={17} />
               </button>
 
-              <div className="relative mx-auto grid h-20 w-20 place-items-center">
+              <div className="relative mx-auto grid h-16 w-16 place-items-center sm:h-20 sm:w-20">
                 <motion.div
                   initial={shouldReduceMotion ? false : { scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-                  className="relative grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-[#24342a] to-[#18251d] text-[#f2dfb4] shadow-[0_12px_30px_rgba(24,37,29,0.28)]"
+                  className="relative grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-[#24342a] to-[#18251d] text-[#f2dfb4] shadow-[0_12px_30px_rgba(24,37,29,0.28)] sm:h-16 sm:w-16"
                 >
-                  <Check size={28} strokeWidth={2.5} />
+                  <Check size={26} strokeWidth={2.5} />
                 </motion.div>
               </div>
 
-              <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#665940]">
+              <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#665940] sm:mt-4">
                 {t('Reservation Request Received')} · #{String(bookingSuccess.id).padStart(6, '0')}
               </p>
 
               <h2
                 id="booking-success-title"
-                className="mt-2 font-serif text-3xl leading-tight tracking-tight text-stone-900 sm:text-4xl"
+                className="mt-2 font-serif text-2xl leading-tight tracking-tight text-stone-900 sm:text-4xl"
               >
                 {t('Thank you for booking with Silent Villa!')}
               </h2>
 
               <p
                 id="booking-success-description"
-                className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-stone-600"
+                className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-stone-600 sm:text-sm"
               >
-                {t('To confirm your booking, please complete your payment using our MTN MoMo Pay code below:')}
+                {t('To confirm your booking, please complete your payment on:')}
               </p>
 
-              {/* Prominent MTN MoMo Pay Action Box */}
-              <div className="mt-5 overflow-hidden rounded-2xl border-2 border-[#bda06b] bg-[#18251d] p-5 text-white shadow-lg">
-                <div className="flex items-center justify-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#d8c28f]">
+              {/* Prominent MTN MoMo Pay Action Box (Displayed after booking only) */}
+              <div className="mt-4 overflow-hidden rounded-2xl border-2 border-[#bda06b] bg-[#18251d] p-4 text-white shadow-lg sm:mt-5 sm:p-5">
+                <div className="flex items-center justify-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#d8c28f] sm:text-[11px]">
                   <CreditCard size={14} />
-                  <span>{t('MTN MoMo Pay Confirmation Code')}</span>
+                  <span>MoMo Pay: {MOMO_USSD_DISPLAY}</span>
                 </div>
 
-                <p className="mt-2.5 font-mono text-2xl font-bold tracking-wider text-[#f7e7c4] sm:text-3xl">
+                <p className="mt-2 font-mono text-xl font-bold tracking-wider text-[#f7e7c4] sm:text-3xl">
                   {MOMO_USSD_DISPLAY}
                 </p>
 
@@ -1074,10 +1035,10 @@ export default function BookingPage() {
                   </p>
                 )}
 
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
                   <a
                     href={MOMO_USSD_TEL}
-                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#bda06b] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-[#18251d] transition hover:bg-[#dfcc9f]"
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#bda06b] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-[#18251d] transition hover:bg-[#dfcc9f]"
                   >
                     <Phone size={14} /> {t('Dial')} {MOMO_USSD_DISPLAY}
                   </a>
@@ -1100,11 +1061,11 @@ export default function BookingPage() {
               </div>
 
               {/* Booking Details Recap */}
-              <div className="mt-5 rounded-2xl border border-stone-200 bg-white p-4 text-left">
+              <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-3.5 text-left sm:mt-5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-3">
                   <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#f3efe8] text-[#665940]">
-                      <CalendarDays size={18} />
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f3efe8] text-[#665940] sm:h-10 sm:w-10">
+                      <CalendarDays size={17} />
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-stone-900">{bookingSuccess.roomName}</p>
@@ -1116,8 +1077,8 @@ export default function BookingPage() {
                   </div>
                   <span className="rounded-full bg-[#f4f0e7] px-3 py-1 text-[11px] font-semibold text-[#665940]">
                     {bookingSuccess.stayType === 'short_stay'
-                      ? `${t('Short Stay')} · ${bookingSuccess.durationHours || 3}h`
-                      : `${t('Nightly Stay')} · ${bookingSuccess.nights} ${
+                      ? `${t('Short Stay (Same-day hourly)')} · ${bookingSuccess.durationHours || 3}h`
+                      : `${t('Nightly & Long Stays')} · ${bookingSuccess.nights} ${
                           bookingSuccess.nights === 1 ? t('night') : t('nights')
                         }`}
                   </span>
@@ -1150,7 +1111,7 @@ export default function BookingPage() {
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+              <div className="mt-4 grid gap-2.5 sm:mt-5 sm:grid-cols-2">
                 <a
                   href={`https://wa.me/250796899937?text=${encodeURIComponent(
                     `Hello Silent Villa, I have booked ${bookingSuccess.roomName} (Booking #${bookingSuccess.id}) for ${
