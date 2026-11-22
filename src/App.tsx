@@ -6,15 +6,16 @@ import AdminDashboard from './AdminDashboard'
 import BookingPage from './BookingPage'
 import BrandLogo from './BrandLogo'
 import { LanguageSwitch, useLanguage } from './i18n'
-import TiltCard3D from './TiltCard3D'
-import VillaScene3D from './VillaScene3D'
 import {
   ArrowRight,
   BedDouble,
   CalendarDays,
+  CheckCircle2,
   ChevronDown,
+  Clock3,
   Compass,
   Coffee,
+  CreditCard,
   Eye,
   HeartHandshake,
   MapPin,
@@ -24,6 +25,7 @@ import {
   Play,
   ShieldCheck,
   Sparkles,
+  Timer,
   Users,
   Wifi,
   X,
@@ -38,6 +40,34 @@ const navItems = [
 ]
 
 const villaVideo = '/media/WhatsApp%20Video%202026-11-10%20at%2019.53.06.mp4'
+const MOMO_USSD_CODE = '*182*8*1*23000737#'
+
+const heroShowcaseSlides = [
+  {
+    src: '/media/room-1.jpg',
+    title: 'Executive King Suites',
+    subtitle: 'Spacious rooms crafted for quiet rest & privacy',
+    tag: 'Short Stay & Nightly',
+  },
+  {
+    src: '/media/si.jpeg',
+    title: 'Serene Interior Comfort',
+    subtitle: 'Plush bedding, warm lighting, and calm surroundings',
+    tag: 'Nyamirambo / Kivugiza',
+  },
+  {
+    src: '/media/room-2.jpg',
+    title: 'Handcrafted Hospitality',
+    subtitle: 'Thoughtful details for short visits or extended stays',
+    tag: 'Kigali Sanctuary',
+  },
+  {
+    src: '/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg',
+    title: 'Peaceful Guesthouse Retreat',
+    subtitle: 'A welcoming home away from home on KN 288 St',
+    tag: '24/7 Reception',
+  },
+]
 
 function RoomsPage() {
   const { t } = useLanguage()
@@ -72,110 +102,163 @@ function RoomsPage() {
 
   return (
     <main>
-      <section className="relative min-h-[520px] overflow-hidden bg-[#15221a] px-4 pb-16 pt-20 text-white sm:px-6 sm:pb-24 sm:pt-28 lg:px-8">
-        <VillaScene3D
-          activeHotspot="suites"
-          mood="starlight"
-          autoRotate
-          interactive
-          className="absolute inset-0 h-full w-full opacity-85"
+      {/* Refined Boutique Hospitality Header (No 3D) */}
+      <section className="relative overflow-hidden bg-[#15221a] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 lg:px-8">
+        <img
+          src="/media/room-1.jpg"
+          alt="Silent Villa guest rooms in Kigali"
+          className="absolute inset-0 h-full w-full object-cover opacity-30"
         />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#121e17]/95 via-[#15221a]/75 to-transparent" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#15221a] via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#111c15]/95 via-[#15221a]/88 to-[#15221a]/70" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#15221a] via-transparent to-[#111c15]/50" />
 
         <div className="relative z-10 mx-auto max-w-7xl">
           <Reveal>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d8c28f]/30 bg-black/30 px-4 py-1.5 text-xs uppercase tracking-[0.28em] text-[#d8c28f] backdrop-blur-md">
-              <Sparkles size={13} /> {t('Silent Villa · Rooms')}
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#d8c28f]/35 bg-black/30 px-4 py-1.5 text-xs uppercase tracking-[0.26em] text-[#d8c28f] backdrop-blur-md">
+              <Sparkles size={13} /> {t('Silent Villa · Rooms & Suites')}
             </div>
-            <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-              <h1 className="max-w-4xl font-serif text-6xl leading-[0.92] tracking-[-0.05em] sm:text-7xl lg:text-8xl">
-                {t('Make yourself')}
-                <br />
-                <span className="italic text-[#d8c28f]">{t('at home.')}</span>
-              </h1>
-              <div className="max-w-md pb-2">
-                <p className="text-base leading-relaxed text-stone-200">
-                  {t('Browse our rooms and send a booking request directly to the Silent Villa team.')}
+            <div className="mt-6 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+              <div>
+                <h1 className="max-w-4xl font-serif text-5xl leading-[0.94] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
+                  {t('Make yourself')}
+                  <br />
+                  <span className="italic text-[#d8c28f]">{t('at home.')}</span>
+                </h1>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-stone-200">
+                  {t(
+                    'Browse our private rooms in Nyamirambo / Kivugiza, Kigali. Available for both Short Stays (by the hour on the same day) and Nightly or Extended Stays.',
+                  )}
                 </p>
-                <Link
-                  to="/book"
-                  className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#bda06b] px-6 py-3.5 text-sm font-semibold text-[#18251d] shadow-lg transition hover:bg-[#dfcc9f]"
-                >
-                  <CalendarDays size={15} /> {t('Book your stay')} <ArrowRight size={15} />
-                </Link>
+              </div>
+
+              <div className="rounded-3xl border border-white/15 bg-white/[0.06] p-6 backdrop-blur-md">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#bda06b]/20 text-[#d8c28f]">
+                      <Timer size={16} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-white">{t('Short Stay (Hourly)')}</p>
+                      <p className="mt-0.5 text-xs text-stone-300">
+                        {t('Same-day flexible hours · Multiple bookings per day')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#bda06b]/20 text-[#d8c28f]">
+                      <BedDouble size={16} />
+                    </span>
+                    <div>
+                      <p className="text-xs font-semibold text-white">{t('Nightly & Long Stay')}</p>
+                      <p className="mt-0.5 text-xs text-stone-300">
+                        {t('Peaceful overnight & multi-day stays')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+                  <div className="text-xs text-stone-300">
+                    <span className="text-[#d8c28f]">{t('Confirm via MoMo Pay:')}</span>{' '}
+                    <span className="font-mono font-bold text-white">{MOMO_USSD_CODE}</span>
+                  </div>
+                  <Link
+                    to="/book"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#bda06b] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.15em] text-[#18251d] shadow-md transition hover:bg-[#dfcc9f]"
+                  >
+                    <CalendarDays size={14} /> {t('Book your stay')} <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
             </div>
           </Reveal>
         </div>
       </section>
 
-      <section className="bg-[#18251d] px-4 py-16 text-white sm:px-6 sm:py-24 lg:px-8">
+      <section className="bg-[#f4f0e7] px-4 py-16 text-stone-900 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-wrap items-end justify-between gap-5">
             <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[#cdb782]">{t('Find your fit')}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#756047]">
+                {t('Find your fit')}
+              </p>
               <h2 className="mt-2 font-serif text-4xl sm:text-5xl">{t('Rooms made for rest.')}</h2>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-stone-300">
-              {t('Choose a room and send us your dates. Our team will confirm your reservation.')}
+            <p className="max-w-md text-sm leading-relaxed text-stone-600">
+              {t(
+                'Choose a room for a Short Stay (select your hours on the same day) or an Overnight / Long Stay, then confirm with MTN MoMo Pay.',
+              )}
             </p>
           </div>
 
           {roomsError && (
-            <p role="alert" className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-stone-300">
+            <p
+              role="alert"
+              className="mt-7 rounded-2xl border border-stone-200 bg-white p-5 text-sm text-stone-600"
+            >
               {t('Rooms could not be loaded. Please try again in a moment.')}
             </p>
           )}
           {!roomsError && rooms.length === 0 && (
-            <p className="mt-7 rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-stone-300">
+            <p className="mt-7 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-600">
               {t('Room listings are being prepared. Please contact us by phone to arrange your stay.')}
             </p>
           )}
           {!roomsError && rooms.length > 0 && (
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {rooms.map((room) => (
-                <TiltCard3D key={room.id} className="rounded-3xl">
-                  <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-white/15 bg-white/[0.05] backdrop-blur-md transition duration-500 hover:border-[#d8c28f]/50">
-                    <div className="relative h-64 overflow-hidden">
-                      <img
-                        src={imageUrl(room.imageUrl)}
-                        alt={room.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                      <span className="absolute inset-0 bg-gradient-to-t from-[#18251d] via-transparent to-transparent" />
-                      <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/45 px-3 py-1 text-xs font-medium text-[#f2dfb4] backdrop-blur-md">
-                        RWF {Number(room.price).toLocaleString()} / {t('per night')}
-                      </span>
-                    </div>
-                    <div className="flex flex-1 flex-col justify-between p-6">
-                      <div>
-                        <h3 className="font-serif text-3xl text-white">{room.name}</h3>
-                        <p className="mt-3 text-sm leading-relaxed text-stone-300">
-                          {room.description || t('A comfortable, welcoming room for a peaceful stay.')}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-2 text-[11px] text-[#d8c28f]">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-                            <Wifi size={12} /> High-speed Wi-Fi
-                          </span>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-                            <Coffee size={12} /> Breakfast & Coffee
-                          </span>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-                            <ShieldCheck size={12} /> Private Sanctuary
-                          </span>
-                        </div>
+              {rooms.map((room, index) => (
+                <article
+                  key={room.id}
+                  className="group flex h-full flex-col overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-[0_12px_32px_rgba(36,52,42,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bda06b]/60 hover:shadow-[0_24px_56px_rgba(36,52,42,0.12)]"
+                >
+                  <div className="relative h-60 overflow-hidden bg-stone-200">
+                    <img
+                      src={imageUrl(room.imageUrl)}
+                      alt={room.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-[#18251d]/60 via-transparent to-transparent" />
+                    <span className="absolute left-4 top-4 rounded-full bg-[#18251d]/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e5cc9b] backdrop-blur-md">
+                      Suite 0{index + 1}
+                    </span>
+                    <span className="absolute right-4 top-4 rounded-full border border-white/20 bg-black/55 px-3 py-1 text-xs font-semibold text-[#f2dfb4] backdrop-blur-md">
+                      RWF {Number(room.price).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      <h3 className="font-serif text-3xl text-stone-900">{room.name}</h3>
+                      <p className="mt-2.5 text-sm leading-relaxed text-stone-600">
+                        {room.description || t('A comfortable, welcoming room for a peaceful stay.')}
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-1.5 text-[11px] font-medium text-[#665940]">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#f4f0e7] px-2.5 py-1">
+                          <Timer size={12} /> {t('Short Stay (Hourly)')}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#f4f0e7] px-2.5 py-1">
+                          <Wifi size={12} /> Wi-Fi
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#f4f0e7] px-2.5 py-1">
+                          <ShieldCheck size={12} /> {t('Private Suite')}
+                        </span>
                       </div>
+                    </div>
+                    <div className="mt-6 grid grid-cols-2 gap-2 border-t border-stone-100 pt-4">
                       <Link
-                        to={`/book?room=${room.id}`}
-                        className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#bda06b] px-5 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] transition hover:bg-[#dfcc9f]"
+                        to={`/book?room=${room.id}&stayType=short_stay`}
+                        className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-[#24342a]/25 bg-[#f7f4ec] px-3 py-2 text-xs font-semibold text-[#24342a] transition hover:border-[#24342a] hover:bg-[#ebe4d6]"
                       >
-                        {t('Book this room')} <ArrowRight size={14} />
+                        <Clock3 size={13} /> {t('Short Stay')}
+                      </Link>
+                      <Link
+                        to={`/book?room=${room.id}&stayType=long_stay`}
+                        className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-full bg-[#24342a] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#35463b]"
+                      >
+                        {t('Book Stay')} <ArrowRight size={13} />
                       </Link>
                     </div>
-                  </article>
-                </TiltCard3D>
+                  </div>
+                </article>
               ))}
             </div>
           )}
@@ -185,8 +268,12 @@ function RoomsPage() {
       <section className="bg-[#eee8dc] px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-[#665940]">{t('Planning a visit?')}</p>
-            <h2 className="mt-2 font-serif text-3xl text-stone-900">{t('We’ll help you find the right stay.')}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#665940]">
+              {t('Planning a visit?')}
+            </p>
+            <h2 className="mt-2 font-serif text-3xl text-stone-900">
+              {t('We’ll help you find the right stay in Nyamirambo / Kivugiza.')}
+            </h2>
           </div>
           <Link
             to="/book"
@@ -215,14 +302,19 @@ function GalleryPage({
 
   return (
     <main>
+      {/* Editorial Photographic Gallery Header (No 3D) */}
       <section className="relative overflow-hidden bg-[#18251d] px-4 pb-14 pt-16 text-white sm:px-6 sm:pb-20 sm:pt-24 lg:px-8">
-        <VillaScene3D activeHotspot="pool" mood="sunset" interactive className="absolute inset-0 h-full w-full opacity-75" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#15221a]/95 via-[#18251d]/75 to-transparent" />
+        <img
+          src="/media/si.jpeg"
+          alt="Silent Villa interior gallery"
+          className="absolute inset-0 h-full w-full object-cover opacity-25"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#131f18]/95 via-[#18251d]/85 to-[#18251d]/70" />
         <div className="relative z-10 mx-auto max-w-7xl">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.32em] text-[#d8c28f]">{t('Silent Villa · Gallery')}</p>
             <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_0.55fr] lg:items-end">
-              <h1 className="max-w-4xl font-serif text-6xl leading-[0.92] tracking-[-0.05em] text-white sm:text-7xl lg:text-8xl">
+              <h1 className="max-w-4xl font-serif text-5xl leading-[0.92] tracking-[-0.04em] text-white sm:text-6xl lg:text-7xl">
                 {t('A glimpse of')}
                 <br />
                 <span className="italic text-[#d8c28f]">{t('your stay.')}</span>
@@ -256,11 +348,10 @@ function GalleryPage({
               {t('No photos have been added to the gallery yet.')}
             </p>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-12 lg:auto-rows-[250px]">
+            <div className="grid gap-5 sm:grid-cols-2 lg:auto-rows-[250px] lg:grid-cols-12">
               {gallery.map((image, index) => (
-                <TiltCard3D
+                <div
                   key={image.id}
-                  intensity={5}
                   className={`rounded-3xl ${
                     index === 0
                       ? 'h-[360px] sm:col-span-2 sm:h-[440px] lg:col-span-7 lg:row-span-2 lg:h-full'
@@ -287,7 +378,7 @@ function GalleryPage({
                       <span className="mt-1 block font-serif text-2xl">{image.title}</span>
                     </span>
                   </button>
-                </TiltCard3D>
+                </div>
               ))}
             </div>
           )}
@@ -311,18 +402,35 @@ function FaqSection() {
   const shouldReduceMotion = useReducedMotion()
   const [openQuestion, setOpenQuestion] = useState<number | null>(0)
   const questions = [
-    ['How do I book a room?', 'Choose a room and submit the booking request form. The Silent Villa team will contact you to confirm your stay.'],
-    ['Do I pay online when I book?', 'No. This website does not process payments. Confirm the amount and payment details directly with Silent Villa.'],
-    ['Where is Silent Villa located?', 'Silent Villa is on KN 288 St in Kigali. You can also use the Google Maps Plus Code 227V+FJ Kigali.'],
-    ['How can I contact the team?', 'Call 0796 899 937 or start a conversation on WhatsApp at +250 796 899 937.'],
-    ['Can I change or cancel my request?', 'Please contact Silent Villa directly by phone or WhatsApp, and the team will help with your request.'],
+    [
+      'How do I book a room?',
+      'Choose a room on our booking page, select either Short Stay (by the hour on the same day) or Nightly / Long Stay, and submit your request.',
+    ],
+    [
+      'How do I confirm my booking payment?',
+      'After submitting your booking request, confirm your reservation by paying via MTN MoMo Pay on *182*8*1*23000737#.',
+    ],
+    [
+      'Can multiple guests book the same room on the same day?',
+      'Yes. With our Short Stay (hourly) option, you can select your preferred check-in hour and duration, allowing non-overlapping bookings on the same day.',
+    ],
+    [
+      'Where is Silent Villa located?',
+      'Silent Villa is located in Nyamirambo / Kivugiza on KN 288 St in Kigali, Rwanda (Google Maps Plus Code: 227V+FJ Kigali).',
+    ],
+    [
+      'How can I contact the team?',
+      'Call 0796 899 937 or start a conversation on WhatsApp at +250 796 899 937.',
+    ],
   ]
 
   return (
     <section id="faqs" className="bg-[#f4f0e7] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
       <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-16">
         <Reveal>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#7d644d] sm:text-xs">{t('A little help')}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#7d644d] sm:text-xs">
+            {t('A little help')}
+          </p>
           <h2 className="mt-3 max-w-md font-serif text-4xl leading-tight tracking-[-0.035em] text-stone-900 sm:text-5xl">
             {t('Your questions, answered.')}
           </h2>
@@ -349,7 +457,9 @@ function FaqSection() {
                   onClick={() => setOpenQuestion(isOpen ? null : index)}
                   className="flex min-h-16 w-full items-center justify-between gap-4 py-4 text-left sm:min-h-[72px] sm:py-5"
                 >
-                  <span className="font-serif text-xl leading-snug text-stone-900 sm:text-2xl">{t(question)}</span>
+                  <span className="font-serif text-xl leading-snug text-stone-900 sm:text-2xl">
+                    {t(question)}
+                  </span>
                   <motion.span
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: shouldReduceMotion ? 0 : 0.22 }}
@@ -418,6 +528,7 @@ function VillaSite() {
   const [villaVideoError, setVillaVideoError] = useState('')
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const [heroSlide, setHeroSlide] = useState(0)
   const [rooms, setRooms] = useState<Room[]>([])
   const [roomsLoading, setRoomsLoading] = useState(true)
   const [roomsError, setRoomsError] = useState('')
@@ -425,14 +536,25 @@ function VillaSite() {
   const [galleryLoading, setGalleryLoading] = useState(true)
   const [galleryError, setGalleryError] = useState('')
   const [quickBook, setQuickBook] = useState({
+    stayType: 'short_stay' as 'short_stay' | 'long_stay',
     checkIn: new Date().toISOString().slice(0, 10),
     guests: '2',
+    hours: '3',
   })
 
   const villaVideoRef = useRef<HTMLVideoElement>(null)
   const shouldReduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll()
   const scrollProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
+
+  // Subtle hero photography rotation
+  useEffect(() => {
+    if (shouldReduceMotion) return
+    const timer = window.setInterval(() => {
+      setHeroSlide((current) => (current + 1) % heroShowcaseSlides.length)
+    }, 6000)
+    return () => window.clearInterval(timer)
+  }, [shouldReduceMotion])
 
   useEffect(() => {
     let active = true
@@ -494,7 +616,9 @@ function VillaSite() {
 
   useEffect(() => {
     if (location.hash) {
-      requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }))
+      requestAnimationFrame(() =>
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: 'smooth' }),
+      )
     } else {
       window.scrollTo({ top: 0, behavior: 'instant' })
     }
@@ -554,13 +678,13 @@ function VillaSite() {
   const services = [
     {
       title: 'Short Stay',
-      desc: 'A comfortable base for short visits and weekend escapes.',
+      desc: 'Book by the hour on the same day for daytime rest, business stopovers, or short visits.',
       icon: Compass,
-      tag: 'Flexible Nightly',
+      tag: 'Flexible Hourly',
     },
     {
       title: 'Long Stays',
-      desc: 'A calm, comfortable setting for longer stays, with kitchen services.',
+      desc: 'A calm, comfortable setting for overnight and longer stays, with kitchen services.',
       icon: BedDouble,
       tag: 'Extended Comfort',
     },
@@ -572,17 +696,19 @@ function VillaSite() {
     },
     {
       title: 'Food & Beverages',
-      desc: 'Food and beverage options during your stay.',
+      desc: 'Fresh food and beverage options served during your stay.',
       icon: Coffee,
       tag: 'In-Villa Dining',
     },
     {
       title: 'Massage & Wellness',
-      desc: 'Massage and wellness to help you unwind.',
+      desc: 'Massage and wellness care to help you unwind in peace.',
       icon: HeartHandshake,
       tag: 'Restorative Care',
     },
   ]
+
+  const currentHero = heroShowcaseSlides[heroSlide] || heroShowcaseSlides[0]
 
   return (
     <div className="min-h-screen bg-[#f4f0e7] text-stone-900">
@@ -593,7 +719,7 @@ function VillaSite() {
       />
 
       <header
-        className={`sticky top-0 z-50 border-b border-white/10 bg-[#15221a]/90 backdrop-blur-xl transition-all duration-300 ${
+        className={`sticky top-0 z-50 border-b border-white/10 bg-[#15221a]/95 backdrop-blur-xl transition-all duration-300 ${
           isScrolled ? 'shadow-[0_14px_40px_rgba(0,0,0,0.32)]' : ''
         }`}
       >
@@ -729,134 +855,276 @@ function VillaSite() {
         />
       ) : (
         <main>
-          {/* 3D INTERACTIVE HERO SECTION */}
+          {/* REFINED BOUTIQUE GUESTHOUSE HERO SECTION (NO 3D) */}
           <section
             id="home"
-            className="relative isolate flex min-h-[min(860px,calc(100svh-72px))] flex-col justify-between overflow-hidden bg-[#131f18] text-white"
+            className="relative isolate flex min-h-[min(860px,calc(100svh-72px))] flex-col justify-between overflow-hidden bg-[#121e17] text-white"
           >
-            {/* Subtle background video layer blended beneath the interactive Three.js 3D sanctuary */}
-            <video
-              className="absolute inset-0 -z-30 h-full w-full object-cover opacity-20 mix-blend-screen"
-              autoPlay={!shouldReduceMotion}
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
-              aria-hidden="true"
-            >
-              <source src={villaVideo} type="video/mp4" />
-            </video>
+            {/* Full-bleed crossfading authentic villa photography background */}
+            <AnimatePresence initial={false}>
+              <motion.img
+                key={currentHero.src}
+                src={currentHero.src}
+                alt={currentHero.title}
+                initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 0.36, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2, ease: 'easeOut' }}
+                className="absolute inset-0 -z-20 h-full w-full object-cover"
+              />
+            </AnimatePresence>
 
-            {/* Interactive Three.js 3D Architectural Canvas (Auto-Rotating) */}
-            <VillaScene3D
-              activeHotspot="courtyard"
-              mood="sunset"
-              autoRotate
-              interactive
-              className="absolute inset-0 -z-10 h-full w-full"
-            />
+            {/* Warm architectural dark-forest overlays for crisp typography */}
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#0e1812]/95 via-[#131f18]/82 to-[#131f18]/65" />
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-[#111c15] via-transparent to-[#0f1913]/60" />
 
-            {/* Cinematic vignette gradients for crisp PC & mobile typography */}
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#111c15]/90 via-[#131f18]/50 to-transparent" />
-            <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-[#111c15] via-transparent to-[#111c15]/35" />
-
-            <div className="pointer-events-none mx-auto flex w-full max-w-7xl flex-1 items-center px-4 pb-12 pt-14 sm:px-6 sm:pt-20 lg:px-8 lg:py-24">
-              {/* Hero Copy & CTAs */}
+            <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-4 pb-12 pt-12 sm:px-6 sm:pt-16 lg:grid-cols-[1.12fr_0.88fr] lg:px-8 lg:py-20">
+              {/* Left Column: Hero Copy & Quick Booking Bar */}
               <motion.div
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 26 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
                 animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="pointer-events-auto max-w-2xl"
+                transition={{ duration: 0.75, ease: 'easeOut' }}
               >
-                <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#d8c28f]/35 bg-black/35 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-[#e5cc9b] backdrop-blur-md sm:text-xs">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-[#d8c28f]" />
-                  {t('Guest house · Kigali')} · {t('Where comfort meets silence')}
+                <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#d8c28f]/35 bg-black/35 px-4 py-2 text-[10px] font-medium uppercase tracking-[0.22em] text-[#e5cc9b] backdrop-blur-md sm:text-xs">
+                  <span className="h-2 w-2 rounded-full bg-[#d8c28f]" />
+                  {t('Guest House · Nyamirambo / Kivugiza, Kigali')}
                 </div>
 
-                <h1 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.045em] sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+                <h1 className="mt-6 font-serif text-5xl leading-[0.94] tracking-[-0.04em] sm:text-6xl md:text-7xl">
                   {t('A stay made for Kigali.')}
                 </h1>
 
                 <p className="mt-5 max-w-xl text-sm leading-relaxed text-stone-200 sm:text-base md:text-lg">
                   {t(
-                    'Welcome to Silent Villa, a peaceful escape where comfort meets calm. Enjoy your stay in a quiet, relaxing environment designed for rest and refreshment.',
+                    'Welcome to Silent Villa in Nyamirambo / Kivugiza — a peaceful guesthouse where comfort meets calm. Reserve a room for a Short Stay (by the hour) or an Overnight / Extended Stay.',
                   )}
                 </p>
 
-                <div className="mt-8 flex flex-col gap-3 min-[430px]:flex-row">
+                {/* Highlight pills */}
+                <div className="mt-6 flex flex-wrap gap-2.5 text-xs text-[#e8d6ad]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 backdrop-blur-sm">
+                    <Timer size={13} className="text-[#d8c28f]" /> {t('Short Stay (Same-day hourly)')}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 backdrop-blur-sm">
+                    <BedDouble size={13} className="text-[#d8c28f]" /> {t('Nightly & Long Stays')}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 backdrop-blur-sm">
+                    <CreditCard size={13} className="text-[#d8c28f]" /> MoMo Pay: {MOMO_USSD_CODE}
+                  </span>
+                </div>
+
+                <div className="mt-7 flex flex-col gap-3 min-[430px]:flex-row">
                   <a
                     href="#rooms"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c9aa73] px-7 py-3.5 text-sm font-semibold text-[#18251d] shadow-[0_14px_34px_rgba(201,170,115,0.3)] transition hover:-translate-y-0.5 hover:bg-[#dfc48e]"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#c9aa73] px-7 py-3.5 text-sm font-semibold text-[#18251d] shadow-[0_14px_34px_rgba(201,170,115,0.28)] transition hover:-translate-y-0.5 hover:bg-[#dfc48e]"
                   >
                     {t('Explore rooms')} <ArrowRight size={16} />
                   </a>
                   <Link
                     to="/book"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/35 bg-white/10 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-md transition hover:border-[#d8c28f] hover:bg-white/15"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-md transition hover:border-[#d8c28f] hover:bg-white/15"
                   >
                     {t('Book your stay')} <CalendarDays size={16} />
                   </Link>
                 </div>
 
-                {/* Desktop & Mobile Quick Availability Bar */}
+                {/* Desktop & Mobile Quick Availability & Stay-Type Bar */}
                 <form
                   onSubmit={(event) => {
                     event.preventDefault()
-                    navigate('/book')
+                    const params = new URLSearchParams({
+                      stayType: quickBook.stayType,
+                      checkIn: quickBook.checkIn,
+                      guests: quickBook.guests,
+                      hours: quickBook.hours,
+                    })
+                    navigate(`/book?${params.toString()}`)
                   }}
-                  className="mt-9 grid gap-2.5 rounded-3xl border border-white/20 bg-[#142018]/75 p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:grid-cols-[1fr_0.85fr_auto] sm:items-center sm:rounded-full sm:p-2"
+                  className="mt-8 rounded-3xl border border-white/20 bg-[#142018]/85 p-3 shadow-[0_24px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
                 >
-                  <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 transition hover:border-[#d8c28f]/40 hover:bg-white/[0.08] focus-within:border-[#d8c28f] focus-within:bg-white/[0.08] sm:rounded-full">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
-                      <CalendarDays size={16} />
-                    </span>
-                    <span className="min-w-0 flex-1 text-left">
-                      <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
-                        {t('Check-in')}
-                      </span>
-                      <input
-                        type="date"
-                        value={quickBook.checkIn}
-                        min={new Date().toISOString().slice(0, 10)}
-                        onChange={(e) => setQuickBook({ ...quickBook, checkIn: e.target.value })}
-                        className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [color-scheme:dark]"
-                      />
-                    </span>
-                  </label>
-                  <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 transition hover:border-[#d8c28f]/40 hover:bg-white/[0.08] focus-within:border-[#d8c28f] focus-within:bg-white/[0.08] sm:rounded-full">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
-                      <Users size={16} />
-                    </span>
-                    <span className="min-w-0 flex-1 text-left">
-                      <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
-                        {t('Guests')}
-                      </span>
-                      <select
-                        value={quickBook.guests}
-                        onChange={(e) => setQuickBook({ ...quickBook, guests: e.target.value })}
-                        className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [&>option]:bg-[#18251d]"
+                  <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 px-1">
+                    <div className="inline-flex rounded-full border border-white/15 bg-black/30 p-0.5 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => setQuickBook({ ...quickBook, stayType: 'short_stay' })}
+                        className={`rounded-full px-3.5 py-1 font-medium transition ${
+                          quickBook.stayType === 'short_stay'
+                            ? 'bg-[#d8c28f] text-[#18251d]'
+                            : 'text-stone-300 hover:text-white'
+                        }`}
                       >
-                        {[1, 2, 3, 4, 5, 6].map((n) => (
-                          <option key={n} value={n}>
-                            {n} {t(n === 1 ? 'guest' : 'guests')}
-                          </option>
-                        ))}
-                      </select>
+                        {t('Short Stay (Hourly)')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setQuickBook({ ...quickBook, stayType: 'long_stay' })}
+                        className={`rounded-full px-3.5 py-1 font-medium transition ${
+                          quickBook.stayType === 'long_stay'
+                            ? 'bg-[#d8c28f] text-[#18251d]'
+                            : 'text-stone-300 hover:text-white'
+                        }`}
+                      >
+                        {t('Nightly / Long Stay')}
+                      </button>
+                    </div>
+                    <span className="text-[11px] text-stone-300">
+                      {quickBook.stayType === 'short_stay'
+                        ? t('Same-day hourly booking available')
+                        : t('Overnight & multi-day reservation')}
                     </span>
-                  </label>
-                  <button
-                    type="submit"
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#d8c28f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] shadow-lg transition hover:bg-[#f2dfb4] sm:rounded-full"
-                  >
-                    {t('Reserve your stay')} <ArrowRight size={14} />
-                  </button>
+                  </div>
+
+                  <div className="grid gap-2.5 sm:grid-cols-[1fr_0.9fr_auto] sm:items-center">
+                    <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2.5 transition hover:border-[#d8c28f]/40">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
+                        <CalendarDays size={16} />
+                      </span>
+                      <span className="min-w-0 flex-1 text-left">
+                        <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
+                          {t('Date')}
+                        </span>
+                        <input
+                          type="date"
+                          value={quickBook.checkIn}
+                          min={new Date().toISOString().slice(0, 10)}
+                          onChange={(e) => setQuickBook({ ...quickBook, checkIn: e.target.value })}
+                          className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [color-scheme:dark]"
+                        />
+                      </span>
+                    </label>
+
+                    {quickBook.stayType === 'short_stay' ? (
+                      <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2.5 transition hover:border-[#d8c28f]/40">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
+                          <Timer size={16} />
+                        </span>
+                        <span className="min-w-0 flex-1 text-left">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
+                            {t('Duration')}
+                          </span>
+                          <select
+                            value={quickBook.hours}
+                            onChange={(e) => setQuickBook({ ...quickBook, hours: e.target.value })}
+                            className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [&>option]:bg-[#18251d]"
+                          >
+                            {[1, 2, 3, 4, 6, 8, 12].map((h) => (
+                              <option key={h} value={h}>
+                                {h} {h === 1 ? t('hour') : t('hours')} ({t('Short Stay')})
+                              </option>
+                            ))}
+                          </select>
+                        </span>
+                      </label>
+                    ) : (
+                      <label className="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-2.5 transition hover:border-[#d8c28f]/40">
+                        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#bda06b]/20 text-[#d8c28f]">
+                          <Users size={16} />
+                        </span>
+                        <span className="min-w-0 flex-1 text-left">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-[#d8c28f]">
+                            {t('Guests')}
+                          </span>
+                          <select
+                            value={quickBook.guests}
+                            onChange={(e) => setQuickBook({ ...quickBook, guests: e.target.value })}
+                            className="mt-0.5 w-full cursor-pointer bg-transparent text-xs font-medium text-white outline-none [&>option]:bg-[#18251d]"
+                          >
+                            {[1, 2, 3, 4, 5, 6].map((n) => (
+                              <option key={n} value={n}>
+                                {n} {t(n === 1 ? 'guest' : 'guests')}
+                              </option>
+                            ))}
+                          </select>
+                        </span>
+                      </label>
+                    )}
+
+                    <button
+                      type="submit"
+                      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#d8c28f] px-6 py-3 text-xs font-semibold uppercase tracking-[0.16em] text-[#18251d] shadow-lg transition hover:bg-[#f2dfb4]"
+                    >
+                      {t('Reserve your stay')} <ArrowRight size={14} />
+                    </button>
+                  </div>
                 </form>
+              </motion.div>
+
+              {/* Right Column: Editorial Boutique Property Showcase Frame */}
+              <motion.div
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 26 }}
+                animate={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, delay: 0.1, ease: 'easeOut' }}
+                className="relative"
+              >
+                <div className="overflow-hidden rounded-[2rem] border border-white/15 bg-[#16241c]/90 p-3 shadow-[0_32px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-stone-900">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={currentHero.src}
+                        src={currentHero.src}
+                        alt={currentHero.title}
+                        initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.04 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.65 }}
+                        className="h-full w-full object-cover"
+                      />
+                    </AnimatePresence>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0f1a14]/90 via-[#0f1a14]/20 to-transparent" />
+
+                    <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-2">
+                      <span className="rounded-full border border-[#d8c28f]/40 bg-black/55 px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#f2dfb4] backdrop-blur-md">
+                        {currentHero.tag}
+                      </span>
+                      <span className="rounded-full bg-[#18251d]/85 px-3.5 py-1 text-xs font-semibold text-[#e5cc9b] backdrop-blur-md">
+                        RWF 10,000 – 15,000
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
+                      <div>
+                        <p className="font-serif text-2xl text-white sm:text-3xl">{currentHero.title}</p>
+                        <p className="mt-1 text-xs text-stone-200">{currentHero.subtitle}</p>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {heroShowcaseSlides.map((slide, idx) => (
+                          <button
+                            key={slide.src}
+                            type="button"
+                            aria-label={`Show ${slide.title}`}
+                            onClick={() => setHeroSlide(idx)}
+                            className={`h-2 rounded-full transition-all ${
+                              heroSlide === idx ? 'w-6 bg-[#d8c28f]' : 'w-2 bg-white/40 hover:bg-white/70'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Property Quick Credentials Bar */}
+                  <div className="mt-3 grid grid-cols-2 gap-2.5 rounded-2xl bg-black/30 p-3.5 text-xs">
+                    <div className="flex items-start gap-2.5">
+                      <MapPin size={15} className="mt-0.5 shrink-0 text-[#d8c28f]" />
+                      <div>
+                        <p className="font-semibold text-white">Nyamirambo / Kivugiza</p>
+                        <p className="text-[11px] text-stone-300">KN 288 St · 227V+FJ Kigali</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-[#d8c28f]" />
+                      <div>
+                        <p className="font-semibold text-white">{t('Instant Confirmation')}</p>
+                        <p className="font-mono text-[11px] text-[#f2dfb4]">{MOMO_USSD_CODE}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             </div>
 
             {/* Bottom Hero Status Bar */}
-            <div className="border-t border-white/10 bg-black/35 backdrop-blur-md">
+            <div className="border-t border-white/10 bg-black/40 backdrop-blur-md">
               <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3.5 text-xs text-stone-300 sm:px-6 lg:px-8">
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                   <span className="inline-flex items-center gap-2">
@@ -864,11 +1132,12 @@ function VillaSite() {
                   </span>
                   <span className="hidden h-3.5 w-px bg-white/25 sm:block" />
                   <span className="inline-flex items-center gap-1.5">
-                    <MapPin size={14} className="text-[#d8c28f]" /> KN 288 St · 227V+FJ Kigali, Rwanda
+                    <MapPin size={14} className="text-[#d8c28f]" /> Nyamirambo / Kivugiza · KN 288 St · 227V+FJ
+                    Kigali, Rwanda
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-[11px] uppercase tracking-[0.2em] text-[#d8c28f]">
-                  <span>{t('Calm surroundings')}</span>
+                  <span>{t('Short Stay & Nightly')}</span>
                   <span>·</span>
                   <span>{t('Warm hospitality')}</span>
                 </div>
@@ -876,7 +1145,7 @@ function VillaSite() {
             </div>
           </section>
 
-          {/* AVAILABLE ROOMS SECTION WITH 3D TILT CARDS */}
+          {/* AVAILABLE ROOMS SECTION */}
           <section id="rooms" className="scroll-mt-20 bg-[#f4f0e7] px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
             <div className="mx-auto max-w-7xl">
               <div className="mb-8 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
@@ -888,7 +1157,9 @@ function VillaSite() {
                     {t('Available rooms')}
                   </h2>
                   <p className="mt-3 max-w-xl text-sm leading-relaxed text-stone-600 sm:text-base">
-                    {t('Choose a room and send us your dates. Our team will confirm your reservation.')}
+                    {t(
+                      'Select a suite for a Short Stay (hourly on the same day) or an Overnight / Extended Stay in Nyamirambo / Kivugiza, Kigali.',
+                    )}
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -927,46 +1198,59 @@ function VillaSite() {
                       initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
                       whileInView={shouldReduceMotion ? {} : { opacity: 1, y: 0 }}
                       viewport={{ once: true, amount: 0.12 }}
-                      transition={{ delay: shouldReduceMotion ? 0 : index * 0.09, duration: 0.5 }}
+                      transition={{ delay: shouldReduceMotion ? 0 : index * 0.07, duration: 0.5 }}
                     >
-                      <TiltCard3D className="h-full rounded-[1.5rem]">
-                        <article className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-stone-200/90 bg-white shadow-[0_12px_32px_rgba(36,52,42,0.06)] transition duration-300 hover:shadow-[0_24px_60px_rgba(36,52,42,0.14)]">
-                          <div className="relative aspect-[4/3] overflow-hidden bg-stone-200">
-                            <img
-                              src={imageUrl(room.imageUrl)}
-                              alt={room.name}
-                              loading="lazy"
-                              className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                            />
-                            <span className="absolute inset-0 bg-gradient-to-t from-[#17241c]/45 via-transparent to-transparent" />
-                            <span className="absolute left-4 top-4 rounded-full bg-[#18251d]/80 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e5cc9b] backdrop-blur-md">
-                              Suite 0{index + 1}
-                            </span>
+                      <article className="group flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-stone-200/90 bg-white shadow-[0_12px_32px_rgba(36,52,42,0.06)] transition duration-300 hover:-translate-y-1 hover:border-[#bda06b]/60 hover:shadow-[0_24px_60px_rgba(36,52,42,0.14)]">
+                        <div className="relative aspect-[4/3] overflow-hidden bg-stone-200">
+                          <img
+                            src={imageUrl(room.imageUrl)}
+                            alt={room.name}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                          />
+                          <span className="absolute inset-0 bg-gradient-to-t from-[#17241c]/50 via-transparent to-transparent" />
+                          <span className="absolute left-4 top-4 rounded-full bg-[#18251d]/85 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e5cc9b] backdrop-blur-md">
+                            Suite 0{index + 1}
+                          </span>
+                          <span className="absolute bottom-3 left-4 rounded-full bg-black/55 px-2.5 py-0.5 text-[10px] font-medium text-stone-100 backdrop-blur-sm">
+                            {t('Short Stay & Nightly')}
+                          </span>
+                        </div>
+                        <div className="flex flex-1 flex-col justify-between p-6">
+                          <div>
+                            <h3 className="font-serif text-2xl leading-tight text-stone-900 sm:text-3xl">
+                              {room.name}
+                            </h3>
+                            <p className="mt-2.5 min-h-10 text-sm leading-relaxed text-stone-600">
+                              {room.description || t('A comfortable room for a peaceful stay.')}
+                            </p>
                           </div>
-                          <div className="flex flex-1 flex-col justify-between p-6">
-                            <div>
-                              <h3 className="font-serif text-2xl leading-tight text-stone-900 sm:text-3xl">
-                                {room.name}
-                              </h3>
-                              <p className="mt-2.5 min-h-10 text-sm leading-relaxed text-stone-600">
-                                {room.description || t('A comfortable room for a peaceful stay.')}
-                              </p>
-                            </div>
-                            <div className="mt-6 flex flex-wrap items-end justify-between gap-3 border-t border-stone-100 pt-4">
+                          <div className="mt-6 border-t border-stone-100 pt-4">
+                            <div className="flex items-baseline justify-between">
                               <p className="text-base font-semibold text-[#665940]">
                                 RWF {Number(room.price).toLocaleString()}
-                                <span className="mt-0.5 block text-xs font-normal text-stone-500">{t('per night')}</span>
                               </p>
+                              <span className="text-xs text-stone-500">
+                                {t('Short Stay / per night')}
+                              </span>
+                            </div>
+                            <div className="mt-3.5 grid grid-cols-2 gap-2">
                               <Link
-                                to={`/book?room=${room.id}`}
-                                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#24342a] px-5 py-2.5 text-center text-sm font-medium text-white transition hover:bg-[#35463b] sm:flex-none"
+                                to={`/book?room=${room.id}&stayType=short_stay`}
+                                className="inline-flex min-h-10 items-center justify-center gap-1 rounded-full border border-[#24342a]/25 bg-[#f7f4ec] px-3 py-2 text-xs font-semibold text-[#24342a] transition hover:border-[#24342a] hover:bg-[#ebe4d6]"
                               >
-                                {t('Book this room')} <ArrowRight size={14} />
+                                <Clock3 size={13} /> {t('Short Stay')}
+                              </Link>
+                              <Link
+                                to={`/book?room=${room.id}&stayType=long_stay`}
+                                className="inline-flex min-h-10 items-center justify-center gap-1 rounded-full bg-[#24342a] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#35463b]"
+                              >
+                                {t('Book room')} <ArrowRight size={13} />
                               </Link>
                             </div>
                           </div>
-                        </article>
-                      </TiltCard3D>
+                        </div>
+                      </article>
                     </motion.div>
                   ))}
                 </div>
@@ -984,12 +1268,13 @@ function VillaSite() {
                       {t('Made for your kind of stay')}
                     </p>
                     <h2 className="mt-3 font-serif text-4xl leading-tight tracking-[-0.035em] text-stone-900 sm:text-5xl lg:text-6xl">
-                      {t('Stay a night.')} <span className="italic text-[#756047]">{t('Stay a while.')}</span>
+                      {t('Stay a few hours.')}{' '}
+                      <span className="italic text-[#756047]">{t('Stay a while.')}</span>
                     </h2>
                   </div>
                   <p className="max-w-md text-sm leading-relaxed text-stone-600 sm:text-base">
                     {t(
-                      'Escape the noise of the city and discover true comfort. Every detail is designed for relaxation, privacy, and peace of mind — your perfect home away from home in Kigali.',
+                      'Escape the noise of the city and discover true comfort in Nyamirambo / Kivugiza. Every detail is designed for relaxation, privacy, and peace of mind.',
                     )}
                   </p>
                 </div>
@@ -997,25 +1282,26 @@ function VillaSite() {
 
               <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
                 {services.map(({ title, desc, icon: Icon, tag }) => (
-                  <TiltCard3D key={title} intensity={6} className="h-full rounded-2xl">
-                    <div className="flex h-full flex-col justify-between rounded-2xl border border-stone-300/80 bg-[#f9f6f0] p-6 shadow-sm transition hover:border-[#bda06b] hover:bg-white">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#24342a] text-[#d8c28f]">
-                            <Icon size={20} />
-                          </span>
-                          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#756047]">
-                            {tag}
-                          </span>
-                        </div>
-                        <h3 className="mt-5 font-serif text-2xl text-stone-900">{t(title)}</h3>
-                        <p className="mt-2 text-xs leading-relaxed text-stone-600 sm:text-sm">{t(desc)}</p>
+                  <div
+                    key={title}
+                    className="flex h-full flex-col justify-between rounded-2xl border border-stone-300/80 bg-[#f9f6f0] p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-[#bda06b] hover:bg-white hover:shadow-md"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#24342a] text-[#d8c28f]">
+                          <Icon size={20} />
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#756047]">
+                          {tag}
+                        </span>
                       </div>
-                      <div className="mt-5 border-t border-stone-200/80 pt-3 text-[11px] font-medium text-[#665940]">
-                        Silent Villa Sanctuary
-                      </div>
+                      <h3 className="mt-5 font-serif text-2xl text-stone-900">{t(title)}</h3>
+                      <p className="mt-2 text-xs leading-relaxed text-stone-600 sm:text-sm">{t(desc)}</p>
                     </div>
-                  </TiltCard3D>
+                    <div className="mt-5 border-t border-stone-200/80 pt-3 text-[11px] font-medium text-[#665940]">
+                      Silent Villa Guest House
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1048,7 +1334,9 @@ function VillaSite() {
                     poster="/media/WhatsApp%20Image%202026-11-10%20at%2019.54.25.jpeg"
                     aria-label={t('Video tour of Silent Villa')}
                     onPlay={() => setVillaVideoStarted(true)}
-                    onError={() => setVillaVideoError('The video could not be loaded. Please try again later.')}
+                    onError={() =>
+                      setVillaVideoError('The video could not be loaded. Please try again later.')
+                    }
                   >
                     <source src={villaVideo} type="video/mp4" />
                   </video>
@@ -1085,7 +1373,9 @@ function VillaSite() {
             <div className="mx-auto max-w-7xl">
               <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#756047]">{t('A glimpse inside')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#756047]">
+                    {t('A glimpse inside')}
+                  </p>
                   <h2 className="mt-2 font-serif text-4xl text-stone-900 sm:text-5xl">
                     {t('Made for the moments in between.')}
                   </h2>
@@ -1112,50 +1402,62 @@ function VillaSite() {
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {gallery.slice(0, 4).map((item, idx) => (
-                    <TiltCard3D key={item.id} intensity={6} className="rounded-2xl">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedImage(idx)}
-                        className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-stone-200 text-left"
-                      >
-                        <img
-                          src={imageUrl(item.imageUrl)}
-                          alt={item.altText || item.title}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                        />
-                        <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80" />
-                        <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                          <span className="truncate font-serif text-lg">{item.title}</span>
-                          <Eye size={15} className="shrink-0 text-[#d8c28f]" />
-                        </span>
-                      </button>
-                    </TiltCard3D>
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedImage(idx)}
+                      className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-stone-200 text-left shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <img
+                        src={imageUrl(item.imageUrl)}
+                        alt={item.altText || item.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80" />
+                      <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
+                        <span className="truncate font-serif text-lg">{item.title}</span>
+                        <Eye size={15} className="shrink-0 text-[#d8c28f]" />
+                      </span>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
           </section>
 
-          {/* LOCATION & DIRECTIONS SECTION */}
+          {/* LOCATION, ADDRESS & MOMO PAY SECTION */}
           <section id="location" className="scroll-mt-20 bg-[#24342a] px-4 py-16 text-white sm:px-6 sm:py-20 lg:px-8">
             <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
               <Reveal>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8c28f]">{t('Find your way')}</p>
-                <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">{t('A Kigali welcome awaits.')}</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#d8c28f]">
+                  {t('Find your way')}
+                </p>
+                <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
+                  {t('A Kigali welcome awaits in Nyamirambo / Kivugiza.')}
+                </h2>
                 <p className="mt-4 max-w-lg text-sm leading-relaxed text-stone-300 sm:text-base">
-                  {t('Find Silent Villa on KN 288 St in Kigali, or use its Google Maps Plus Code to navigate directly.')}
+                  {t(
+                    'Find Silent Villa in Nyamirambo / Kivugiza on KN 288 St in Kigali, or use our Google Maps Plus Code (227V+FJ Kigali) to navigate directly to the guesthouse.',
+                  )}
                 </p>
                 <div className="mt-7 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">{t('Your destination')}</p>
-                    <p className="mt-1 font-serif text-xl">KN 288 St, Kigali</p>
-                    <p className="mt-1 text-xs text-stone-300">Plus Code: 227V+FJ Kigali</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">
+                      {t('Your destination')}
+                    </p>
+                    <p className="mt-1 font-serif text-xl">Nyamirambo / Kivugiza</p>
+                    <p className="mt-0.5 text-xs text-stone-200">KN 288 St, Kigali, Rwanda</p>
+                    <p className="mt-1 text-xs text-stone-400">Plus Code: 227V+FJ Kigali</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">{t('Payment')}</p>
-                    <p className="mt-1 font-serif text-xl">{t('No payment required')}</p>
-                    <p className="mt-1 text-xs text-stone-300">Reserve online · Confirm directly with our team</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#d8c28f]">
+                      {t('Payment & Confirmation')}
+                    </p>
+                    <p className="mt-1 font-mono text-lg font-bold text-[#f2dfb4]">{MOMO_USSD_CODE}</p>
+                    <p className="mt-1 text-xs text-stone-300">
+                      {t('Book online · Confirm easily via MTN MoMo Pay')}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -1181,7 +1483,7 @@ function VillaSite() {
               <Reveal delay={0.1}>
                 <div className="overflow-hidden rounded-3xl border border-white/15 bg-[#18251d] p-2 shadow-2xl">
                   <iframe
-                    title="Silent Villa Kigali Map"
+                    title="Silent Villa Nyamirambo Kivugiza Kigali Map"
                     src="https://www.google.com/maps?q=227V%2BFJ+Kigali&output=embed"
                     className="h-80 w-full rounded-2xl border-0 sm:h-96"
                     loading="lazy"
@@ -1202,7 +1504,9 @@ function VillaSite() {
             <div>
               <BrandLogo variant="dark" size="lg" showTagline />
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-stone-300">
-                Guest rooms in Kigali. Choose a room and book directly with Silent Villa.
+                {t(
+                  'Peaceful guest house in Nyamirambo / Kivugiza, Kigali. Available for Short Stays (hourly) and Nightly / Long Stays.',
+                )}
               </p>
             </div>
 
@@ -1235,14 +1539,25 @@ function VillaSite() {
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-[#cdb782]">Contact & location</p>
               <ul className="mt-5 space-y-3 text-sm text-stone-300">
-                <li>KN 288 St, Kigali · 227V+FJ</li>
+                <li>Nyamirambo / Kivugiza · KN 288 St, Kigali (227V+FJ)</li>
                 <li>
                   <a href="tel:+250796899937" className="transition hover:text-white">
                     0796 899 937
                   </a>
                 </li>
                 <li>
-                  <a href="https://wa.me/250796899937" target="_blank" rel="noreferrer" className="transition hover:text-white">
+                  <span className="text-stone-400">MoMo Pay:</span>{' '}
+                  <a href="tel:*182*8*1*23000737%23" className="font-mono text-[#f2dfb4] hover:underline">
+                    {MOMO_USSD_CODE}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://wa.me/250796899937"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="transition hover:text-white"
+                  >
                     WhatsApp
                   </a>
                 </li>
@@ -1261,7 +1576,7 @@ function VillaSite() {
           </div>
 
           <div className="mt-10 flex flex-col gap-3 border-t border-white/10 pt-6 text-sm text-stone-400 sm:flex-row sm:items-center sm:justify-between">
-            <p>© {new Date().getFullYear()} Silent Villa. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Silent Villa Guest House · Nyamirambo / Kivugiza, Kigali.</p>
             <div className="inline-flex items-center gap-2 text-[#cdb782]">
               <Phone size={15} />
               <a href="tel:+250796899937" className="transition hover:text-white">

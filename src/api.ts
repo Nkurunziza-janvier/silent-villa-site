@@ -25,13 +25,28 @@ export type Booking = {
   name: string
   email: string
   phone: string
+  stayType?: 'short_stay' | 'long_stay' | 'overnight' | null
   checkIn: string
   checkOut: string
+  checkInTime?: string | null
+  checkOutTime?: string | null
+  durationHours?: number | null
   guests: number
   specialRequests: string | null
   status: 'pending' | 'confirmed' | 'cancelled'
   notificationRead: boolean
   createdAt: string
+}
+
+export type BookingSlot = {
+  id: number
+  stayType?: string | null
+  checkIn: string
+  checkOut: string
+  checkInTime?: string | null
+  checkOutTime?: string | null
+  durationHours?: number | null
+  status: 'pending' | 'confirmed'
 }
 
 export function imageUrl(url: string) {
@@ -58,6 +73,8 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 export const api = {
   rooms: () => request<Room[]>('/rooms'),
   gallery: () => request<GalleryImage[]>('/gallery'),
+  availability: (roomId: number, date: string) =>
+    request<BookingSlot[]>(`/bookings/availability?roomId=${encodeURIComponent(roomId)}&date=${encodeURIComponent(date)}`).catch(() => []),
   book: (booking: Record<string, unknown>) => request<{ id: number; message: string }>('/bookings', { method: 'POST', body: JSON.stringify(booking) }),
   login: (email: string, password: string) => request<{ token: string; email: string }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   bookings: (token: string) => request<Booking[]>('/admin/bookings', {}, token),

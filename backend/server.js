@@ -93,6 +93,46 @@ const dateIsValid = (value) => {
   const parsed = new Date(`${value}T00:00:00Z`)
   return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value
 }
+const timeIsValid = (value) => typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value)
+
+function addHoursToDateTime(dateStr, timeStr, hours) {
+  const [hh, mm] = (timeIsValid(timeStr) ? timeStr : '10:00').split(':').map(Number)
+  const startMs = Date.parse(`${dateStr}T00:00:00Z`) + (hh * 60 + mm) * 60_000
+  const endMs = startMs + Number(hours) * 3_600_000
+  const endDate = new Date(endMs)
+  const outDate = endDate.toISOString().slice(0, 10)
+  const outTime = endDate.toISOString().slice(11, 16)
+  return { startMs, endMs, outDate, outTime }
+}
+
+function bookingIntervalMs(record) {
+  const checkIn = String(record.checkIn || record.check_in).slice(0, 10)
+  const checkOut = String(record.checkOut || record.check_out || checkIn).slice(0, 10)
+  const stayType = record.stayType || record.stay_type || (checkIn === checkOut ? 'short_stay' : 'overnight')
+  const checkInTime = record.checkInTime || record.check_in_time
+  const checkOutTime = record.checkOutTime || record.check_out_time
+  const durationHours = Number(record.durationHours || record.duration_hours || 0)
+
+  if (stayType === 'short_stay' || checkIn === checkOut) {
+    const inTime = timeIsValid(checkInTime) ? checkInTime : '09:00'
+    if (durationHours > 0) {
+      const { startMs, endMs } = addHoursToDateTime(checkIn, inTime, durationHours)
+      return { startMs, endMs }
+    }
+    const outTime = timeIsValid(checkOutTime) ? checkOutTime : '13:00'
+    const startMs = Date.parse(`${checkIn}T${inTime}:00Z`)
+    let endMs = Date.parse(`${checkOut}T${outTime}:00Z`)
+    if (endMs <= startMs) endMs = startMs + 3 * 3_600_000
+    return { startMs, endMs }
+  }
+
+  const inTime = timeIsValid(checkInTime) ? checkInTime : '14:00'
+  const outTime = timeIsValid(checkOutTime) ? checkOutTime : '11:00'
+  const startMs = Date.parse(`${checkIn}T${inTime}:00Z`)
+  let endMs = Date.parse(`${checkOut}T${outTime}:00Z`)
+  if (endMs <= startMs) endMs = startMs + 12 * 3_600_000
+  return { startMs, endMs }
+}
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -117,17 +157,113 @@ app.get('/api/gallery', async (_req, res, next) => {
   } catch (error) { next(error) }
 })
 
+app.get('/api/bookings/availability', async (req, res, next) => {
+  try {
+    const roomId = Number(req.query.roomId)
+    const date = String(req.query.date || '').trim()
+    if (!Number.isInteger(roomId) || roomId < 1 || !dateIsValid(date)) {
+      return res.json([])
+    }
+    const [rows] = await pool.query(
+      `SELECT id, stay_type AS stayType, check_in AS checkIn, check_out AS checkOut,
+              check_in_time AS checkInTime, check_out_time AS checkOutTime, duration_hours AS durationHours, status
+         FROM bookings
+        WHERE room_id = ? AND status IN ('pending', 'confirmed')
+          AND check_in <= ? AND check_out >= ?
+        ORDER BY check_in ASC, check_in_time ASC`,
+      [roomId, date, date],
+    )
+    res.json(rows)
+  } catch (error) {
+    next(error)
+  }
+})
+
 app.post('/api/bookings', async (req, res, next) => {
-  const { roomId, name, email, phone, checkIn, checkOut, guests = 1, specialRequests = '' } = req.body || {}
+  const {
+    roomId,
+    name,
+    email,
+    phone,
+    checkIn,
+    checkOut: rawCheckOut,
+    guests = 1,
+    specialRequests = '',
+    stayType: rawStayType,
+    checkInTime: rawCheckInTime,
+    checkOutTime: rawCheckOutTime,
+    durationHours: rawDurationHours,
+  } = req.body || {}
+
+  const stayType = ['short_stay', 'long_stay', 'overnight'].includes(rawStayType)
+    ? rawStayType
+    : rawCheckOut && rawCheckOut === checkIn
+      ? 'short_stay'
+      : 'overnight'
+
+  const checkInTime = timeIsValid(rawCheckInTime)
+    ? rawCheckInTime
+    : stayType === 'short_stay'
+      ? '10:00'
+      : '14:00'
+
+  const durationHours =
+    stayType === 'short_stay'
+      ? Math.min(Math.max(Number.isInteger(Number(rawDurationHours)) ? Number(rawDurationHours) : 3, 1), 24)
+      : null
+
+  let checkOut = typeof rawCheckOut === 'string' && dateIsValid(rawCheckOut) ? rawCheckOut : checkIn
+  let checkOutTime = timeIsValid(rawCheckOutTime) ? rawCheckOutTime : stayType === 'short_stay' ? '13:00' : '11:00'
+
+  if (stayType === 'short_stay' && dateIsValid(checkIn)) {
+    const computed = addHoursToDateTime(checkIn, checkInTime, durationHours || 3)
+    checkOut = computed.outDate
+    if (!timeIsValid(rawCheckOutTime)) {
+      checkOutTime = computed.outTime
+    }
+  }
+
   const normalizedEmail = typeof email === 'string' ? email.trim().toLowerCase() : ''
   const invalidEmailType = email !== undefined && email !== null && typeof email !== 'string'
   const invalidEmail = normalizedEmail.length > 0 && (!emailIsValid(normalizedEmail) || normalizedEmail.length > 190)
-  if (!Number.isInteger(Number(roomId)) || typeof name !== 'string' || !name.trim() || name.trim().length > 120 || invalidEmailType || invalidEmail || typeof phone !== 'string' || !phone.trim() || phone.trim().length > 40 || !dateIsValid(checkIn) || !dateIsValid(checkOut) || !Number.isInteger(Number(guests)) || Number(guests) < 1 || Number(guests) > 20 || typeof specialRequests !== 'string' || specialRequests.length > 2000) {
+
+  if (
+    !Number.isInteger(Number(roomId)) ||
+    typeof name !== 'string' ||
+    !name.trim() ||
+    name.trim().length > 120 ||
+    invalidEmailType ||
+    invalidEmail ||
+    typeof phone !== 'string' ||
+    !phone.trim() ||
+    phone.trim().length > 40 ||
+    !dateIsValid(checkIn) ||
+    !dateIsValid(checkOut) ||
+    !Number.isInteger(Number(guests)) ||
+    Number(guests) < 1 ||
+    Number(guests) > 20 ||
+    typeof specialRequests !== 'string' ||
+    specialRequests.length > 2000
+  ) {
     return res.status(400).json({ error: 'Please check the required details and try again.' })
   }
-  if (checkOut <= checkIn || checkIn < new Date().toISOString().slice(0, 10)) {
-    return res.status(400).json({ error: 'Choose a future check-in date and a check-out date after it.' })
+
+  const minAllowedDate = new Date(Date.now() - 14 * 3_600_000).toISOString().slice(0, 10)
+  if (checkIn < minAllowedDate || checkOut < checkIn) {
+    return res.status(400).json({ error: 'Please choose a valid check-in date and time for your stay.' })
   }
+  if (stayType !== 'short_stay' && checkOut <= checkIn) {
+    return res.status(400).json({ error: 'For overnight or long stays, please choose a check-out date after check-in, or switch to Short Stay (Hourly) for a same-day visit.' })
+  }
+
+  const requestedInterval = bookingIntervalMs({
+    stayType,
+    checkIn,
+    checkOut,
+    checkInTime,
+    checkOutTime,
+    durationHours,
+  })
 
   const connection = await pool.getConnection()
   try {
@@ -137,20 +273,52 @@ app.post('/api/bookings', async (req, res, next) => {
       await connection.rollback()
       return res.status(404).json({ error: 'That room is no longer available.' })
     }
-    const [overlaps] = await connection.query(
-      "SELECT id FROM bookings WHERE room_id = ? AND status IN ('pending', 'confirmed') AND check_in < ? AND check_out > ? LIMIT 1",
+    const [candidates] = await connection.query(
+      `SELECT id, stay_type AS stayType, check_in AS checkIn, check_out AS checkOut,
+              check_in_time AS checkInTime, check_out_time AS checkOutTime, duration_hours AS durationHours
+         FROM bookings
+        WHERE room_id = ? AND status IN ('pending', 'confirmed')
+          AND check_in <= ? AND check_out >= ?`,
       [Number(roomId), checkOut, checkIn],
     )
-    if (overlaps.length) {
+    const conflicting = candidates.find((existing) => {
+      const existingInterval = bookingIntervalMs(existing)
+      return requestedInterval.startMs < existingInterval.endMs && requestedInterval.endMs > existingInterval.startMs
+    })
+    if (conflicting) {
       await connection.rollback()
-      return res.status(409).json({ error: 'Those dates have just been booked. Please choose other dates.' })
+      const busyWindow =
+        conflicting.checkInTime && conflicting.checkOutTime
+          ? ` (${conflicting.checkInTime} – ${conflicting.checkOutTime})`
+          : ''
+      return res.status(409).json({
+        error: `This room is already reserved during that time window${busyWindow}. Please choose different hours on the same day or another date.`,
+      })
     }
     const [result] = await connection.query(
-      'INSERT INTO bookings (room_id, guest_name, email, phone, check_in, check_out, guests, special_requests) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [Number(roomId), name.trim(), normalizedEmail, phone.trim(), checkIn, checkOut, Number(guests), String(specialRequests).trim() || null],
+      `INSERT INTO bookings
+        (room_id, guest_name, email, phone, stay_type, check_in, check_out, check_in_time, check_out_time, duration_hours, guests, special_requests)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        Number(roomId),
+        name.trim(),
+        normalizedEmail,
+        phone.trim(),
+        stayType,
+        checkIn,
+        checkOut,
+        checkInTime,
+        checkOutTime,
+        durationHours,
+        Number(guests),
+        String(specialRequests).trim() || null,
+      ],
     )
     await connection.commit()
-    res.status(201).json({ id: result.insertId, message: 'Your booking request was sent. Silent Villa will be in touch shortly.' })
+    res.status(201).json({
+      id: result.insertId,
+      message: 'Thank you for booking with Silent Villa! To confirm your booking, please pay on *182*8*1*23000737#.',
+    })
   } catch (error) {
     await connection.rollback()
     next(error)
@@ -174,7 +342,9 @@ app.get('/api/admin/bookings', requireAdmin, async (req, res, next) => {
   try {
     const [bookings] = await pool.query(
       `SELECT b.id, b.room_id AS roomId, r.name AS roomName, r.image_url AS roomImage, r.price AS roomPrice,
-       b.guest_name AS name, b.email, b.phone, b.check_in AS checkIn, b.check_out AS checkOut,
+       b.guest_name AS name, b.email, b.phone, b.stay_type AS stayType,
+       b.check_in AS checkIn, b.check_out AS checkOut,
+       b.check_in_time AS checkInTime, b.check_out_time AS checkOutTime, b.duration_hours AS durationHours,
        b.guests, b.special_requests AS specialRequests, b.status, b.notification_read AS notificationRead, b.created_at AS createdAt
        FROM bookings b JOIN rooms r ON r.id = b.room_id ORDER BY b.created_at DESC LIMIT 200`,
     )
@@ -189,7 +359,12 @@ app.patch('/api/admin/bookings/:id/status', requireAdmin, async (req, res, next)
   const connection = await pool.getConnection()
   try {
     await connection.beginTransaction()
-    const [rows] = await connection.query('SELECT id, room_id AS roomId, check_in AS checkIn, check_out AS checkOut FROM bookings WHERE id = ? FOR UPDATE', [bookingId])
+    const [rows] = await connection.query(
+      `SELECT id, room_id AS roomId, stay_type AS stayType, check_in AS checkIn, check_out AS checkOut,
+              check_in_time AS checkInTime, check_out_time AS checkOutTime, duration_hours AS durationHours
+         FROM bookings WHERE id = ? FOR UPDATE`,
+      [bookingId],
+    )
     if (!rows.length) {
       await connection.rollback()
       return res.status(404).json({ error: 'Booking not found.' })
@@ -197,13 +372,22 @@ app.patch('/api/admin/bookings/:id/status', requireAdmin, async (req, res, next)
     const booking = rows[0]
     if (status !== 'cancelled') {
       await connection.query('SELECT id FROM rooms WHERE id = ? FOR UPDATE', [booking.roomId])
-      const [overlaps] = await connection.query(
-        "SELECT id FROM bookings WHERE room_id = ? AND id <> ? AND status IN ('pending', 'confirmed') AND check_in < ? AND check_out > ? LIMIT 1",
+      const targetInterval = bookingIntervalMs(booking)
+      const [candidates] = await connection.query(
+        `SELECT id, stay_type AS stayType, check_in AS checkIn, check_out AS checkOut,
+                check_in_time AS checkInTime, check_out_time AS checkOutTime, duration_hours AS durationHours
+           FROM bookings
+          WHERE room_id = ? AND id <> ? AND status IN ('pending', 'confirmed')
+            AND check_in <= ? AND check_out >= ?`,
         [booking.roomId, bookingId, booking.checkOut, booking.checkIn],
       )
-      if (overlaps.length) {
+      const hasConflict = candidates.some((existing) => {
+        const existingInterval = bookingIntervalMs(existing)
+        return targetInterval.startMs < existingInterval.endMs && targetInterval.endMs > existingInterval.startMs
+      })
+      if (hasConflict) {
         await connection.rollback()
-        return res.status(409).json({ error: 'This booking overlaps another active reservation and cannot be reopened.' })
+        return res.status(409).json({ error: 'This booking overlaps another active reservation time window and cannot be reopened.' })
       }
     }
     await connection.query('UPDATE bookings SET status = ? WHERE id = ?', [status, bookingId])
@@ -381,6 +565,19 @@ async function start() {
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_gallery_created (created_at)
   )`)
+  const bookingMigrations = [
+    "ALTER TABLE bookings ADD COLUMN stay_type VARCHAR(32) NOT NULL DEFAULT 'overnight'",
+    'ALTER TABLE bookings ADD COLUMN check_in_time VARCHAR(10) NULL',
+    'ALTER TABLE bookings ADD COLUMN check_out_time VARCHAR(10) NULL',
+    'ALTER TABLE bookings ADD COLUMN duration_hours SMALLINT UNSIGNED NULL',
+  ]
+  for (const sql of bookingMigrations) {
+    try {
+      await pool.query(sql)
+    } catch {
+      /* Column already exists */
+    }
+  }
   const [existingRooms] = await pool.query('SELECT id FROM rooms LIMIT 1')
   if (!existingRooms.length) {
     const defaultRooms = [

@@ -310,6 +310,25 @@ export default function AdminDashboard() {
     cancelled: 'bg-stone-100 text-stone-500 ring-stone-200',
   }
 
+  const formatBookingSchedule = (booking: Booking) => {
+    const isShort = booking.stayType === 'short_stay' || booking.checkIn === booking.checkOut
+    if (isShort) {
+      const hoursLabel =
+        booking.checkInTime && booking.checkOutTime
+          ? `${booking.checkInTime} → ${booking.checkOutTime}`
+          : booking.checkInTime || ''
+      const durationLabel = booking.durationHours ? ` (${booking.durationHours}h)` : ''
+      return `${booking.checkIn}${hoursLabel ? ` · ${hoursLabel}` : ''}${durationLabel}`
+    }
+    const arrivalLabel = booking.checkInTime ? ` (${booking.checkInTime})` : ''
+    return `${booking.checkIn}${arrivalLabel} → ${booking.checkOut}`
+  }
+
+  const formatStayBadge = (booking: Booking) =>
+    booking.stayType === 'short_stay' || booking.checkIn === booking.checkOut
+      ? t('Short Stay')
+      : t('Nightly Stay')
+
   const bookingTable = (items: Booking[]) => (
     <>
       {/* Mobile & Tablet Card Grid */}
@@ -357,9 +376,14 @@ export default function AdminDashboard() {
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
                       {t('Room & dates')}
                     </p>
-                    <p className="mt-1 truncate font-medium text-stone-800">{booking.roomName}</p>
+                    <p className="mt-1 flex flex-wrap items-center gap-1.5 font-medium text-stone-800">
+                      <span className="truncate">{booking.roomName}</span>
+                      <span className="rounded-full bg-[#f4f0e7] px-2 py-0.5 text-[10px] font-semibold text-[#665940]">
+                        {formatStayBadge(booking)}
+                      </span>
+                    </p>
                     <p className="mt-0.5 text-xs text-stone-500">
-                      {booking.checkIn} → {booking.checkOut}
+                      {formatBookingSchedule(booking)}
                     </p>
                   </div>
                   <div>
@@ -455,9 +479,14 @@ export default function AdminDashboard() {
                     </a>
                   </td>
                   <td className="px-5 py-4">
-                    <p className="font-medium text-stone-800">{booking.roomName}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-stone-800">{booking.roomName}</p>
+                      <span className="rounded-full bg-[#f4f0e7] px-2 py-0.5 text-[10px] font-semibold text-[#665940]">
+                        {formatStayBadge(booking)}
+                      </span>
+                    </div>
                     <p className="mt-1 whitespace-nowrap text-xs text-stone-500">
-                      {booking.checkIn} <span className="px-1">→</span> {booking.checkOut}
+                      {formatBookingSchedule(booking)}
                     </p>
                   </td>
                   <td className="px-5 py-4 text-sm font-medium text-stone-600">{booking.guests}</td>
@@ -940,7 +969,7 @@ export default function AdminDashboard() {
                           )}
                         </span>
                         <span className="mt-1 block text-sm text-stone-500">
-                          {booking.roomName} · {booking.checkIn} {t('to')} {booking.checkOut} · {booking.guests}{' '}
+                          {booking.roomName} ({formatStayBadge(booking)}) · {formatBookingSchedule(booking)} · {booking.guests}{' '}
                           {t(booking.guests === 1 ? 'guest' : 'guests')}
                         </span>
                       </span>
@@ -994,9 +1023,9 @@ export default function AdminDashboard() {
                     [t('Email address'), selectedBooking.email || t('Not provided')],
                     [t('Phone number'), selectedBooking.phone],
                     [t('Room'), selectedBooking.roomName],
+                    [t('Stay type'), formatStayBadge(selectedBooking)],
+                    [t('Schedule'), formatBookingSchedule(selectedBooking)],
                     [t('Status'), t(selectedBooking.status)],
-                    [t('Check-in'), selectedBooking.checkIn],
-                    [t('Check-out'), selectedBooking.checkOut],
                     [t('Guests'), String(selectedBooking.guests)],
                     [t('Room rate'), `RWF ${Number(selectedBooking.roomPrice).toLocaleString()} / ${t('per night')}`],
                   ].map(([label, value]) => (
